@@ -90,6 +90,7 @@ enum PyItem
 #define IS_WOOD(x)       (((x) >> 8) == 2)
 #define IS_POWERUP(x)    ((x) > 5 && (x) < 9)
 #define IS_WALKABLE(x)   (IS_POWERUP((x)) || (x) == 0)
+#define IS_WALKABLE_OR_AGENT(x)   (IS_WALKABLE((x)) || x >= Item::AGENT0)
 #define IS_FLAME(x)      (((x) >> 16) == 4)
 
 #define FLAME_ID(x)      (((x) & 0xFFFF) >> 3)

@@ -18,7 +18,7 @@ MCTSAgent::MCTSAgent()
 
 bool _CheckPos2(const State* state, bboard::Position pos)
 {
-    return !util::IsOutOfBounds(pos) && IS_WALKABLE(state->board[pos.y][pos.x]);
+    return !util::IsOutOfBounds(pos) && IS_WALKABLE_OR_AGENT(state->board[pos.y][pos.x]);
 }
 
 float laterBetter(float reward, int timestaps)

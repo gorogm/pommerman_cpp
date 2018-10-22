@@ -384,7 +384,7 @@ void PrintState(State* state)
             std::cout << "Bombs:  [  ";
             for(int i = 0; i < state->bombs.count; i++)
             {
-                std::cout << BMB_ID(state->bombs[i]) << "  ";
+                std::cout << BMB_ID(state->bombs[i]) << "(" << BMB_POS_Y(state->bombs[i]) << ":" << BMB_POS_X(state->bombs[i]) << " d:" << BMB_STRENGTH(state->bombs[i]) << " -" << BMB_TIME(state->bombs[i]) << ") ";
             }
             std::cout << "]";
         }
