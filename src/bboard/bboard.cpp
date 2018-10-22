@@ -453,7 +453,9 @@ void init_agent(int id)
 
 void episode_end(int id)
 {
-    std::cout << "Episode end for agent " << id << std::endl;
+    if(mctsagents[id]->turns == 0)
+        mctsagents[id]->turns++;
+    std::cout << "Episode end for agent " << id << ". Turns: " << mctsagents[id]->turns << " avg.sim.steps: " << mctsagents[id]->totalSimulatedSteps / (float)mctsagents[id]->turns << std::endl;
     mctsagents[id] = std::make_shared<agents::MCTSAgent>();
     envs[id] = std::make_shared<bboard::Environment>();
     envs[id]->MakeGameFromPython(id);

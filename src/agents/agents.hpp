@@ -96,6 +96,8 @@ struct MCTSAgent : bboard::Agent
     bboard::Position expectedPosInNewTurn;
     bool lastMoveWasBlocked = false;
     int lastBlockedMove = 0;
+    unsigned int turns = 0;
+    unsigned int totalSimulatedSteps = 0;
 };
 // more agents to be included?
 

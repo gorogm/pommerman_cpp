@@ -184,6 +184,8 @@ Move MCTSAgent::act(const State* state)
         std::cout << (int)best_moves_in_chain[i] << " > ";
     std::cout << " simulated steps: " << simulatedSteps << std::endl;
 
+    totalSimulatedSteps += simulatedSteps;
+    turns++;
     expectedPosInNewTurn = bboard::util::DesiredPosition(a.x, a.y, (bboard::Move)best_moves_in_chain[0]);
     return (bboard::Move)best_moves_in_chain[0];
 }
