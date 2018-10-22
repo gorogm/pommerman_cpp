@@ -2,9 +2,11 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
+#include <array>
 
 #include "bboard.hpp"
 #include "colors.hpp"
+#include "../agents/agents.hpp"
 
 namespace bboard
 {
@@ -49,7 +51,8 @@ inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature = 0)
         s.board[y][x] = Item::FLAMES + signature;
         if(wasWood)
         {
-            s.board[y][x]+= WOOD_POWFLAG(old); // set the powerup flag
+            s.woodDemolished += 1.0f - s.relTimeStep/100.0f; //TODO GM: only if we placed the bomb
+            s.board[y][x] += WOOD_POWFLAG(old); // set the powerup flag
         }
         return !wasWood; // if wood, then only destroy 1
     }
@@ -115,6 +118,7 @@ void State::PlantBomb(int x, int y, int id, bool setItem)
 {
     if(agents[id].bombCount >= agents[id].maxBombCount)
     {
+        std::cout << "Can't place bomb, already used all" << std::endl;
         return;
     }
 
@@ -438,3 +442,51 @@ std::string PrintItem(int item)
 
 }
 
+std::array<std::shared_ptr<bboard::Environment>, 4> envs;
+std::array<std::shared_ptr<agents::MCTSAgent>, 4> mctsagents;
+void init_agent(int id)
+{
+    envs[id] = std::make_shared<bboard::Environment>();
+    mctsagents[id] = std::make_shared<agents::MCTSAgent>();
+    envs[id]->MakeGameFromPython(id);
+}
+
+void episode_end(int id)
+{
+    std::cout << "Episode end for agent " << id << std::endl;
+    mctsagents[id] = std::make_shared<agents::MCTSAgent>();
+    envs[id] = std::make_shared<bboard::Environment>();
+    envs[id]->MakeGameFromPython(id);
+}
+
+int getStep(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+{
+    std::cout << std::endl;
+
+    envs[id]->MakeGameFromPython(agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+
+    //agents::SimpleAgent simple;
+    mctsagents[id]->id = envs[id]->GetState().ourId;
+    PrintState(&envs[id]->GetState());
+
+    // Ask the agent where to go
+    return (int)mctsagents[id]->act(&envs[id]->GetState());
+}
+
+extern "C"
+{
+    void c_init_agent(int id)
+    {
+        init_agent(id);
+    }
+
+    void c_episode_end(int id)
+    {
+        episode_end(id);
+    }
+
+    int c_getStep(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+    {
+        return getStep(id, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+    }
+}

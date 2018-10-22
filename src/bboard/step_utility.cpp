@@ -147,6 +147,10 @@ void ConsumePowerup(State& state, int agentID, int powerUp)
         state.agents[agentID].canKick = true;
     }
 
+    if(agentID == state.ourId)
+    {
+        state.powerups += 1.0 - state.relTimeStep/100.0;
+    }
 }
 
 bool HasDPCollision(const State& state, Position dp[AGENT_COUNT], int agentID)

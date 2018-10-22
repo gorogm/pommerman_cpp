@@ -1,5 +1,5 @@
 CC := $(CXX)
-CFLAGS := -pthread
+CFLAGS := -pthread -fPIC -DDEBUG -g
 STD := c++17
 SRCEXT := cpp
 SRCDIR := src
@@ -8,6 +8,7 @@ BUILDDIR := build/src
 TESTBUILD := build/unit_test
 MAIN_TARGET := ./bin/exec
 TEST_TARGET := ./bin/test
+LIB_TARGET := ./bin/berlin.so
 
 MAIN_SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 TEST_SOURCES := $(shell find $(TESTDIR) -type f -name *.$(SRCEXT))
@@ -27,11 +28,17 @@ INCL2 := $(SRCDIR)/$(MODULE2)
 
 INC := -I src/bboard -I src/agents
 
-all:    main test
+all:    main test berlin
 	
 main: $(MAIN_OBJECTS)
 	@mkdir -p bin
 	@$(CC) $(CFLAGS) -std=$(STD) $^ -o $(MAIN_TARGET)
+
+berlin: $(MAIN_OBJS_NOMAIN)
+	@$(MAKE) main -s
+	@mkdir -p bin
+	@$(CC) $(CFLAGS) -shared -std=$(STD) $^ -o ${LIB_TARGET}
+
 
 test: $(TEST_OBJECTS)
 	@$(MAKE) main -s
@@ -61,7 +68,7 @@ build/src/$(MODULE1)/%.o: src/$(MODULE1)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR) -p $(BUILDDIR)/$(MODULE1)
 	@$(CC) $(CFLAGS) -std=$(STD) -c -o $@ $< $(INC)
 build/src/$(MODULE2)/%.o: src/$(MODULE2)/%.$(SRCEXT)
-	@echo "Building agents"
+	@echo "Building agents $<"
 	@mkdir -p $(BUILDDIR) -p $(BUILDDIR)/$(MODULE2)
 	@$(CC) $(CFLAGS) -std=$(STD) -c -o $@ $< $(INC)
 
