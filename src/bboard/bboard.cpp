@@ -35,7 +35,7 @@ inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature = 0)
         {
             if(BMB_POS(s.bombs[i]) == (x + (y << 4)))
             {
-                int bombStrength = s.agents[BMB_ID(s.bombs[i])].bombStrength;
+                int bombStrength = BMB_STRENGTH(s.bombs[i]);
                 s.agents[BMB_ID(s.bombs[i])].bombCount--;
                 s.bombs.RemoveAt(i);
                 s.SpawnFlame(x, y, bombStrength);

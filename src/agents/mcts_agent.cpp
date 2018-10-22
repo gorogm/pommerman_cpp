@@ -117,7 +117,6 @@ float MCTSAgent::runOneStep(const bboard::State * state, int depth)
                     continue;
                 if (moveT == (int) bboard::Move::BOMB && state->agents[state->teammateId].maxBombCount - state->agents[state->teammateId].bombCount <= 0)
                     continue;
-                //if(state->timeStep < 178)
                 continue; //teammate-simulation turned off, too slow now. 9minutse -> 68 minutes, and didnt help somehow in results.
             }
 
