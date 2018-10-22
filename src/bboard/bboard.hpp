@@ -314,7 +314,11 @@ struct State
     int board[BOARD_SIZE][BOARD_SIZE];
 
     int timeStep = 0;
+    int relTimeStep = 0;
     int aliveAgents = AGENT_COUNT;
+    int ourId, teammateId, enemy1Id, enemy2Id = -1; //0-1-2-3
+    float woodDemolished = 0.0f;
+    float powerups = 0.0f;
 
     /**
      * @brief agents Array of all agents and their properties
@@ -481,6 +485,8 @@ public:
      * @brief MakeGame Initializes the state
      */
     void MakeGame(std::array<Agent*, AGENT_COUNT> a);
+    void MakeGameFromPython(int ourId);
+    void MakeGameFromPython(bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id);
 
     /**
      * @brief StartGame starts a game and prints in the terminal output
