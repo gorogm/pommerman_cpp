@@ -69,6 +69,23 @@ enum Item
     AGENT2 = (1 << 24) + 2,
     AGENT3 = (1 << 24) + 3
 };
+enum PyItem
+{
+    PyPASSAGE    = 0,
+    PyRIGID      = 1,
+    PyWOOD       = 2,
+    PyBOMB       = 3,
+    PyFLAMES     = 4,
+    PyFOG        = 5,
+    PyEXTRABOMB  = 6,
+    PyINCRRANGE  = 7,
+    PyKICK       = 8,
+    PyAGENTDUMMY = 9,
+    PyAGENT0 = 10,
+    PyAGENT1 = 11,
+    PyAGENT2 = 12,
+    PyAGENT3 = 13
+};
 
 #define IS_WOOD(x)       (((x) >> 8) == 2)
 #define IS_POWERUP(x)    ((x) > 5 && (x) < 9)
@@ -99,7 +116,7 @@ struct FixedQueue
 
     /**
      * @brief PopBomb Frees up the position of the elem in the
-     * queue to be used by other elems.
+     * queue to be used by other elems. Pops the first elem ( [0] )
      */
     T& PopElem()
     {
@@ -200,11 +217,11 @@ inline std::ostream & operator<<(std::ostream & str, const Position& v)
  */
 struct AgentInfo
 {
-    int x;
-    int y;
+    int x; // column
+    int y; // row
 
     // power-ups
-    int bombCount = 0;
+    int bombCount = 0; //planted, but not yet exploded bombs
     int maxBombCount = 1;
     int bombStrength = BOMB_DEFAULT_STRENGTH;
 
@@ -335,7 +352,7 @@ struct State
      * @brief hasBomb Returns true if a bomb is at the specified
      * position
      */
-    bool HasBomb(int x, int y);
+    bool HasBomb(int x, int y) const;
 
     /**
      * @brief SpawnFlames Spawns rays of flames at the

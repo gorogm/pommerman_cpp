@@ -44,7 +44,7 @@ void Step(State* state, Move* moves)
         }
         const Move m = moves[i];
 
-        if(state->agents[i].dead || m == Move::IDLE)
+        if(state->agents[i].dead || m == Move::IDLE || state->agents[i].x < 0)
         {
             continue;
         }

@@ -62,7 +62,8 @@ int ResolveDependencies(State* s, Position des[AGENT_COUNT],
     for(int i = 0; i < AGENT_COUNT; i++)
     {
         // dead agents are handled as roots
-        if(s->agents[i].dead)
+        // also unvisible agents
+        if(s->agents[i].dead || s->agents[i].x < 0)
         {
             chain[rootCount] = i;
             rootCount++;
@@ -72,7 +73,7 @@ int ResolveDependencies(State* s, Position des[AGENT_COUNT],
         bool isChainRoot = true;
         for(int j = 0; j < AGENT_COUNT; j++)
         {
-            if(i == j || s->agents[j].dead) continue;
+            if(i == j || s->agents[j].dead || s->agents[j].x < 0) continue;
 
             if(des[i].x == s->agents[j].x && des[i].y == s->agents[j].y)
             {
@@ -121,6 +122,7 @@ void TickBombs(State& state)
         if(BMB_TIME(state.bombs[0]) == 0)
         {
             state.ExplodeTopBomb();
+            //i--;
         }
         else
         {

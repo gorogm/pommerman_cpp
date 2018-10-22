@@ -57,7 +57,7 @@ Move _Decide(SimpleAgent& me, const State* state)
     }
     else
     {
-        return me.moveQueue[me.intDist(me.rng) % 2];
+        return me.moveQueue[me.intDist(me.rng) % (me.moveQueue.count)];
     }
 }
 Move SimpleAgent::act(const State* state)
