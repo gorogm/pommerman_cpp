@@ -179,11 +179,10 @@ Move MCTSAgent::act(const State* state)
 
     float point = runOneStep(state, 0);
 
-    std::cout << "turn#" << state->timeStep << " point: " << point << " selected: ";
+    std::cout << "turn#" << state->timeStep << " ourId:" << state->ourId << " point: " << point << " selected: ";
     for(int i=0; i<best_moves_in_chain.count; i++)
         std::cout << (int)best_moves_in_chain[i] << " > ";
-    std::cout << std::endl;
-    std::cout << "simulated steps: " << simulatedSteps << std::endl;
+    std::cout << " simulated steps: " << simulatedSteps << std::endl;
 
     expectedPosInNewTurn = bboard::util::DesiredPosition(a.x, a.y, (bboard::Move)best_moves_in_chain[0]);
     return (bboard::Move)best_moves_in_chain[0];
