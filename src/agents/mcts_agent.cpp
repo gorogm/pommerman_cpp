@@ -108,56 +108,73 @@ float MCTSAgent::runOneStep(const bboard::State * state, int depth)
         moves_in_one_step[state->ourId] = (bboard::Move) move;
         moves_in_chain.AddElem(move);
 
-        float minPointE1 = 100;
-        for(int moveE1=0; moveE1<6; moveE1++) {
-            if(moveE1 > 0) {
-                if (depth > 1 || (state->agents[state->enemy1Id].dead || state->agents[state->enemy1Id].x < 0))
-                    break;
+        float maxTeammate = -100;
+        for(int moveT=0; moveT<6; moveT++) {
+            if (moveT > 0) {
+                if (depth > 1 || (state->agents[state->teammateId].dead || state->agents[state->teammateId].x < 0)) break;
                 // if move is impossible
-                if (moveE1 > 0 && moveE1 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->enemy1Id].x, state->agents[state->enemy1Id].y, (bboard::Move) moveE1)))
+                if (moveT > 0 && moveT < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->teammateId].x, state->agents[state->teammateId].y, (bboard::Move) moveT)))
                     continue;
-                if(moveE1 == (int)bboard::Move::BOMB && state->agents[state->enemy1Id].maxBombCount - state->agents[state->enemy1Id].bombCount <= 0)
+                if (moveT == (int) bboard::Move::BOMB && state->agents[state->teammateId].maxBombCount - state->agents[state->teammateId].bombCount <= 0)
                     continue;
+                //if(state->timeStep < 178)
+                continue; //teammate-simulation turned off, too slow now. 9minutse -> 68 minutes, and didnt help somehow in results.
             }
 
-            moves_in_one_step[state->enemy1Id] = (bboard::Move) moveE1;
+            moves_in_one_step[state->teammateId] = (bboard::Move) moveT;
 
-            float minPointE2 = 100;
-            for (int moveE2 = 0; moveE2 < 6; moveE2++) {
-                if(moveE2 > 0) {
-                    if (depth > 1 || (state->agents[state->enemy2Id].dead || state->agents[state->enemy2Id].x < 0))
-                        break;
+            float minPointE1 = 100;
+            for (int moveE1 = 0; moveE1 < 6; moveE1++) {
+                if (moveE1 > 0) {
+                    if (depth > 1 || (state->agents[state->enemy1Id].dead || state->agents[state->enemy1Id].x < 0)) break;
                     // if move is impossible
-                    if (moveE2 > 0 && moveE2 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->enemy2Id].x, state->agents[state->enemy2Id].y, (bboard::Move) moveE2)))
+                    if (moveE1 > 0 && moveE1 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->enemy1Id].x, state->agents[state->enemy1Id].y, (bboard::Move) moveE1)))
                         continue;
-                    if(moveE2 == (int)bboard::Move::BOMB && state->agents[state->enemy2Id].maxBombCount - state->agents[state->enemy2Id].bombCount <= 0)
+                    if (moveE1 == (int) bboard::Move::BOMB &&
+                        state->agents[state->enemy1Id].maxBombCount - state->agents[state->enemy1Id].bombCount <= 0)
                         continue;
                 }
 
-                moves_in_one_step[state->enemy2Id] = (bboard::Move) moveE2;
+                moves_in_one_step[state->enemy1Id] = (bboard::Move) moveE1;
 
-                bboard::State *newstate = new bboard::State(*state);
-                newstate->relTimeStep++;
+                float minPointE2 = 100;
+                for (int moveE2 = 0; moveE2 < 6; moveE2++) {
+                    if (moveE2 > 0) {
+                        if (depth > 1 || (state->agents[state->enemy2Id].dead || state->agents[state->enemy2Id].x < 0)) break;
+                        // if move is impossible
+                        if (moveE2 > 0 && moveE2 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->enemy2Id].x, state->agents[state->enemy2Id].y, (bboard::Move) moveE2)))
+                            continue;
+                        if (moveE2 == (int) bboard::Move::BOMB &&
+                            state->agents[state->enemy2Id].maxBombCount - state->agents[state->enemy2Id].bombCount <= 0)
+                            continue;
+                    }
 
-                bboard::Step(newstate, moves_in_one_step);
-                simulatedSteps++;
+                    moves_in_one_step[state->enemy2Id] = (bboard::Move) moveE2;
 
-                float point;
-                if (depth < 3)
-                    point = runOneStep(newstate, depth + 1);
-                else
-                    point = runAlreadyPlantedBombs(newstate);
+                    bboard::State *newstate = new bboard::State(*state);
+                    newstate->relTimeStep++;
 
-                if (point < minPointE2) { minPointE2 = point; }
+                    bboard::Step(newstate, moves_in_one_step);
+                    simulatedSteps++;
 
-                delete newstate;
+                    float point;
+                    if (depth < 3)
+                        point = runOneStep(newstate, depth + 1);
+                    else
+                        point = runAlreadyPlantedBombs(newstate);
+
+                    if (point < minPointE2) { minPointE2 = point; }
+
+                    delete newstate;
+                }
+                if (minPointE2 < minPointE1) { minPointE1 = minPointE2; }
             }
-            if (minPointE2 < minPointE1) { minPointE1 = minPointE2; }
+            if (minPointE1 > maxTeammate) { maxTeammate = minPointE1;}
         }
 
         moves_in_chain.RemoveAt(moves_in_chain.count - 1);
         best_moves_in_chain.count = std::max(depth+1, best_moves_in_chain.count);
-        if (minPointE1 > maxPoint) { maxPoint = minPointE1; best_moves_in_chain[depth] = move;}
+        if (maxTeammate > maxPoint) { maxPoint = maxTeammate; best_moves_in_chain[depth] = move;}
     }
 
     return maxPoint;
