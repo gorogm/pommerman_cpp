@@ -227,6 +227,7 @@ struct AgentInfo
 
     bool canKick = false;
     bool dead = false;
+    short diedAt = 0;
 };
 
 
@@ -396,6 +397,7 @@ struct State
         if(!agents[agentID].dead)
         {
             agents[agentID].dead = true;
+            agents[agentID].diedAt = timeStep + relTimeStep;
             aliveAgents--;
         }
     }

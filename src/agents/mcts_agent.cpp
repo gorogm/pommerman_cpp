@@ -21,9 +21,33 @@ bool _CheckPos2(const State* state, bboard::Position pos)
     return !util::IsOutOfBounds(pos) && IS_WALKABLE(state->board[pos.y][pos.x]);
 }
 
+float laterBetter(float reward, int timestaps)
+{
+    if(reward == 0.0f)
+        return reward;
+
+    if(reward > 0)
+        return reward * (1.0f / std::pow(0.98f, timestaps));
+    else
+        return reward * std::pow(0.98f, timestaps);
+}
+
+float soonerBetter(float reward, int timestaps)
+{
+    if(reward == 0.0f)
+        return reward;
+
+    if(reward < 0)
+        return reward * (1.0f / std::pow(0.98f, timestaps));
+    else
+        return reward * std::pow(0.98f, timestaps);
+}
+
 float MCTSAgent::scoreState(State * state) {
-    float point = -10 * state->agents[state->ourId].dead - 5 * state->agents[state->teammateId].dead;
-    point += 3 * state->agents[state->enemy1Id].dead + 3 * state->agents[state->enemy2Id].dead;
+    float point = laterBetter(-10 * state->agents[state->ourId].dead, state->agents[state->ourId].diedAt - state->timeStep);
+    point += laterBetter(-7 * state->agents[state->teammateId].dead, state->agents[state->teammateId].diedAt - state->timeStep);
+    point += 3 * soonerBetter(state->agents[state->enemy1Id].dead, state->agents[state->enemy1Id].diedAt - state->timeStep);
+    point += 3 * soonerBetter(state->agents[state->enemy2Id].dead, state->agents[state->enemy2Id].diedAt - state->timeStep);
     point += 0.3f * state->woodDemolished;
     point += 0.5f * state->powerups;
 
