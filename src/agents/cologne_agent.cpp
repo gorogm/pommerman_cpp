@@ -195,7 +195,14 @@ Move CologneAgent::act(const State* state)
     const AgentInfo& a = state->agents[state->ourId];
     if(state->timeStep > 1 && (expectedPosInNewTurn.x != a.x || expectedPosInNewTurn.y != a.y))
     {
-        std::cout << "Couldn't move to " << expectedPosInNewTurn.y << ":" << expectedPosInNewTurn.x << std::endl;
+        std::cout << "Couldn't move to " << expectedPosInNewTurn.y << ":" << expectedPosInNewTurn.x;
+        if(std::abs(state->agents[state->teammateId].x - expectedPosInNewTurn.x) + std::abs(state->agents[state->teammateId].y - expectedPosInNewTurn.y) == 1)
+            std::cout << " - Racing with teammate, probably";
+        if(std::abs(state->agents[state->enemy1Id].x - expectedPosInNewTurn.x) + std::abs(state->agents[state->enemy1Id].y - expectedPosInNewTurn.y) == 1)
+            std::cout << " - Racing with enemy1, probably";
+        if(std::abs(state->agents[state->enemy2Id].x - expectedPosInNewTurn.x) + std::abs(state->agents[state->enemy2Id].y - expectedPosInNewTurn.y) == 1)
+            std::cout << " - Racing with enemy2, probably";
+        std::cout << std::endl;
         lastMoveWasBlocked = true;
         lastBlockedMove = best_moves_in_chain[0];
     }else{
