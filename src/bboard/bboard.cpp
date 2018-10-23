@@ -373,11 +373,16 @@ void PrintState(State* state)
         if(y < AGENT_COUNT)
         {
             int i = y;
-            std::printf("Agent %d: %s %d  %s %d  %s %d",
-                        i,
-                        PrintItem(Item::EXTRABOMB).c_str(),state->agents[i].maxBombCount,
-                        PrintItem(Item::INCRRANGE).c_str(),state->agents[i].bombStrength,
-                        PrintItem(Item::KICK).c_str(),state->agents[i].canKick);
+            if(state->agents[i].dead)
+            {
+                std::printf("Agent %d:  X-(", i);
+            }else {
+                std::printf("Agent %d: %s %d  %s %d  %s %d",
+                            i,
+                            PrintItem(Item::EXTRABOMB).c_str(), state->agents[i].maxBombCount,
+                            PrintItem(Item::INCRRANGE).c_str(), state->agents[i].bombStrength,
+                            PrintItem(Item::KICK).c_str(), state->agents[i].canKick);
+            }
         }
         else if(y == AGENT_COUNT + 1)
         {
