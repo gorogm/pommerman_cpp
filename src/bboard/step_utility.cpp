@@ -62,7 +62,7 @@ int ResolveDependencies(State* s, Position des[AGENT_COUNT],
     for(int i = 0; i < AGENT_COUNT; i++)
     {
         // dead agents are handled as roots
-        // also unvisible agents
+        // also invisible agents
         if(s->agents[i].dead || s->agents[i].x < 0)
         {
             chain[rootCount] = i;

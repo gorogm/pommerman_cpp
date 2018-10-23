@@ -118,8 +118,10 @@ void Step(State* state, Move* moves)
         // execute move if the destination is free
         // (in the rare case of ouroboros, make the move even
         // if an agent occupies the spot)
-        if(itemOnDestination == Item::PASSAGE ||
-                (ouroboros && itemOnDestination >= Item::AGENT0))
+        if(itemOnDestination == Item::PASSAGE)
+            //GM: If there is a bomb at ouroboros, some agents move, some can't, so they end up on the same position and program crashes.
+            //Now ouroboros will not move, which is invalid, but happens rarely and doesn't crash.
+                //|| (ouroboros && itemOnDestination >= Item::AGENT0))
         {
             // only override the position I came from if it has not been
             // overridden by a different agent that already took this spot
