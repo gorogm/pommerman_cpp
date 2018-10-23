@@ -116,7 +116,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                     continue;
                 if (moveT == (int) bboard::Move::BOMB && state->agents[state->teammateId].maxBombCount - state->agents[state->teammateId].bombCount <= 0)
                     continue;
-                continue; //teammate-simulation turned off, too slow now. 9minutse -> 68 minutes, and didnt help somehow in results.
+                continue; //teammate-simulation turned off, too slow now. 9minutes -> 68 minutes, and didnt help somehow in results.
             }
 
             moves_in_one_step[state->teammateId] = (bboard::Move) moveT;
