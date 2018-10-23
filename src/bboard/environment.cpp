@@ -187,6 +187,10 @@ void Environment::MakeGameFromPython(int ourId)
                                                 double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
     {
         state->bombs.count = 0;
+        state->woods.count = 0;
+        state->powerup_incr.count = 0;
+        state->powerup_kick.count = 0;
+        state->powerup_extrabomb.count = 0;
         //state->flames.count = 0; //keep!
         state->agents[0].x = -1;
         state->agents[0].y = -1;
@@ -225,6 +229,7 @@ void Environment::MakeGameFromPython(int ourId)
                     break;
                 case PyWOOD:
                     state->board[y][x] = WOOD;
+                    {Position p; p.x = x; p.y = y; state->woods.NextPos() = p;}
                     break;
                 case PyBOMB:
                     state->board[y][x] = BOMB;
@@ -252,12 +257,15 @@ void Environment::MakeGameFromPython(int ourId)
                     break;
                 case PyEXTRABOMB:
                     state->board[y][x] = EXTRABOMB;
+                    {Position p; p.x = x; p.y = y; state->powerup_extrabomb.NextPos() = p;}
                     break;
                 case PyINCRRANGE:
                     state->board[y][x] = INCRRANGE;
+                    {Position p; p.x = x; p.y = y; state->powerup_incr.NextPos() = p;}
                     break;
                 case PyKICK:
                     state->board[y][x] = KICK;
+                    {Position p; p.x = x; p.y = y; state->powerup_kick.NextPos() = p;}
                     break;
                 case PyAGENTDUMMY:
                     state->board[y][x] = AGENTDUMMY;

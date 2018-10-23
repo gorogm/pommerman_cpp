@@ -55,6 +55,15 @@ float CologneAgent::scoreState(State * state) {
     if(state->agents[state->enemy2Id].x >= 0)
         point -= (std::abs(state->agents[state->enemy2Id].x - state->agents[state->ourId].x) + std::abs(state->agents[state->enemy2Id].y - state->agents[state->ourId].y)) / 100.0f;
 
+    for(int i=0; i < state->powerup_kick.count; i++)
+        point -= (std::abs(state->powerup_kick[i].x - state->agents[state->ourId].x) + std::abs(state->powerup_kick[i].y - state->agents[state->ourId].y)) / 1000.0f;
+    for(int i=0; i < state->powerup_incr.count; i++)
+        point -= (std::abs(state->powerup_incr[i].x - state->agents[state->ourId].x) + std::abs(state->powerup_incr[i].y - state->agents[state->ourId].y)) / 1000.0f;
+    for(int i=0; i < state->powerup_extrabomb.count; i++)
+        point -= (std::abs(state->powerup_extrabomb[i].x - state->agents[state->ourId].x) + std::abs(state->powerup_extrabomb[i].y - state->agents[state->ourId].y)) / 1000.0f;
+    for(int i=0; i < state->woods.count; i++)
+        point -= (std::abs(state->woods[i].x - state->agents[state->ourId].x) + std::abs(state->woods[i].y - state->agents[state->ourId].y)) / 1000.0f;
+
     if(moves_in_chain[0] != 0) point += 0.001f; //not IDLE
     if(lastMoveWasBlocked && moves_in_chain[0] == lastBlockedMove)
         point -= 0.1f;

@@ -337,6 +337,12 @@ struct State
      */
     FixedQueue<Flame, MAX_BOMBS> flames;
 
+
+    FixedQueue<Position, 25> woods;
+    FixedQueue<Position, 5> powerup_incr;
+    FixedQueue<Position, 5> powerup_kick;
+    FixedQueue<Position, 5> powerup_extrabomb;
+
     /**
      * @brief PlantBomb Plants a bomb at the given position.
      * Does not add a bomb to the queue if the agent maxed out.
