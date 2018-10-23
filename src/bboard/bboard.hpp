@@ -229,6 +229,7 @@ struct AgentInfo
     bool canKick = false;
     bool dead = false;
     short diedAt = 0;
+    float collectedPowerupPoints = 0.0f;
 };
 
 
@@ -320,7 +321,6 @@ struct State
     int aliveAgents = AGENT_COUNT;
     int ourId, teammateId, enemy1Id, enemy2Id = -1; //0-1-2-3
     float woodDemolished = 0.0f;
-    float powerups = 0.0f;
 
     /**
      * @brief agents Array of all agents and their properties

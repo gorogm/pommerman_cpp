@@ -43,12 +43,14 @@ float CologneAgent::soonerBetter(float reward, int timestaps)
 }
 
 float CologneAgent::scoreState(State * state) {
+    float teamBalance = (state->ourId < 2 ? 1.01f : 0.99f);
     float point = laterBetter(-10 * state->agents[state->ourId].dead, state->agents[state->ourId].diedAt - state->timeStep);
-    point += laterBetter(-7 * state->agents[state->teammateId].dead, state->agents[state->teammateId].diedAt - state->timeStep);
+    point += laterBetter(-10 * state->agents[state->teammateId].dead, state->agents[state->teammateId].diedAt - state->timeStep);
     point += 3 * soonerBetter(state->agents[state->enemy1Id].dead, state->agents[state->enemy1Id].diedAt - state->timeStep);
     point += 3 * soonerBetter(state->agents[state->enemy2Id].dead, state->agents[state->enemy2Id].diedAt - state->timeStep);
     point += 0.3f * state->woodDemolished;
-    point += 0.5f * state->powerups;
+    point += 0.5f * state->agents[state->ourId].collectedPowerupPoints * teamBalance;
+    point += 0.5f * state->agents[state->teammateId].collectedPowerupPoints / teamBalance;
 
     if(state->agents[state->enemy1Id].x >= 0)
         point -= (std::abs(state->agents[state->enemy1Id].x - state->agents[state->ourId].x) + std::abs(state->agents[state->enemy1Id].y - state->agents[state->ourId].y)) / 100.0f;
@@ -119,13 +121,12 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
         float maxTeammate = -100;
         for(int moveT=0; moveT<6; moveT++) {
             if (moveT > 0) {
-                if (depth > 1 || (state->agents[state->teammateId].dead || state->agents[state->teammateId].x < 0)) break;
+                if (depth > 0 || (state->agents[state->teammateId].dead || state->agents[state->teammateId].x < 0)) break;
                 // if move is impossible
                 if (moveT > 0 && moveT < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->teammateId].x, state->agents[state->teammateId].y, (bboard::Move) moveT)))
                     continue;
                 if (moveT == (int) bboard::Move::BOMB && state->agents[state->teammateId].maxBombCount - state->agents[state->teammateId].bombCount <= 0)
                     continue;
-                continue; //teammate-simulation turned off, too slow now. 9minutes -> 68 minutes, and didnt help somehow in results.
             }
 
             moves_in_one_step[state->teammateId] = (bboard::Move) moveT;
@@ -133,7 +134,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
             float minPointE1 = 100;
             for (int moveE1 = 0; moveE1 < 6; moveE1++) {
                 if (moveE1 > 0) {
-                    if (depth > 1 || (state->agents[state->enemy1Id].dead || state->agents[state->enemy1Id].x < 0)) break;
+                    if (depth > 0 || (state->agents[state->enemy1Id].dead || state->agents[state->enemy1Id].x < 0)) break;
                     // if move is impossible
                     if (moveE1 > 0 && moveE1 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->enemy1Id].x, state->agents[state->enemy1Id].y, (bboard::Move) moveE1)))
                         continue;
@@ -147,7 +148,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                 float minPointE2 = 100;
                 for (int moveE2 = 0; moveE2 < 6; moveE2++) {
                     if (moveE2 > 0) {
-                        if (depth > 1 || (state->agents[state->enemy2Id].dead || state->agents[state->enemy2Id].x < 0)) break;
+                        if (depth > 0 || (state->agents[state->enemy2Id].dead || state->agents[state->enemy2Id].x < 0)) break;
                         // if move is impossible
                         if (moveE2 > 0 && moveE2 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->enemy2Id].x, state->agents[state->enemy2Id].y, (bboard::Move) moveE2)))
                             continue;
