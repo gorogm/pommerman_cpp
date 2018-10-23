@@ -8,7 +8,7 @@ using namespace bboard::strategy;
 
 namespace agents
 {
-MCTSAgent::MCTSAgent()
+BerlinAgent::BerlinAgent()
 {
     std::random_device rd;  // non explicit seed
     rng = std::mt19937_64(rd());
@@ -16,12 +16,12 @@ MCTSAgent::MCTSAgent()
 }
 
 
-bool _CheckPos2(const State* state, bboard::Position pos)
+bool BerlinAgent::_CheckPos2(const State* state, bboard::Position pos)
 {
     return !util::IsOutOfBounds(pos) && IS_WALKABLE_OR_AGENT(state->board[pos.y][pos.x]);
 }
 
-float laterBetter(float reward, int timestaps)
+float BerlinAgent::laterBetter(float reward, int timestaps)
 {
     if(reward == 0.0f)
         return reward;
@@ -32,7 +32,7 @@ float laterBetter(float reward, int timestaps)
         return reward * std::pow(0.98f, timestaps);
 }
 
-float soonerBetter(float reward, int timestaps)
+float BerlinAgent::soonerBetter(float reward, int timestaps)
 {
     if(reward == 0.0f)
         return reward;
@@ -43,7 +43,7 @@ float soonerBetter(float reward, int timestaps)
         return reward * std::pow(0.98f, timestaps);
 }
 
-float MCTSAgent::scoreState(State * state) {
+float BerlinAgent::scoreState(State * state) {
     float point = laterBetter(-10 * state->agents[state->ourId].dead, state->agents[state->ourId].diedAt - state->timeStep);
     point += laterBetter(-7 * state->agents[state->teammateId].dead, state->agents[state->teammateId].diedAt - state->timeStep);
     point += 3 * soonerBetter(state->agents[state->enemy1Id].dead, state->agents[state->enemy1Id].diedAt - state->timeStep);
@@ -63,7 +63,7 @@ float MCTSAgent::scoreState(State * state) {
     return point;
 }
 
-float MCTSAgent::runAlreadyPlantedBombs(State * state)
+float BerlinAgent::runAlreadyPlantedBombs(State * state)
 {
     for(int i=0; i<10; i++)//TODO: explode-all-bombs?
     {
@@ -83,7 +83,7 @@ float MCTSAgent::runAlreadyPlantedBombs(State * state)
     return point;
 }
 
-float MCTSAgent::runOneStep(const bboard::State * state, int depth)
+float BerlinAgent::runOneStep(const bboard::State * state, int depth)
 {
     bboard::Move moves_in_one_step[4]; //was: moves
     moves_in_one_step[0] = bboard::Move::IDLE;
@@ -179,7 +179,7 @@ float MCTSAgent::runOneStep(const bboard::State * state, int depth)
     return maxPoint;
 }
 
-Move MCTSAgent::act(const State* state)
+Move BerlinAgent::act(const State* state)
 {
     simulatedSteps = 0;
     bestPoint = -100.0f;
@@ -195,10 +195,10 @@ Move MCTSAgent::act(const State* state)
 
     float point = runOneStep(state, 0);
 
-    std::cout << "turn#" << state->timeStep << " ourId:" << state->ourId << " point: " << point << " selected: ";
+    /*std::cout << "turn#" << state->timeStep << " ourId:" << state->ourId << " point: " << point << " selected: ";
     for(int i=0; i<best_moves_in_chain.count; i++)
         std::cout << (int)best_moves_in_chain[i] << " > ";
-    std::cout << " simulated steps: " << simulatedSteps << std::endl;
+    std::cout << " simulated steps: " << simulatedSteps << std::endl;*/
 
     totalSimulatedSteps += simulatedSteps;
     turns++;
@@ -206,7 +206,7 @@ Move MCTSAgent::act(const State* state)
     return (bboard::Move)best_moves_in_chain[0];
 }
 
-void MCTSAgent::PrintDetailedInfo()
+void BerlinAgent::PrintDetailedInfo()
 {
 }
 

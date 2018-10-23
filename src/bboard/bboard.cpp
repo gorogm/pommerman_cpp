@@ -443,52 +443,98 @@ std::string PrintItem(int item)
 }
 
 std::array<std::shared_ptr<bboard::Environment>, 4> envs;
-std::array<std::shared_ptr<agents::MCTSAgent>, 4> mctsagents;
-void init_agent(int id)
+std::array<std::shared_ptr<agents::BerlinAgent>, 4> berlinAgents;
+std::array<std::shared_ptr<agents::CologneAgent>, 4> cologneAgents;
+void init_agent_berlin(int id)
 {
     envs[id] = std::make_shared<bboard::Environment>();
-    mctsagents[id] = std::make_shared<agents::MCTSAgent>();
+    berlinAgents[id] = std::make_shared<agents::BerlinAgent>();
+    envs[id]->MakeGameFromPython(id);
+}
+void init_agent_cologne(int id)
+{
+    envs[id] = std::make_shared<bboard::Environment>();
+    cologneAgents[id] = std::make_shared<agents::CologneAgent>();
     envs[id]->MakeGameFromPython(id);
 }
 
-void episode_end(int id)
+float episode_end_berlin(int id)
 {
-    if(mctsagents[id]->turns == 0)
-        mctsagents[id]->turns++;
-    std::cout << "Episode end for agent " << id << ". Turns: " << mctsagents[id]->turns << " avg.sim.steps: " << mctsagents[id]->totalSimulatedSteps / (float)mctsagents[id]->turns << std::endl;
-    mctsagents[id] = std::make_shared<agents::MCTSAgent>();
+    if(berlinAgents[id]->turns == 0)
+        berlinAgents[id]->turns++;
+    float avg_simsteps_per_turn = berlinAgents[id]->totalSimulatedSteps / (float)berlinAgents[id]->turns;
+    //std::cout << "Episode end for agent " << id << ". Turns: " << berlinAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
+    berlinAgents[id] = std::make_shared<agents::BerlinAgent>();
     envs[id] = std::make_shared<bboard::Environment>();
     envs[id]->MakeGameFromPython(id);
+    return avg_simsteps_per_turn;
+}
+float episode_end_cologne(int id)
+{
+    if(cologneAgents[id]->turns == 0)
+        cologneAgents[id]->turns++;
+    float avg_simsteps_per_turn = cologneAgents[id]->totalSimulatedSteps / (float)cologneAgents[id]->turns;
+    std::cout << "Episode end for agent " << id << ". Turns: " << cologneAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
+    cologneAgents[id] = std::make_shared<agents::CologneAgent>();
+    envs[id] = std::make_shared<bboard::Environment>();
+    envs[id]->MakeGameFromPython(id);
+    return avg_simsteps_per_turn;
 }
 
-int getStep(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+int getStep_berlin(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+{
+    //std::cout << std::endl;
+
+    envs[id]->MakeGameFromPython_berlin(agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+
+    berlinAgents[id]->id = envs[id]->GetState().ourId;
+    //PrintState(&envs[id]->GetState());
+
+    // Ask the agent where to go
+    return (int)berlinAgents[id]->act(&envs[id]->GetState());
+}
+int getStep_cologne(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
     std::cout << std::endl;
 
-    envs[id]->MakeGameFromPython(agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+    envs[id]->MakeGameFromPython_cologne(agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
 
-    //agents::SimpleAgent simple;
-    mctsagents[id]->id = envs[id]->GetState().ourId;
+    cologneAgents[id]->id = envs[id]->GetState().ourId;
     PrintState(&envs[id]->GetState());
 
     // Ask the agent where to go
-    return (int)mctsagents[id]->act(&envs[id]->GetState());
+    return (int)cologneAgents[id]->act(&envs[id]->GetState());
 }
 
 extern "C"
 {
-    void c_init_agent(int id)
-    {
-        init_agent(id);
-    }
+void c_init_agent_berlin(int id)
+{
+    init_agent_berlin(id);
+}
 
-    void c_episode_end(int id)
-    {
-        episode_end(id);
-    }
+float c_episode_end_berlin(int id)
+{
+    return episode_end_berlin(id);
+}
 
-    int c_getStep(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
-    {
-        return getStep(id, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
-    }
+int c_getStep_berlin(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+{
+    return getStep_berlin(id, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+}
+
+void c_init_agent_cologne(int id)
+{
+    init_agent_cologne(id);
+}
+
+float c_episode_end_cologne(int id)
+{
+    return episode_end_cologne(id);
+}
+
+int c_getStep_cologne(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+{
+    return getStep_cologne(id, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+}
 }
