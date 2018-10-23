@@ -26,9 +26,9 @@ float CologneAgent::laterBetter(float reward, int timestaps)
         return reward;
 
     if(reward > 0)
-        return reward * (1.0f / std::pow(0.98f, timestaps));
+        return reward * (1.0f / (float)std::pow(0.98f, timestaps));
     else
-        return reward * std::pow(0.98f, timestaps);
+        return reward * (float)std::pow(0.98f, timestaps);
 }
 
 float CologneAgent::soonerBetter(float reward, int timestaps)
@@ -37,9 +37,9 @@ float CologneAgent::soonerBetter(float reward, int timestaps)
         return reward;
 
     if(reward < 0)
-        return reward * (1.0f / std::pow(0.98f, timestaps));
+        return reward * (1.0f / (float)std::pow(0.98f, timestaps));
     else
-        return reward * std::pow(0.98f, timestaps);
+        return reward * (float)std::pow(0.98f, timestaps);
 }
 
 float CologneAgent::scoreState(State * state) {
