@@ -156,7 +156,7 @@ float BerlinAgent::runOneStep(const bboard::State * state, int depth)
                     simulatedSteps++;
 
                     float point;
-                    if (depth < 3)
+                    if (depth < 4)
                         point = runOneStep(newstate, depth + 1);
                     else
                         point = runAlreadyPlantedBombs(newstate);
@@ -185,7 +185,7 @@ Move BerlinAgent::act(const State* state)
     const AgentInfo& a = state->agents[state->ourId];
     if(state->timeStep > 1 && (expectedPosInNewTurn.x != a.x || expectedPosInNewTurn.y != a.y))
     {
-        std::cout << "Couldn't move to " << expectedPosInNewTurn.y << ":" << expectedPosInNewTurn.x << std::endl;
+        //std::cout << "Couldn't move to " << expectedPosInNewTurn.y << ":" << expectedPosInNewTurn.x << std::endl;
         lastMoveWasBlocked = true;
         lastBlockedMove = best_moves_in_chain[0];
     }else{

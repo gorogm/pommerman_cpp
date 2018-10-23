@@ -166,7 +166,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                     simulatedSteps++;
 
                     float point;
-                    if (depth < 3)
+                    if (depth < 4)
                         point = runOneStep(newstate, depth + 1);
                     else
                         point = runAlreadyPlantedBombs(newstate);
