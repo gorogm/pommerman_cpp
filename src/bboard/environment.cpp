@@ -191,7 +191,38 @@ void Environment::MakeGameFromPython(int ourId)
     void Environment::MakeGameFromPython_cologne(bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life,
                                                 double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
     {
-        state->bombs.count = 0;
+        state->agents[0].bombCount = 0;
+        state->agents[1].bombCount = 0;
+        state->agents[2].bombCount = 0;
+        state->agents[3].bombCount = 0;
+
+        for(int i=0; i < state->bombs.count; i++)
+        {
+            int boardPos = BMB_POS_X(state->bombs[i]) + BMB_POS_Y(state->bombs[i]) * 11;
+            if(board[boardPos] == PyPASSAGE || board[boardPos] == PyFLAMES || BMB_TIME(state->bombs[i]) == 1) {
+                state->bombs.RemoveAt(i);
+                i--;
+            }else {
+                ReduceBombTimer(state->bombs[i]); //Can be read from bomb_life array, if not in fog
+                state->agents[BMB_ID(state->bombs[i])].bombCount++;
+            }
+        }
+        for(int i=0; i < state->powerup_incr.count; i++)
+        {
+            if(board[state->powerup_incr[i].x + state->powerup_incr[i].y * 11] >= PyAGENT0)
+                state->agents[board[state->powerup_incr[i].x + state->powerup_incr[i].y * 11] - PyAGENT0].bombStrength++;
+        }
+        for(int i=0; i < state->powerup_extrabomb.count; i++)
+        {
+            if(board[state->powerup_extrabomb[i].x + state->powerup_extrabomb[i].y * 11] >= PyAGENT0)
+                state->agents[board[state->powerup_extrabomb[i].x + state->powerup_extrabomb[i].y * 11] - PyAGENT0].maxBombCount++;
+        }
+        for(int i=0; i < state->powerup_kick.count; i++)
+        {
+            if(board[state->powerup_kick[i].x + state->powerup_kick[i].y * 11] >= PyAGENT0)
+                state->agents[board[state->powerup_kick[i].x + state->powerup_kick[i].y * 11] - PyAGENT0].canKick = true;
+        }
+
         state->woods.count = 0;
         state->powerup_incr.count = 0;
         state->powerup_kick.count = 0;
@@ -239,22 +270,38 @@ void Environment::MakeGameFromPython(int ourId)
                     break;
                 case PyWOOD:
                     state->board[y][x] = WOOD;
-                    {Position p; p.x = x; p.y = y; state->woods.NextPos() = p;}
+                    {Position p; p.x = x; p.y = y; state->woods.NextPos() = p; state->woods.count++;}
                     break;
                 case PyBOMB:
+                    //Already known bombs are handled, hopefully for them:
+                    //  BMB_TIME(state->bombs[?]) == bomb_life[i]
+                    //  BMB_STRENGTH(state->bombs[?]) == bomb_blast_strength[i] - 1
+                    //New bombs are born under an agent, and added there. so here in theory we only handle bombs which were placed in fog and discovered later
                     state->board[y][x] = BOMB;
                     {
-                        int bombId = state->ourId;//TODO: should be the agent who placed it
-                        Bomb* b = &state->bombs.NextPos();
-                        SetBombID(*b, bombId);
-                        SetBombPosition(*b, x, y);
-                        SetBombStrength(*b, bomb_blast_strength[i] - 1);
-                        // TODO: velocity
-                        SetBombTime(*b, bomb_life[i]);
-                        state->agents[bombId].bombCount++;
-                        state->bombs.count++;
+                        bool already_handled = false;
+                        for (int bombindex = 0; bombindex < state->bombs.count; bombindex++) {
+                            if(BMB_POS_X(state->bombs[bombindex]) == x && BMB_POS_Y(state->bombs[bombindex]) == y)
+                            {
+                                already_handled = true;
+                                SetBombTime(state->bombs[bombindex], bomb_life[i]); //should already be it !!
+                                break;
+                            }
+                        }
+                        if(!already_handled)
+                        {
+                            int bombId = state->ourId; //The owner is unknown :(
+                            Bomb *b = &state->bombs.NextPos();
+                            SetBombID(*b, bombId);
+                            SetBombPosition(*b, x, y);
+                            SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
+                            // TODO: velocity
+                            SetBombTime(*b, bomb_life[i]);
+                            state->agents[bombId].bombCount++;
+                            state->bombs.count++;
+                            std::cout << "Found an unknown bomb at " << y << x << std::endl;
+                        }
                     }
-
                     break;
                 case PyFLAMES:
                     state->board[y][x] = FLAMES;
@@ -267,15 +314,15 @@ void Environment::MakeGameFromPython(int ourId)
                     break;
                 case PyEXTRABOMB:
                     state->board[y][x] = EXTRABOMB;
-                    {Position p; p.x = x; p.y = y; state->powerup_extrabomb.NextPos() = p;}
+                    {Position p; p.x = x; p.y = y; state->powerup_extrabomb.NextPos() = p; state->powerup_extrabomb.count++;}
                     break;
                 case PyINCRRANGE:
                     state->board[y][x] = INCRRANGE;
-                    {Position p; p.x = x; p.y = y; state->powerup_incr.NextPos() = p;}
+                    {Position p; p.x = x; p.y = y; state->powerup_incr.NextPos() = p; state->powerup_incr.count++;}
                     break;
                 case PyKICK:
                     state->board[y][x] = KICK;
-                    {Position p; p.x = x; p.y = y; state->powerup_kick.NextPos() = p;}
+                    {Position p; p.x = x; p.y = y; state->powerup_kick.NextPos() = p; state->powerup_kick.count++;}
                     break;
                 case PyAGENTDUMMY:
                     state->board[y][x] = AGENTDUMMY;
@@ -287,17 +334,33 @@ void Environment::MakeGameFromPython(int ourId)
                     state->board[y][x] = AGENT0 + (board[i] - PyAGENT0);
                     state->agents[board[i] - PyAGENT0].x = x;
                     state->agents[board[i] - PyAGENT0].y = y;
-                    if(bomb_blast_strength[i] > 0) //hidden bomb under us
+                    if((int)bomb_blast_strength[i] > 0) //hidden bomb under us
                     {
-                        int bombId = state->ourId;//TODO: should be the agent who placed it
-                        Bomb* b = &state->bombs.NextPos();
-                        SetBombID(*b, bombId);
-                        SetBombPosition(*b, x, y);
-                        SetBombStrength(*b, bomb_blast_strength[i] - 1);
-                        // TODO: velocity
-                        SetBombTime(*b, bomb_life[i]);
-                        state->agents[bombId].bombCount++;
-                        state->bombs.count++;
+                        bool already_handled = false;
+                        for (int bombindex = 0; bombindex < state->bombs.count; bombindex++) {
+                            if(BMB_POS_X(state->bombs[bombindex]) == x && BMB_POS_Y(state->bombs[bombindex]) == y)
+                            {
+                                already_handled = true;
+                                SetBombTime(state->bombs[bombindex], bomb_life[i]); //should already be it !!
+                                break;
+                            }
+                        }
+                        if(!already_handled) {
+                            int bombId = board[i] - PyAGENT0;//the agent who placed it
+                            Bomb *b = &state->bombs.NextPos();
+                            SetBombID(*b, bombId);
+                            SetBombPosition(*b, x, y);
+                            SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
+                            // TODO: velocity
+                            SetBombTime(*b, bomb_life[i]);
+                            if (bomb_life[i] > 8) //Let's assume it was placed by the guy on the top
+                            {
+                                //extra info: the agent's bomb-strength
+                                state->agents[bombId].bombStrength = (int)bomb_blast_strength[i] - 1;
+                            }
+                            state->agents[bombId].bombCount++;
+                            state->bombs.count++;
+                        }
                         std::cout << "Bomb under agent " << board[i] - PyAGENT0 << " at " << x << " " << y << " time: " << bomb_life[i] << std::endl;
                     }
                     break;
@@ -306,11 +369,15 @@ void Environment::MakeGameFromPython(int ourId)
             }
         }
 
+        state->agents[state->enemy1Id].maxBombCount = std::max(state->agents[state->enemy1Id].maxBombCount, state->agents[state->enemy1Id].bombCount);
+        state->agents[state->enemy2Id].maxBombCount = std::max(state->agents[state->enemy2Id].maxBombCount, state->agents[state->enemy2Id].bombCount);
+        state->agents[state->teammateId].maxBombCount = std::max(state->agents[state->teammateId].maxBombCount, state->agents[state->teammateId].bombCount);
+
         state->aliveAgents = 1 + int(agent1Alive) + int(agent2Alive) + int(agent3Alive);
         state->agents[state->ourId].x = posy;
         state->agents[state->ourId].y = posx;
         state->agents[state->ourId].canKick = can_kick;
-        state->agents[state->ourId].bombCount = state->agents[state->ourId].maxBombCount - ammo;
+        state->agents[state->ourId].bombCount = state->agents[state->ourId].maxBombCount - ammo; //should be already OK from bomb enumeration
         state->agents[state->ourId].bombStrength = blast_strength - 1;
 
         int i, j;
