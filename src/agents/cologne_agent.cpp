@@ -102,6 +102,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
     moves_in_one_step[3] = bboard::Move::IDLE;
 
     const AgentInfo& a = state->agents[state->ourId];
+    const int enemyIteration = (seenAgents > 1 ? 0 : 1);
     float maxPoint = -100;
     for(int move=0; move<6; move++)
     {
@@ -121,7 +122,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
         float maxTeammate = -100;
         for(int moveT=0; moveT<6; moveT++) {
             if (moveT > 0) {
-                if (depth > 0 || (state->agents[state->teammateId].dead || state->agents[state->teammateId].x < 0)) break;
+                if (depth > enemyIteration || (state->agents[state->teammateId].dead || state->agents[state->teammateId].x < 0)) break;
                 // if move is impossible
                 if (moveT > 0 && moveT < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->teammateId].x, state->agents[state->teammateId].y, (bboard::Move) moveT)))
                     continue;
@@ -134,7 +135,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
             float minPointE1 = 100;
             for (int moveE1 = 0; moveE1 < 6; moveE1++) {
                 if (moveE1 > 0) {
-                    if (depth > 0 || (state->agents[state->enemy1Id].dead || state->agents[state->enemy1Id].x < 0)) break;
+                    if (depth > enemyIteration || (state->agents[state->enemy1Id].dead || state->agents[state->enemy1Id].x < 0)) break;
                     // if move is impossible
                     if (moveE1 > 0 && moveE1 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->enemy1Id].x, state->agents[state->enemy1Id].y, (bboard::Move) moveE1)))
                         continue;
@@ -148,7 +149,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                 float minPointE2 = 100;
                 for (int moveE2 = 0; moveE2 < 6; moveE2++) {
                     if (moveE2 > 0) {
-                        if (depth > 0 || (state->agents[state->enemy2Id].dead || state->agents[state->enemy2Id].x < 0)) break;
+                        if (depth > enemyIteration || (state->agents[state->enemy2Id].dead || state->agents[state->enemy2Id].x < 0)) break;
                         // if move is impossible
                         if (moveE2 > 0 && moveE2 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->enemy2Id].x, state->agents[state->enemy2Id].y, (bboard::Move) moveE2)))
                             continue;
@@ -166,7 +167,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                     simulatedSteps++;
 
                     float point;
-                    if (depth < 4)
+                    if (depth < 5 - (int)(seenAgents*1.3f))
                         point = runOneStep(newstate, depth + 1);
                     else
                         point = runAlreadyPlantedBombs(newstate);
@@ -192,6 +193,7 @@ Move CologneAgent::act(const State* state)
 {
     simulatedSteps = 0;
     bestPoint = -100.0f;
+    seenAgents = (state->agents[state->teammateId].x < 0 ? 0 : 1) + (state->agents[state->enemy1Id].x < 0 ? 0 : 1) + (state->agents[state->enemy2Id].x < 0 ? 0 : 1);
     const AgentInfo& a = state->agents[state->ourId];
     if(state->timeStep > 1 && (expectedPosInNewTurn.x != a.x || expectedPosInNewTurn.y != a.y))
     {

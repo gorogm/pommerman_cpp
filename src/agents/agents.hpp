@@ -128,6 +128,7 @@ struct SimpleAgent : bboard::Agent
         int lastBlockedMove = 0;
         unsigned int turns = 0;
         unsigned int totalSimulatedSteps = 0;
+        int seenAgents = 0;
 
         bool _CheckPos2(const bboard::State* state, bboard::Position pos);
         float laterBetter(float reward, int timestaps);
