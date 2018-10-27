@@ -219,16 +219,22 @@ void Environment::MakeGameFromPython(int ourId)
         {
             if(board[state->powerup_incr[i].x + state->powerup_incr[i].y * 11] >= PyAGENT0)
                 state->agents[board[state->powerup_incr[i].x + state->powerup_incr[i].y * 11] - PyAGENT0].bombStrength++;
+            else if(board[state->powerup_incr[i].x + state->powerup_incr[i].y * 11] == PyFOG)
+                board[state->powerup_incr[i].x + state->powerup_incr[i].y * 11] = PyINCRRANGE; //so it will be added again
         }
         for(int i=0; i < state->powerup_extrabomb.count; i++)
         {
             if(board[state->powerup_extrabomb[i].x + state->powerup_extrabomb[i].y * 11] >= PyAGENT0)
                 state->agents[board[state->powerup_extrabomb[i].x + state->powerup_extrabomb[i].y * 11] - PyAGENT0].maxBombCount++;
+            else if(board[state->powerup_extrabomb[i].x + state->powerup_extrabomb[i].y * 11] == PyFOG)
+                board[state->powerup_extrabomb[i].x + state->powerup_extrabomb[i].y * 11] = PyEXTRABOMB; //so it will be added again
         }
         for(int i=0; i < state->powerup_kick.count; i++)
         {
             if(board[state->powerup_kick[i].x + state->powerup_kick[i].y * 11] >= PyAGENT0)
                 state->agents[board[state->powerup_kick[i].x + state->powerup_kick[i].y * 11] - PyAGENT0].canKick = true;
+            else if(board[state->powerup_kick[i].x + state->powerup_kick[i].y * 11] == PyFOG)
+                board[state->powerup_kick[i].x + state->powerup_kick[i].y * 11] = PyKICK; //so it will be added again
         }
 
         state->woods.count = 0;
