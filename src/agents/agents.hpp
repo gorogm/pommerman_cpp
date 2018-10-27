@@ -129,7 +129,7 @@ struct SimpleAgent : bboard::Agent
         unsigned int turns = 0;
         unsigned int totalSimulatedSteps = 0;
         int seenAgents = 0;
-        int enemyIteration = 0;
+        int enemyIteration1 = 0, enemyIteration2 = 0, teammateIteration = 0;
         int myMaxDepth = 0;
 
 
