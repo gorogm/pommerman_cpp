@@ -498,11 +498,11 @@ int getStep_berlin(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive,
     // Ask the agent where to go
     return (int)berlinAgents[id]->act(&envs[id]->GetState());
 }
-int getStep_cologne(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+int getStep_cologne(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
     std::cout << std::endl;
 
-    envs[id]->MakeGameFromPython_cologne(agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+    envs[id]->MakeGameFromPython_cologne(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
 
     cologneAgents[id]->id = envs[id]->GetState().ourId;
     PrintState(&envs[id]->GetState());
@@ -538,8 +538,8 @@ float c_episode_end_cologne(int id)
     return episode_end_cologne(id);
 }
 
-int c_getStep_cologne(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+int c_getStep_cologne(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
-    return getStep_cologne(id, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+    return getStep_cologne(id, agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
 }
 }
