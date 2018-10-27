@@ -103,6 +103,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
 
     const AgentInfo& a = state->agents[state->ourId];
     float maxPoint = -100;
+    FixedQueue<int, 6> bestmoves;
     for(int move=0; move<6; move++)
     {
         // if we don't have bomb
@@ -185,8 +186,14 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
 
         moves_in_chain.RemoveAt(moves_in_chain.count - 1);
         best_moves_in_chain.count = std::max(depth+1, best_moves_in_chain.count);
-        if (maxTeammate > maxPoint) { maxPoint = maxTeammate; best_moves_in_chain[depth] = move;}
+        if (maxTeammate == maxPoint) { bestmoves[bestmoves.count] = move; bestmoves.count++;}
+        if (maxTeammate > maxPoint) { maxPoint = maxTeammate; bestmoves.count = 1; bestmoves[0] = move;}
     }
+
+    if(bestmoves.count > 0) {
+        best_moves_in_chain[depth] = bestmoves[state->timeStep % bestmoves.count];
+    }else
+        best_moves_in_chain[depth] = 0;
 
     return maxPoint;
 }
