@@ -114,6 +114,9 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
         // if move is impossible
         if(move>0 && move<5 && !_CheckPos2(state, bboard::util::DesiredPosition(a.x, a.y, (bboard::Move)move)))
             continue;
+        //no two opposite steps please!
+        if(depth > 0 && move>0 && move<5 && moves_in_chain[depth-1] > 0 && moves_in_chain[depth-1] < 5 && std::abs(moves_in_chain[depth-1]-move) == 2)
+            continue;
 
         moves_in_one_step[state->ourId] = (bboard::Move) move;
         moves_in_chain.AddElem(move);
