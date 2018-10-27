@@ -102,7 +102,6 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
     moves_in_one_step[3] = bboard::Move::IDLE;
 
     const AgentInfo& a = state->agents[state->ourId];
-    const int enemyIteration = (seenAgents > 1 ? 0 : 1);
     float maxPoint = -100;
     for(int move=0; move<6; move++)
     {
@@ -167,7 +166,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                     simulatedSteps++;
 
                     float point;
-                    if (depth < 5 - (int)(seenAgents*1.3f))
+                    if (depth < myMaxDepth)
                         point = runOneStep(newstate, depth + 1);
                     else
                         point = runAlreadyPlantedBombs(newstate);
@@ -194,6 +193,9 @@ Move CologneAgent::act(const State* state)
     simulatedSteps = 0;
     bestPoint = -100.0f;
     seenAgents = (state->agents[state->teammateId].x < 0 ? 0 : 1) + (state->agents[state->enemy1Id].x < 0 ? 0 : 1) + (state->agents[state->enemy2Id].x < 0 ? 0 : 1);
+    enemyIteration = (seenAgents > 1 ? 0 : 1);
+    myMaxDepth = 5 - (int)(seenAgents*1.3f);
+
     const AgentInfo& a = state->agents[state->ourId];
     if(state->timeStep > 1 && (expectedPosInNewTurn.x != a.x || expectedPosInNewTurn.y != a.y))
     {
@@ -216,7 +218,15 @@ Move CologneAgent::act(const State* state)
     std::cout << "turn#" << state->timeStep << " ourId:" << state->ourId << " point: " << point << " selected: ";
     for(int i=0; i<best_moves_in_chain.count; i++)
         std::cout << (int)best_moves_in_chain[i] << " > ";
-    std::cout << " simulated steps: " << simulatedSteps << std::endl;
+    std::cout << " simulated steps: " << simulatedSteps;
+    std::cout << ", depth " << myMaxDepth;
+    if(!state->agents[state->teammateId].dead && state->agents[state->teammateId].x >= 0)
+        std::cout << " xt: " << enemyIteration+1;
+    if(!state->agents[state->enemy1Id].dead && state->agents[state->enemy1Id].x >= 0)
+        std::cout << " xe: " << enemyIteration+1;
+    if(!state->agents[state->enemy1Id].dead && state->agents[state->enemy2Id].x >= 0)
+        std::cout << " xe: " << enemyIteration+1;
+    std::cout << std::endl;
 
     totalSimulatedSteps += simulatedSteps;
     turns++;
