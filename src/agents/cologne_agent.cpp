@@ -114,7 +114,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
         if(move == (int)bboard::Move::BOMB && a.maxBombCount - a.bombCount <= 0)
             continue;
         // if bomb is already under us
-        if(depth == 0 && move == (int)bboard::Move::BOMB && state->HasBomb(a.x, a.y))
+        if(move == (int)bboard::Move::BOMB && state->HasBomb(a.x, a.y))
             continue;
         // if move is impossible
         if(move>0 && move<5 && !_CheckPos2(state, desiredPos))
@@ -135,6 +135,9 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                     continue;
                 if (moveT == (int) bboard::Move::BOMB && state->agents[state->teammateId].maxBombCount - state->agents[state->teammateId].bombCount <= 0)
                     continue;
+                // if bomb is already under it
+                if(moveT == (int)bboard::Move::BOMB && state->HasBomb(state->agents[state->teammateId].x, state->agents[state->teammateId].y))
+                    continue;
             }else{
                 //We'll have same results with IDLE, IDLE
                 if(maxTeammate > -100 && state->agents[state->teammateId].x == desiredPos.x && state->agents[state->teammateId].y == desiredPos.y)
@@ -153,6 +156,9 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                     if (moveE1 == (int) bboard::Move::BOMB &&
                         state->agents[state->enemy1Id].maxBombCount - state->agents[state->enemy1Id].bombCount <= 0)
                         continue;
+                    // if bomb is already under it
+                    if(moveE1 == (int)bboard::Move::BOMB && state->HasBomb(state->agents[state->enemy1Id].x, state->agents[state->enemy1Id].y))
+                        continue;
                 }else{
                     //We'll have same results with IDLE, IDLE
                     if(minPointE1 < 100 && state->agents[state->enemy1Id].x == desiredPos.x && state->agents[state->enemy1Id].y == desiredPos.y)
@@ -170,6 +176,9 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                             continue;
                         if (moveE2 == (int) bboard::Move::BOMB &&
                             state->agents[state->enemy2Id].maxBombCount - state->agents[state->enemy2Id].bombCount <= 0)
+                            continue;
+                        // if bomb is already under it
+                        if(moveE2 == (int)bboard::Move::BOMB && state->HasBomb(state->agents[state->enemy2Id].x, state->agents[state->enemy2Id].y))
                             continue;
                     }else{
                         //We'll have same results with IDLE, IDLE
