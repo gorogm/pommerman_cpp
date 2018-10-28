@@ -128,7 +128,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
         float maxTeammate = -100;
         for(int moveT=0; moveT<6; moveT++) {
             if (moveT > 0) {
-                if (depth >= teammateIteration || (state->agents[state->teammateId].dead || state->agents[state->teammateId].x < 0)) break;
+                if (depth >= teammateIteration || (state->agents[state->teammateId].dead || state->agents[state->teammateId].x < 0)) continue;
                 // if move is impossible
                 if (moveT > 0 && moveT < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->teammateId].x, state->agents[state->teammateId].y, (bboard::Move) moveT)))
                     continue;
@@ -141,7 +141,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
             float minPointE1 = 100;
             for (int moveE1 = 0; moveE1 < 6; moveE1++) {
                 if (moveE1 > 0) {
-                    if (depth >= enemyIteration1 || (state->agents[state->enemy1Id].dead || state->agents[state->enemy1Id].x < 0)) break;
+                    if (depth >= enemyIteration1 || (state->agents[state->enemy1Id].dead || state->agents[state->enemy1Id].x < 0)) continue;
                     // if move is impossible
                     if (moveE1 > 0 && moveE1 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->enemy1Id].x, state->agents[state->enemy1Id].y, (bboard::Move) moveE1)))
                         continue;
@@ -155,7 +155,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                 float minPointE2 = 100;
                 for (int moveE2 = 0; moveE2 < 6; moveE2++) {
                     if (moveE2 > 0) {
-                        if (depth >= enemyIteration2 || (state->agents[state->enemy2Id].dead || state->agents[state->enemy2Id].x < 0)) break;
+                        if (depth >= enemyIteration2 || (state->agents[state->enemy2Id].dead || state->agents[state->enemy2Id].x < 0)) continue;
                         // if move is impossible
                         if (moveE2 > 0 && moveE2 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->enemy2Id].x, state->agents[state->enemy2Id].y, (bboard::Move) moveE2)))
                             continue;
