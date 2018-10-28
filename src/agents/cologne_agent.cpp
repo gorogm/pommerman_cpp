@@ -109,6 +109,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
     FixedQueue<int, 6> bestmoves;
     for(int move=0; move<6; move++)
     {
+        Position desiredPos = bboard::util::DesiredPosition(a.x, a.y, (bboard::Move)move);
         // if we don't have bomb
         if(move == (int)bboard::Move::BOMB && a.maxBombCount - a.bombCount <= 0)
             continue;
@@ -116,7 +117,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
         if(depth == 0 && move == (int)bboard::Move::BOMB && state->HasBomb(a.x, a.y))
             continue;
         // if move is impossible
-        if(move>0 && move<5 && !_CheckPos2(state, bboard::util::DesiredPosition(a.x, a.y, (bboard::Move)move)))
+        if(move>0 && move<5 && !_CheckPos2(state, desiredPos))
             continue;
         //no two opposite steps please!
         if(depth > 0 && move>0 && move<5 && moves_in_chain[depth-1] > 0 && moves_in_chain[depth-1] < 5 && std::abs(moves_in_chain[depth-1]-move) == 2)
@@ -126,7 +127,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
         moves_in_chain.AddElem(move);
 
         float maxTeammate = -100;
-        for(int moveT=0; moveT<6; moveT++) {
+        for(int moveT=5; moveT >= 0; moveT--) {
             if (moveT > 0) {
                 if (depth >= teammateIteration || (state->agents[state->teammateId].dead || state->agents[state->teammateId].x < 0)) continue;
                 // if move is impossible
@@ -134,12 +135,16 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                     continue;
                 if (moveT == (int) bboard::Move::BOMB && state->agents[state->teammateId].maxBombCount - state->agents[state->teammateId].bombCount <= 0)
                     continue;
+            }else{
+                //We'll have same results with IDLE, IDLE
+                if(maxTeammate > -100 && state->agents[state->teammateId].x == desiredPos.x && state->agents[state->teammateId].y == desiredPos.y)
+                    continue;
             }
 
             moves_in_one_step[state->teammateId] = (bboard::Move) moveT;
 
             float minPointE1 = 100;
-            for (int moveE1 = 0; moveE1 < 6; moveE1++) {
+            for (int moveE1 = 5; moveE1 >= 0; moveE1--) {
                 if (moveE1 > 0) {
                     if (depth >= enemyIteration1 || (state->agents[state->enemy1Id].dead || state->agents[state->enemy1Id].x < 0)) continue;
                     // if move is impossible
@@ -148,12 +153,16 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                     if (moveE1 == (int) bboard::Move::BOMB &&
                         state->agents[state->enemy1Id].maxBombCount - state->agents[state->enemy1Id].bombCount <= 0)
                         continue;
+                }else{
+                    //We'll have same results with IDLE, IDLE
+                    if(minPointE1 < 100 && state->agents[state->enemy1Id].x == desiredPos.x && state->agents[state->enemy1Id].y == desiredPos.y)
+                        continue;
                 }
 
                 moves_in_one_step[state->enemy1Id] = (bboard::Move) moveE1;
 
                 float minPointE2 = 100;
-                for (int moveE2 = 0; moveE2 < 6; moveE2++) {
+                for (int moveE2 = 5; moveE2 >= 0; moveE2--) {
                     if (moveE2 > 0) {
                         if (depth >= enemyIteration2 || (state->agents[state->enemy2Id].dead || state->agents[state->enemy2Id].x < 0)) continue;
                         // if move is impossible
@@ -162,6 +171,10 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                         if (moveE2 == (int) bboard::Move::BOMB &&
                             state->agents[state->enemy2Id].maxBombCount - state->agents[state->enemy2Id].bombCount <= 0)
                             continue;
+                    }else{
+                        //We'll have same results with IDLE, IDLE
+                        if(minPointE2 < 100 && state->agents[state->enemy2Id].x == desiredPos.x && state->agents[state->enemy2Id].y == desiredPos.y)
+                          continue;
                     }
 
                     moves_in_one_step[state->enemy2Id] = (bboard::Move) moveE2;
