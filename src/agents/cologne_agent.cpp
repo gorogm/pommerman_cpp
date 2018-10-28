@@ -215,14 +215,14 @@ Move CologneAgent::act(const State* state)
     {
         seenAgents++;
         int dist = std::abs(state->agents[state->ourId].x - state->agents[state->enemy1Id].x) + std::abs(state->agents[state->ourId].y - state->agents[state->enemy1Id].y);
-        if(dist < 3) enemyIteration1++;
+        if(dist < 2) enemyIteration1++;
         if(dist < 5) enemyIteration1++;
     }
     if(!state->agents[state->enemy2Id].dead && state->agents[state->enemy2Id].x >= 0)
     {
         seenAgents++;
         int dist = std::abs(state->agents[state->ourId].x - state->agents[state->enemy2Id].x) + std::abs(state->agents[state->ourId].y - state->agents[state->enemy2Id].y);
-        if(dist < 3) enemyIteration2++;
+        if(dist < 2) enemyIteration2++;
         if(dist < 5) enemyIteration2++;
     }
     myMaxDepth = 6 - seenAgents;
