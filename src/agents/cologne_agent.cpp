@@ -227,6 +227,16 @@ Move CologneAgent::act(const State* state)
     }
     myMaxDepth = 6 - seenAgents;
 
+    for(int i=0; i<4; i++)
+    {
+        if(previousPositions[i].count == 12)
+            previousPositions[i].RemoveAt(0);
+        Position p;
+        p.x = state->agents[i].x;
+        p.y = state->agents[i].y;
+        previousPositions[i][previousPositions[i].count] = p;
+    }
+
     const AgentInfo& a = state->agents[state->ourId];
     if(state->timeStep > 1 && (expectedPosInNewTurn.x != a.x || expectedPosInNewTurn.y != a.y))
     {

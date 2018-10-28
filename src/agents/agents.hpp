@@ -131,6 +131,7 @@ struct SimpleAgent : bboard::Agent
         int seenAgents = 0;
         int enemyIteration1 = 0, enemyIteration2 = 0, teammateIteration = 0;
         int myMaxDepth = 0;
+        std::array<bboard::FixedQueue<bboard::Position, 13>, 4 > previousPositions;
 
 
         bool _CheckPos2(const bboard::State* state, bboard::Position pos);
