@@ -67,7 +67,7 @@ float CologneAgent::scoreState(State * state) {
         point -= (std::abs(state->woods[i].x - state->agents[state->ourId].x) + std::abs(state->woods[i].y - state->agents[state->ourId].y)) / 1000.0f;
 
     if(moves_in_chain[0] != 0) point += 0.001f; //not IDLE
-    if(lastMoveWasBlocked && moves_in_chain[0] == lastBlockedMove)
+    if(lastMoveWasBlocked && ((state->timeStep + state->ourId) % 4) == 0 && moves_in_chain[0] == lastBlockedMove)
         point -= 0.1f;
 
     return point;
@@ -191,7 +191,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
     }
 
     if(bestmoves.count > 0) {
-        best_moves_in_chain[depth] = bestmoves[state->timeStep % bestmoves.count];
+        best_moves_in_chain[depth] = bestmoves[(state->timeStep / 4) % bestmoves.count];
     }else
         best_moves_in_chain[depth] = 0;
 
