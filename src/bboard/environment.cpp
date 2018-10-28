@@ -321,6 +321,8 @@ void Environment::MakeGameFromPython(int ourId)
                     state->board[y][x] = FLAMES;
                     break;
                 case PyFOG:
+                    if(state->board[y][x] >= AGENT0)
+                        state->board[y][x] = FOG;
                     /*if(state->board[y][x] == RIGID)
                         state->board[y][x] = RIGID;
                     else
