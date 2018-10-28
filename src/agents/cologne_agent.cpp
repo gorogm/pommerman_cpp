@@ -45,7 +45,8 @@ float CologneAgent::soonerBetter(float reward, int timestaps)
 float CologneAgent::scoreState(State * state) {
     float teamBalance = (state->ourId < 2 ? 1.01f : 0.99f);
     float point = laterBetter(-10 * state->agents[state->ourId].dead, state->agents[state->ourId].diedAt - state->timeStep);
-    point += laterBetter(-10 * state->agents[state->teammateId].dead, state->agents[state->teammateId].diedAt - state->timeStep);
+    if(state->agents[state->teammateId].x >= 0)
+        point += laterBetter(-10 * state->agents[state->teammateId].dead, state->agents[state->teammateId].diedAt - state->timeStep);
     point += 3 * soonerBetter(state->agents[state->enemy1Id].dead, state->agents[state->enemy1Id].diedAt - state->timeStep);
     point += 3 * soonerBetter(state->agents[state->enemy2Id].dead, state->agents[state->enemy2Id].diedAt - state->timeStep);
     point += 0.3f * state->woodDemolished;
@@ -229,25 +230,37 @@ Move CologneAgent::act(const State* state)
     bestPoint = -100.0f;
     enemyIteration1 = 0; enemyIteration2 = 0; teammateIteration = 0; seenAgents = 0;
     best_moves_in_chain.count = 0;
+    int seenEnemies = 0;
+    if(!state->agents[state->teammateId].dead && state->agents[state->teammateId].x >= 0) {
+        seenAgents++;
+    }
+    if(!state->agents[state->enemy1Id].dead && state->agents[state->enemy1Id].x >= 0) {
+        seenAgents++;
+        seenEnemies++;
+    }
+    if(!state->agents[state->enemy2Id].dead && state->agents[state->enemy2Id].x >= 0) {
+        seenAgents++;
+        seenEnemies++;
+    }
+
     if(!state->agents[state->teammateId].dead && state->agents[state->teammateId].x >= 0)
     {
-        seenAgents++;
         int dist = std::abs(state->agents[state->ourId].x - state->agents[state->teammateId].x) + std::abs(state->agents[state->ourId].y - state->agents[state->teammateId].y);
         if(dist < 3) teammateIteration++;
         if(dist < 5) teammateIteration++;
     }
     if(!state->agents[state->enemy1Id].dead && state->agents[state->enemy1Id].x >= 0)
     {
-        seenAgents++;
         int dist = std::abs(state->agents[state->ourId].x - state->agents[state->enemy1Id].x) + std::abs(state->agents[state->ourId].y - state->agents[state->enemy1Id].y);
         if(dist < 2) enemyIteration1++;
+        if(dist < 3 && seenEnemies == 1) enemyIteration1++;
         if(dist < 5) enemyIteration1++;
     }
     if(!state->agents[state->enemy2Id].dead && state->agents[state->enemy2Id].x >= 0)
     {
-        seenAgents++;
         int dist = std::abs(state->agents[state->ourId].x - state->agents[state->enemy2Id].x) + std::abs(state->agents[state->ourId].y - state->agents[state->enemy2Id].y);
         if(dist < 2) enemyIteration2++;
+        if(dist < 3 && seenEnemies == 1) enemyIteration2++;
         if(dist < 5) enemyIteration2++;
     }
     myMaxDepth = 6 - seenAgents;
