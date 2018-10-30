@@ -26,9 +26,9 @@ float CologneAgent::laterBetter(float reward, int timestaps)
         return reward;
 
     if(reward > 0)
-        return reward * (1.0f / (float)std::pow(0.98f, timestaps));
+        return reward * (1.0f / (float)std::pow(reward_sooner_later_ratio, timestaps));
     else
-        return reward * (float)std::pow(0.98f, timestaps);
+        return reward * (float)std::pow(reward_sooner_later_ratio, timestaps);
 }
 
 float CologneAgent::soonerBetter(float reward, int timestaps)
@@ -37,9 +37,9 @@ float CologneAgent::soonerBetter(float reward, int timestaps)
         return reward;
 
     if(reward < 0)
-        return reward * (1.0f / (float)std::pow(0.98f, timestaps));
+        return reward * (1.0f / (float)std::pow(reward_sooner_later_ratio, timestaps));
     else
-        return reward * (float)std::pow(0.98f, timestaps);
+        return reward * (float)std::pow(reward_sooner_later_ratio, timestaps);
 }
 
 float CologneAgent::scoreState(State * state) {
@@ -50,24 +50,24 @@ float CologneAgent::scoreState(State * state) {
     point += 3 * soonerBetter(state->agents[state->enemy1Id].dead, state->agents[state->enemy1Id].diedAt - state->timeStep);
     point += 3 * soonerBetter(state->agents[state->enemy2Id].dead, state->agents[state->enemy2Id].diedAt - state->timeStep);
     point += 0.3f * state->woodDemolished;
-    point += 0.5f * state->agents[state->ourId].collectedPowerupPoints * teamBalance;
-    point += 0.5f * state->agents[state->teammateId].collectedPowerupPoints / teamBalance;
+    point += reward_collectedPowerup * state->agents[state->ourId].collectedPowerupPoints * teamBalance;
+    point += reward_collectedPowerup * state->agents[state->teammateId].collectedPowerupPoints / teamBalance;
 
     if(state->agents[state->enemy1Id].x >= 0)
-        point -= (std::abs(state->agents[state->enemy1Id].x - state->agents[state->ourId].x) + std::abs(state->agents[state->enemy1Id].y - state->agents[state->ourId].y)) / 100.0f;
+        point -= (std::abs(state->agents[state->enemy1Id].x - state->agents[state->ourId].x) + std::abs(state->agents[state->enemy1Id].y - state->agents[state->ourId].y)) / reward_move_to_enemy;
     if(state->agents[state->enemy2Id].x >= 0)
-        point -= (std::abs(state->agents[state->enemy2Id].x - state->agents[state->ourId].x) + std::abs(state->agents[state->enemy2Id].y - state->agents[state->ourId].y)) / 100.0f;
+        point -= (std::abs(state->agents[state->enemy2Id].x - state->agents[state->ourId].x) + std::abs(state->agents[state->enemy2Id].y - state->agents[state->ourId].y)) / reward_move_to_enemy;
 
     for(int i=0; i < state->powerup_kick.count; i++)
-        point -= (std::abs(state->powerup_kick[i].x - state->agents[state->ourId].x) + std::abs(state->powerup_kick[i].y - state->agents[state->ourId].y)) / 1000.0f;
+        point -= (std::abs(state->powerup_kick[i].x - state->agents[state->ourId].x) + std::abs(state->powerup_kick[i].y - state->agents[state->ourId].y)) / reward_move_to_pickup;
     for(int i=0; i < state->powerup_incr.count; i++)
-        point -= (std::abs(state->powerup_incr[i].x - state->agents[state->ourId].x) + std::abs(state->powerup_incr[i].y - state->agents[state->ourId].y)) / 1000.0f;
+        point -= (std::abs(state->powerup_incr[i].x - state->agents[state->ourId].x) + std::abs(state->powerup_incr[i].y - state->agents[state->ourId].y)) / reward_move_to_pickup;
     for(int i=0; i < state->powerup_extrabomb.count; i++)
-        point -= (std::abs(state->powerup_extrabomb[i].x - state->agents[state->ourId].x) + std::abs(state->powerup_extrabomb[i].y - state->agents[state->ourId].y)) / 1000.0f;
+        point -= (std::abs(state->powerup_extrabomb[i].x - state->agents[state->ourId].x) + std::abs(state->powerup_extrabomb[i].y - state->agents[state->ourId].y)) / reward_move_to_pickup;
     for(int i=0; i < state->woods.count; i++)
         point -= (std::abs(state->woods[i].x - state->agents[state->ourId].x) + std::abs(state->woods[i].y - state->agents[state->ourId].y)) / 1000.0f;
 
-    if(moves_in_chain[0] != 0) point += 0.001f; //not IDLE
+    if(moves_in_chain[0] == 0) point -= reward_first_step_idle;
     if(lastMoveWasBlocked && ((state->timeStep + state->ourId) % 4) == 0 && moves_in_chain[0] == lastBlockedMove)
         point -= 0.1f;
 

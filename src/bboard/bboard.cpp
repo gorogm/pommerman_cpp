@@ -7,6 +7,9 @@
 #include "bboard.hpp"
 #include "colors.hpp"
 #include "../agents/agents.hpp"
+#include <map>
+#include <fstream>
+#include <sstream>
 
 namespace bboard
 {
@@ -447,6 +450,33 @@ std::string PrintItem(int item)
 
 }
 
+typedef std::map<std::string, float> ConfigInfo;
+
+ConfigInfo readHyperparams(std::string configFile) {
+    ConfigInfo configValues;
+
+    std::ifstream fileStream(configFile);
+    if(!fileStream.is_open())
+        return configValues;
+
+    std::string line;
+    while (std::getline(fileStream, line)) {
+        std::istringstream is_line(line);
+        std::string key;
+        if (std::getline(is_line, key, '=')) {
+            std::string value;
+            if (key[0] == '#')
+                continue;
+
+            if (std::getline(is_line, value)) {
+                configValues[key] = std::stof(value);
+            }
+        }
+    }
+    fileStream.close();
+    return configValues;
+}
+
 std::array<std::shared_ptr<bboard::Environment>, 4> envs;
 std::array<std::shared_ptr<agents::BerlinAgent>, 4> berlinAgents;
 std::array<std::shared_ptr<agents::CologneAgent>, 4> cologneAgents;
@@ -461,6 +491,29 @@ void init_agent_cologne(int id)
     envs[id] = std::make_shared<bboard::Environment>();
     cologneAgents[id] = std::make_shared<agents::CologneAgent>();
     envs[id]->MakeGameFromPython(id);
+
+    ConfigInfo hyperparams = readHyperparams("/tmp/hyperparams.txt");
+
+    if(hyperparams.count("reward_first_step_idle") > 0) {
+        std::cout << "Settings reward_first_step_idle to " << hyperparams["reward_first_step_idle"] << std::endl;
+        cologneAgents[id]->reward_first_step_idle = hyperparams["reward_first_step_idle"];
+    }
+    if(hyperparams.count("reward_sooner_later_ratio") > 0) {
+        std::cout << "Settings reward_sooner_later_ratio to " << hyperparams["reward_sooner_later_ratio"] << std::endl;
+        cologneAgents[id]->reward_sooner_later_ratio = hyperparams["reward_sooner_later_ratio"];
+    }
+    if(hyperparams.count("reward_collectedPowerup") > 0) {
+        std::cout << "Settings reward_collectedPowerup to " << hyperparams["reward_collectedPowerup"] << std::endl;
+        cologneAgents[id]->reward_collectedPowerup = hyperparams["reward_collectedPowerup"];
+    }
+    if(hyperparams.count("reward_move_to_enemy") > 0) {
+        std::cout << "Settings reward_move_to_enemy to " << hyperparams["reward_move_to_enemy"] << std::endl;
+        cologneAgents[id]->reward_move_to_enemy = hyperparams["reward_move_to_enemy"];
+    }
+    if(hyperparams.count("reward_move_to_pickup") > 0) {
+        std::cout << "Settings reward_move_to_pickup to " << hyperparams["reward_move_to_pickup"] << std::endl;
+        cologneAgents[id]->reward_move_to_pickup = hyperparams["reward_move_to_pickup"];
+    }
 }
 
 float episode_end_berlin(int id)
