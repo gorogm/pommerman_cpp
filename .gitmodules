@@ -1,6 +1,6 @@
 [submodule "playground"]
 	path = playground
-	url = https://bitbucket.org/gorogm/pommermanplayground.git
+	url = git@bitbucket.org:gorogm/pommermanplayground.git
 [submodule "BayesianOptimization"]
 	path = BayesianOptimization
 	url = https://github.com/gorogm/BayesianOptimization.git
