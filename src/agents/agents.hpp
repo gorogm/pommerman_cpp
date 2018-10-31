@@ -5,6 +5,8 @@
 
 #include "bboard.hpp"
 #include "strategy.hpp"
+#include <set>
+#include "uint128_t.h"
 
 namespace agents
 {
@@ -143,6 +145,8 @@ struct SimpleAgent : bboard::Agent
         float reward_collectedPowerup = 0.5f;
         float reward_move_to_enemy = 100.0f;
         float reward_move_to_pickup = 1000.0f;
+
+        std::set<uint128_t> visitedSteps;
     };
 // more agents to be included?
 

@@ -98,6 +98,7 @@ float CologneAgent::runAlreadyPlantedBombs(State * state)
 }
 
 //#define RANDOM_TIEBREAK
+//#define SCENE_HASH_MEMORY
 //With random-tiebreak: 50% less simsteps, 3% less wins :( , 10-20% less ties against simple. Turned off by default.
 float CologneAgent::runOneStep(const bboard::State * state, int depth)
 {
@@ -199,6 +200,35 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                     bboard::Step(newstate, moves_in_one_step);
                     simulatedSteps++;
 
+#ifdef SCENE_HASH_MEMORY
+                    uint128_t hash = ((((((((((((uint128_t)(newstate->agents[newstate->ourId].x * 11 + newstate->agents[newstate->ourId].y) * 121 +
+                                         (newstate->agents[state->enemy1Id].dead || newstate->agents[newstate->enemy1Id].x < 0 ? 0 : newstate->agents[newstate->enemy1Id].x * 11 + newstate->agents[newstate->enemy1Id].y)) * 121 +
+                                        (newstate->agents[state->enemy2Id].dead || newstate->agents[newstate->enemy2Id].x < 0 ? 0 : newstate->agents[newstate->enemy2Id].x * 11 + newstate->agents[newstate->enemy2Id].y)) * 121 +
+                                       (newstate->agents[state->teammateId].dead || newstate->agents[newstate->teammateId].x < 0 ? 0 : newstate->agents[newstate->teammateId].x * 11 + newstate->agents[newstate->teammateId].y)) * 121 +
+                            newstate->bombs.count)*6+
+                            depth)*6+
+                            (newstate->bombs.count > 0 ? newstate->bombs[newstate->bombs.count-1] : 0))*10000 +
+                            (newstate->bombs.count > 1 ? newstate->bombs[newstate->bombs.count-2] : 0))*10000 +
+                            (newstate->bombs.count > 2 ? newstate->bombs[newstate->bombs.count-3] : 0))*10000 +
+                            (newstate->bombs.count > 3 ? newstate->bombs[newstate->bombs.count-4] : 0))*10000 +
+                            newstate->agents[newstate->ourId].maxBombCount)*10 +
+                            newstate->agents[newstate->ourId].bombStrength)*10 +
+                            newstate->agents[0].dead*8 + newstate->agents[1].dead*4 + newstate->agents[2].dead*2 + newstate->agents[3].dead;
+
+                    if(visitedSteps.count(hash) > 0) {
+                        if(state->ourId == 3 && seenAgents == 0 && state->timeStep==23) {
+                            for (int i = 0; i < moves_in_chain.count; i++)
+                                std::cout << moves_in_chain[i] << " ";
+                            std::cout << "continue " << hash << std::endl;
+                        }
+                        delete newstate;
+                        continue;
+                    }
+                    else {
+                        visitedSteps.insert(hash);
+                    }
+#endif
+
                     float point;
                     if (depth + 1 < myMaxDepth)
                         point = runOneStep(newstate, depth + 1);
@@ -234,6 +264,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
 
 Move CologneAgent::act(const State* state)
 {
+    visitedSteps.clear();
     simulatedSteps = 0;
     bestPoint = -100.0f;
     enemyIteration1 = 0; enemyIteration2 = 0; teammateIteration = 0; seenAgents = 0;
