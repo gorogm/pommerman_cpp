@@ -122,7 +122,7 @@ void TickBombs(State& state)
         if(BMB_TIME(state.bombs[0]) == 0)
         {
             state.ExplodeTopBomb();
-            //i--;
+            i--;
         }
         else
         {
