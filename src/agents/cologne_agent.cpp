@@ -97,6 +97,8 @@ float CologneAgent::runAlreadyPlantedBombs(State * state)
     return point;
 }
 
+//#define RANDOM_TIEBREAK
+//With random-tiebreak: 50% less simsteps, 3% less wins :( , 10-20% less ties against simple. Turned off by default.
 float CologneAgent::runOneStep(const bboard::State * state, int depth)
 {
     bboard::Move moves_in_one_step[4]; //was: moves
@@ -107,7 +109,9 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
 
     const AgentInfo& a = state->agents[state->ourId];
     float maxPoint = -100;
+#ifdef RANDOM_TIEBREAK
     FixedQueue<int, 6> bestmoves;
+#endif
     for(int move=0; move<6; move++)
     {
         Position desiredPos = bboard::util::DesiredPosition(a.x, a.y, (bboard::Move)move);
@@ -212,15 +216,19 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
 
         moves_in_chain.RemoveAt(moves_in_chain.count - 1);
         best_moves_in_chain.count = std::max(depth+1, best_moves_in_chain.count);
+#ifdef RANDOM_TIEBREAK
         if (maxTeammate == maxPoint) { bestmoves[bestmoves.count] = move; bestmoves.count++;}
         if (maxTeammate > maxPoint) { maxPoint = maxTeammate; bestmoves.count = 1; bestmoves[0] = move;}
+#else
+        if (maxTeammate > maxPoint) { maxPoint = maxTeammate; best_moves_in_chain[depth] = move;}
+#endif
     }
-
+#ifdef RANDOM_TIEBREAK
     if(bestmoves.count > 0) {
         best_moves_in_chain[depth] = bestmoves[(state->timeStep / 4) % bestmoves.count];
     }else
         best_moves_in_chain[depth] = 0;
-
+#endif
     return maxPoint;
 }
 
