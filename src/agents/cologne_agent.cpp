@@ -43,32 +43,32 @@ float CologneAgent::soonerBetter(float reward, int timestaps)
 }
 
 float CologneAgent::scoreState(State * state) {
-    float teamBalance = (state->ourId < 2 ? 1.01f : 0.99f);
-    float point = laterBetter(-10 * state->agents[state->ourId].dead, state->agents[state->ourId].diedAt - state->timeStep);
-    if(state->agents[state->teammateId].x >= 0)
-        point += laterBetter(-10 * state->agents[state->teammateId].dead, state->agents[state->teammateId].diedAt - state->timeStep);
-    point += 3 * soonerBetter(state->agents[state->enemy1Id].dead, state->agents[state->enemy1Id].diedAt - state->timeStep);
-    point += 3 * soonerBetter(state->agents[state->enemy2Id].dead, state->agents[state->enemy2Id].diedAt - state->timeStep);
+    float teamBalance = (ourId < 2 ? 1.01f : 0.99f);
+    float point = laterBetter(-10 * state->agents[ourId].dead, state->agents[ourId].diedAt - state->timeStep);
+    if(state->agents[teammateId].x >= 0)
+        point += laterBetter(-10 * state->agents[teammateId].dead, state->agents[teammateId].diedAt - state->timeStep);
+    point += 3 * soonerBetter(state->agents[enemy1Id].dead, state->agents[enemy1Id].diedAt - state->timeStep);
+    point += 3 * soonerBetter(state->agents[enemy2Id].dead, state->agents[enemy2Id].diedAt - state->timeStep);
     point += 0.3f * state->woodDemolished;
-    point += reward_collectedPowerup * state->agents[state->ourId].collectedPowerupPoints * teamBalance;
-    point += reward_collectedPowerup * state->agents[state->teammateId].collectedPowerupPoints / teamBalance;
+    point += reward_collectedPowerup * state->agents[ourId].collectedPowerupPoints * teamBalance;
+    point += reward_collectedPowerup * state->agents[teammateId].collectedPowerupPoints / teamBalance;
 
-    if(state->agents[state->enemy1Id].x >= 0)
-        point -= (std::abs(state->agents[state->enemy1Id].x - state->agents[state->ourId].x) + std::abs(state->agents[state->enemy1Id].y - state->agents[state->ourId].y)) / reward_move_to_enemy;
-    if(state->agents[state->enemy2Id].x >= 0)
-        point -= (std::abs(state->agents[state->enemy2Id].x - state->agents[state->ourId].x) + std::abs(state->agents[state->enemy2Id].y - state->agents[state->ourId].y)) / reward_move_to_enemy;
+    if(state->agents[enemy1Id].x >= 0)
+        point -= (std::abs(state->agents[enemy1Id].x - state->agents[ourId].x) + std::abs(state->agents[enemy1Id].y - state->agents[ourId].y)) / reward_move_to_enemy;
+    if(state->agents[enemy2Id].x >= 0)
+        point -= (std::abs(state->agents[enemy2Id].x - state->agents[ourId].x) + std::abs(state->agents[enemy2Id].y - state->agents[ourId].y)) / reward_move_to_enemy;
 
     for(int i=0; i < state->powerup_kick.count; i++)
-        point -= (std::abs(state->powerup_kick[i].x - state->agents[state->ourId].x) + std::abs(state->powerup_kick[i].y - state->agents[state->ourId].y)) / reward_move_to_pickup;
+        point -= (std::abs(state->powerup_kick[i].x - state->agents[ourId].x) + std::abs(state->powerup_kick[i].y - state->agents[ourId].y)) / reward_move_to_pickup;
     for(int i=0; i < state->powerup_incr.count; i++)
-        point -= (std::abs(state->powerup_incr[i].x - state->agents[state->ourId].x) + std::abs(state->powerup_incr[i].y - state->agents[state->ourId].y)) / reward_move_to_pickup;
+        point -= (std::abs(state->powerup_incr[i].x - state->agents[ourId].x) + std::abs(state->powerup_incr[i].y - state->agents[ourId].y)) / reward_move_to_pickup;
     for(int i=0; i < state->powerup_extrabomb.count; i++)
-        point -= (std::abs(state->powerup_extrabomb[i].x - state->agents[state->ourId].x) + std::abs(state->powerup_extrabomb[i].y - state->agents[state->ourId].y)) / reward_move_to_pickup;
+        point -= (std::abs(state->powerup_extrabomb[i].x - state->agents[ourId].x) + std::abs(state->powerup_extrabomb[i].y - state->agents[ourId].y)) / reward_move_to_pickup;
     for(int i=0; i < state->woods.count; i++)
-        point -= (std::abs(state->woods[i].x - state->agents[state->ourId].x) + std::abs(state->woods[i].y - state->agents[state->ourId].y)) / 1000.0f;
+        point -= (std::abs(state->woods[i].x - state->agents[ourId].x) + std::abs(state->woods[i].y - state->agents[ourId].y)) / 1000.0f;
 
     if(moves_in_chain[0] == 0) point -= reward_first_step_idle;
-    if(lastMoveWasBlocked && ((state->timeStep + state->ourId) % 4) == 0 && moves_in_chain[0] == lastBlockedMove)
+    if(lastMoveWasBlocked && ((state->timeStep + ourId) % 4) == 0 && moves_in_chain[0] == lastBlockedMove)
         point -= 0.1f;
 
     return point;
@@ -100,7 +100,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
     moves_in_one_step[2] = bboard::Move::IDLE;
     moves_in_one_step[3] = bboard::Move::IDLE;
 
-    const AgentInfo& a = state->agents[state->ourId];
+    const AgentInfo& a = state->agents[ourId];
     float maxPoint = -100;
 #ifdef RANDOM_TIEBREAK
     FixedQueue<int, 6> bestmoves;
@@ -121,70 +121,70 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
         if(depth > 0 && move>0 && move<5 && moves_in_chain[depth-1] > 0 && moves_in_chain[depth-1] < 5 && std::abs(moves_in_chain[depth-1]-move) == 2)
             continue;
 
-        moves_in_one_step[state->ourId] = (bboard::Move) move;
+        moves_in_one_step[ourId] = (bboard::Move) move;
         moves_in_chain.AddElem(move);
 
         float maxTeammate = -100;
         for(int moveT=5; moveT >= 0; moveT--) {
             if (moveT > 0) {
-                if (depth >= teammateIteration || (state->agents[state->teammateId].dead || state->agents[state->teammateId].x < 0)) continue;
+                if (depth >= teammateIteration || (state->agents[teammateId].dead || state->agents[teammateId].x < 0)) continue;
                 // if move is impossible
-                if (moveT > 0 && moveT < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->teammateId].x, state->agents[state->teammateId].y, (bboard::Move) moveT)))
+                if (moveT > 0 && moveT < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[teammateId].x, state->agents[teammateId].y, (bboard::Move) moveT)))
                     continue;
-                if (moveT == (int) bboard::Move::BOMB && state->agents[state->teammateId].maxBombCount - state->agents[state->teammateId].bombCount <= 0)
+                if (moveT == (int) bboard::Move::BOMB && state->agents[teammateId].maxBombCount - state->agents[teammateId].bombCount <= 0)
                     continue;
                 // if bomb is already under it
-                if(moveT == (int)bboard::Move::BOMB && state->HasBomb(state->agents[state->teammateId].x, state->agents[state->teammateId].y))
+                if(moveT == (int)bboard::Move::BOMB && state->HasBomb(state->agents[teammateId].x, state->agents[teammateId].y))
                     continue;
             }else{
                 //We'll have same results with IDLE, IDLE
-                if(maxTeammate > -100 && state->agents[state->teammateId].x == desiredPos.x && state->agents[state->teammateId].y == desiredPos.y)
+                if(maxTeammate > -100 && state->agents[teammateId].x == desiredPos.x && state->agents[teammateId].y == desiredPos.y)
                     continue;
             }
 
-            moves_in_one_step[state->teammateId] = (bboard::Move) moveT;
+            moves_in_one_step[teammateId] = (bboard::Move) moveT;
 
             float minPointE1 = 100;
             for (int moveE1 = 5; moveE1 >= 0; moveE1--) {
                 if (moveE1 > 0) {
-                    if (depth >= enemyIteration1 || (state->agents[state->enemy1Id].dead || state->agents[state->enemy1Id].x < 0)) continue;
+                    if (depth >= enemyIteration1 || (state->agents[enemy1Id].dead || state->agents[enemy1Id].x < 0)) continue;
                     // if move is impossible
-                    if (moveE1 > 0 && moveE1 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->enemy1Id].x, state->agents[state->enemy1Id].y, (bboard::Move) moveE1)))
+                    if (moveE1 > 0 && moveE1 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[enemy1Id].x, state->agents[enemy1Id].y, (bboard::Move) moveE1)))
                         continue;
                     if (moveE1 == (int) bboard::Move::BOMB &&
-                        state->agents[state->enemy1Id].maxBombCount - state->agents[state->enemy1Id].bombCount <= 0)
+                        state->agents[enemy1Id].maxBombCount - state->agents[enemy1Id].bombCount <= 0)
                         continue;
                     // if bomb is already under it
-                    if(moveE1 == (int)bboard::Move::BOMB && state->HasBomb(state->agents[state->enemy1Id].x, state->agents[state->enemy1Id].y))
+                    if(moveE1 == (int)bboard::Move::BOMB && state->HasBomb(state->agents[enemy1Id].x, state->agents[enemy1Id].y))
                         continue;
                 }else{
                     //We'll have same results with IDLE, IDLE
-                    if(minPointE1 < 100 && state->agents[state->enemy1Id].x == desiredPos.x && state->agents[state->enemy1Id].y == desiredPos.y)
+                    if(minPointE1 < 100 && state->agents[enemy1Id].x == desiredPos.x && state->agents[enemy1Id].y == desiredPos.y)
                         continue;
                 }
 
-                moves_in_one_step[state->enemy1Id] = (bboard::Move) moveE1;
+                moves_in_one_step[enemy1Id] = (bboard::Move) moveE1;
 
                 float minPointE2 = 100;
                 for (int moveE2 = 5; moveE2 >= 0; moveE2--) {
                     if (moveE2 > 0) {
-                        if (depth >= enemyIteration2 || (state->agents[state->enemy2Id].dead || state->agents[state->enemy2Id].x < 0)) continue;
+                        if (depth >= enemyIteration2 || (state->agents[enemy2Id].dead || state->agents[enemy2Id].x < 0)) continue;
                         // if move is impossible
-                        if (moveE2 > 0 && moveE2 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[state->enemy2Id].x, state->agents[state->enemy2Id].y, (bboard::Move) moveE2)))
+                        if (moveE2 > 0 && moveE2 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[enemy2Id].x, state->agents[enemy2Id].y, (bboard::Move) moveE2)))
                             continue;
                         if (moveE2 == (int) bboard::Move::BOMB &&
-                            state->agents[state->enemy2Id].maxBombCount - state->agents[state->enemy2Id].bombCount <= 0)
+                            state->agents[enemy2Id].maxBombCount - state->agents[enemy2Id].bombCount <= 0)
                             continue;
                         // if bomb is already under it
-                        if(moveE2 == (int)bboard::Move::BOMB && state->HasBomb(state->agents[state->enemy2Id].x, state->agents[state->enemy2Id].y))
+                        if(moveE2 == (int)bboard::Move::BOMB && state->HasBomb(state->agents[enemy2Id].x, state->agents[enemy2Id].y))
                             continue;
                     }else{
                         //We'll have same results with IDLE, IDLE
-                        if(minPointE2 < 100 && state->agents[state->enemy2Id].x == desiredPos.x && state->agents[state->enemy2Id].y == desiredPos.y)
+                        if(minPointE2 < 100 && state->agents[enemy2Id].x == desiredPos.x && state->agents[enemy2Id].y == desiredPos.y)
                           continue;
                     }
 
-                    moves_in_one_step[state->enemy2Id] = (bboard::Move) moveE2;
+                    moves_in_one_step[enemy2Id] = (bboard::Move) moveE2;
 
                     bboard::State *newstate = new bboard::State(*state);
                     newstate->relTimeStep++;
@@ -193,26 +193,26 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                     simulatedSteps++;
 
 #ifdef SCENE_HASH_MEMORY
-                    uint128_t hash = ((((((((((((uint128_t)(newstate->agents[newstate->ourId].x * 11 + newstate->agents[newstate->ourId].y) * 121 +
-                                         (newstate->agents[state->enemy1Id].dead || newstate->agents[newstate->enemy1Id].x < 0 ? 0 : newstate->agents[newstate->enemy1Id].x * 11 + newstate->agents[newstate->enemy1Id].y)) * 121 +
-                                        (newstate->agents[state->enemy2Id].dead || newstate->agents[newstate->enemy2Id].x < 0 ? 0 : newstate->agents[newstate->enemy2Id].x * 11 + newstate->agents[newstate->enemy2Id].y)) * 121 +
-                                       (newstate->agents[state->teammateId].dead || newstate->agents[newstate->teammateId].x < 0 ? 0 : newstate->agents[newstate->teammateId].x * 11 + newstate->agents[newstate->teammateId].y)) * 121 +
+                    uint128_t hash = ((((((((((((uint128_t)(newstate->agents[ourId].x * 11 + newstate->agents[ourId].y) * 121 +
+                                         (newstate->agents[enemy1Id].dead || newstate->agents[enemy1Id].x < 0 ? 0 : newstate->agents[enemy1Id].x * 11 + newstate->agents[enemy1Id].y)) * 121 +
+                                        (newstate->agents[enemy2Id].dead || newstate->agents[enemy2Id].x < 0 ? 0 : newstate->agents[enemy2Id].x * 11 + newstate->agents[enemy2Id].y)) * 121 +
+                                       (newstate->agents[teammateId].dead || newstate->agents[teammateId].x < 0 ? 0 : newstate->agents[teammateId].x * 11 + newstate->agents[teammateId].y)) * 121 +
                             newstate->bombs.count)*6+
                             depth)*6+
                             (newstate->bombs.count > 0 ? newstate->bombs[newstate->bombs.count-1] : 0))*10000 +
                             (newstate->bombs.count > 1 ? newstate->bombs[newstate->bombs.count-2] : 0))*10000 +
                             (newstate->bombs.count > 2 ? newstate->bombs[newstate->bombs.count-3] : 0))*10000 +
                             (newstate->bombs.count > 3 ? newstate->bombs[newstate->bombs.count-4] : 0))*10000 +
-                            newstate->agents[newstate->ourId].maxBombCount)*10 +
-                            newstate->agents[newstate->ourId].bombStrength)*10 +
+                            newstate->agents[ourId].maxBombCount)*10 +
+                            newstate->agents[ourId].bombStrength)*10 +
                             newstate->agents[0].dead*8 + newstate->agents[1].dead*4 + newstate->agents[2].dead*2 + newstate->agents[3].dead;
 
                     if(visitedSteps.count(hash) > 0) {
-                        if(state->ourId == 3 && seenAgents == 0 && state->timeStep==23) {
+                        /*if(ourId == 3 && seenAgents == 0 && state->timeStep==23) {
                             for (int i = 0; i < moves_in_chain.count; i++)
                                 std::cout << moves_in_chain[i] << " ";
                             std::cout << "continue " << hash << std::endl;
-                        }
+                        }*/
                         delete newstate;
                         continue;
                     }
@@ -272,37 +272,41 @@ Move CologneAgent::act(const State* state)
     enemyIteration1 = 0; enemyIteration2 = 0; teammateIteration = 0; seenAgents = 0;
     best_moves_in_chain.count = 0;
     best_points_in_chain.count = 10;
+    ourId = state->ourId;
+    enemy1Id = state->enemy1Id;
+    enemy2Id = state->enemy2Id;
+    teammateId = state->teammateId;
     for(int i=0; i<10; i++)
         best_points_in_chain[i] = -1000;
     int seenEnemies = 0;
-    if(!state->agents[state->teammateId].dead && state->agents[state->teammateId].x >= 0) {
+    if(!state->agents[teammateId].dead && state->agents[teammateId].x >= 0) {
         seenAgents++;
     }
-    if(!state->agents[state->enemy1Id].dead && state->agents[state->enemy1Id].x >= 0) {
+    if(!state->agents[enemy1Id].dead && state->agents[enemy1Id].x >= 0) {
         seenAgents++;
         seenEnemies++;
     }
-    if(!state->agents[state->enemy2Id].dead && state->agents[state->enemy2Id].x >= 0) {
+    if(!state->agents[enemy2Id].dead && state->agents[enemy2Id].x >= 0) {
         seenAgents++;
         seenEnemies++;
     }
 
-    if(!state->agents[state->teammateId].dead && state->agents[state->teammateId].x >= 0)
+    if(!state->agents[teammateId].dead && state->agents[teammateId].x >= 0)
     {
-        int dist = std::abs(state->agents[state->ourId].x - state->agents[state->teammateId].x) + std::abs(state->agents[state->ourId].y - state->agents[state->teammateId].y);
+        int dist = std::abs(state->agents[ourId].x - state->agents[teammateId].x) + std::abs(state->agents[ourId].y - state->agents[teammateId].y);
         if(dist < 3) teammateIteration++;
         if(dist < 5) teammateIteration++;
     }
-    if(!state->agents[state->enemy1Id].dead && state->agents[state->enemy1Id].x >= 0)
+    if(!state->agents[enemy1Id].dead && state->agents[enemy1Id].x >= 0)
     {
-        int dist = std::abs(state->agents[state->ourId].x - state->agents[state->enemy1Id].x) + std::abs(state->agents[state->ourId].y - state->agents[state->enemy1Id].y);
+        int dist = std::abs(state->agents[ourId].x - state->agents[enemy1Id].x) + std::abs(state->agents[ourId].y - state->agents[enemy1Id].y);
         if(dist < 2) enemyIteration1++;
         if(dist < 3 && seenAgents == 1) enemyIteration1++;
         if(dist < 5) enemyIteration1++;
     }
-    if(!state->agents[state->enemy2Id].dead && state->agents[state->enemy2Id].x >= 0)
+    if(!state->agents[enemy2Id].dead && state->agents[enemy2Id].x >= 0)
     {
-        int dist = std::abs(state->agents[state->ourId].x - state->agents[state->enemy2Id].x) + std::abs(state->agents[state->ourId].y - state->agents[state->enemy2Id].y);
+        int dist = std::abs(state->agents[ourId].x - state->agents[enemy2Id].x) + std::abs(state->agents[ourId].y - state->agents[enemy2Id].y);
         if(dist < 2) enemyIteration2++;
         if(dist < 3 && seenAgents == 1) enemyIteration2++;
         if(dist < 5) enemyIteration2++;
@@ -319,15 +323,15 @@ Move CologneAgent::act(const State* state)
         previousPositions[i][previousPositions[i].count] = p;
     }
 
-    const AgentInfo& a = state->agents[state->ourId];
+    const AgentInfo& a = state->agents[ourId];
     if(state->timeStep > 1 && (expectedPosInNewTurn.x != a.x || expectedPosInNewTurn.y != a.y))
     {
         std::cout << "Couldn't move to " << expectedPosInNewTurn.y << ":" << expectedPosInNewTurn.x;
-        if(std::abs(state->agents[state->teammateId].x - expectedPosInNewTurn.x) + std::abs(state->agents[state->teammateId].y - expectedPosInNewTurn.y) == 1)
+        if(std::abs(state->agents[teammateId].x - expectedPosInNewTurn.x) + std::abs(state->agents[teammateId].y - expectedPosInNewTurn.y) == 1)
             std::cout << " - Racing with teammate, probably";
-        if(std::abs(state->agents[state->enemy1Id].x - expectedPosInNewTurn.x) + std::abs(state->agents[state->enemy1Id].y - expectedPosInNewTurn.y) == 1)
+        if(std::abs(state->agents[enemy1Id].x - expectedPosInNewTurn.x) + std::abs(state->agents[enemy1Id].y - expectedPosInNewTurn.y) == 1)
             std::cout << " - Racing with enemy1, probably";
-        if(std::abs(state->agents[state->enemy2Id].x - expectedPosInNewTurn.x) + std::abs(state->agents[state->enemy2Id].y - expectedPosInNewTurn.y) == 1)
+        if(std::abs(state->agents[enemy2Id].x - expectedPosInNewTurn.x) + std::abs(state->agents[enemy2Id].y - expectedPosInNewTurn.y) == 1)
             std::cout << " - Racing with enemy2, probably";
         std::cout << std::endl;
         lastMoveWasBlocked = true;
@@ -338,7 +342,7 @@ Move CologneAgent::act(const State* state)
 
     float point = runOneStep(state, 0);
 
-    std::cout << "turn#" << state->timeStep << " ourId:" << state->ourId << " point: " << point << " selected: ";
+    std::cout << "turn#" << state->timeStep << " ourId:" << ourId << " point: " << point << " selected: ";
     for(int i=0; i<best_moves_in_chain.count; i++)
         std::cout << (int)best_moves_in_chain[i] << " > ";
     std::cout << " simulated steps: " << simulatedSteps;

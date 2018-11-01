@@ -148,6 +148,7 @@ struct SimpleAgent : bboard::Agent
         float reward_move_to_pickup = 1000.0f;
 
         std::set<uint128_t> visitedSteps;
+        int ourId, teammateId, enemy1Id, enemy2Id;
     };
 // more agents to be included?
 
