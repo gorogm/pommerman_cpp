@@ -200,26 +200,26 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                     simulatedSteps++;
 
 #ifdef SCENE_HASH_MEMORY
-                    uint128_t hash = ((((((((((((uint128_t)(newstate->agents[newourId].x * 11 + newstate->agents[newourId].y) * 121 +
-                                         (newstate->agents[enemy1Id].dead || newstate->agents[newenemy1Id].x < 0 ? 0 : newstate->agents[newenemy1Id].x * 11 + newstate->agents[newenemy1Id].y)) * 121 +
-                                        (newstate->agents[enemy2Id].dead || newstate->agents[newenemy2Id].x < 0 ? 0 : newstate->agents[newenemy2Id].x * 11 + newstate->agents[newenemy2Id].y)) * 121 +
-                                       (newstate->agents[teammateId].dead || newstate->agents[newteammateId].x < 0 ? 0 : newstate->agents[newteammateId].x * 11 + newstate->agents[newteammateId].y)) * 121 +
+                    uint128_t hash = ((((((((((((uint128_t)(newstate->agents[ourId].x * 11 + newstate->agents[ourId].y) * 121 +
+                                         (newstate->agents[enemy1Id].dead || newstate->agents[enemy1Id].x < 0 ? 0 : newstate->agents[enemy1Id].x * 11 + newstate->agents[enemy1Id].y)) * 121 +
+                                        (newstate->agents[enemy2Id].dead || newstate->agents[enemy2Id].x < 0 ? 0 : newstate->agents[enemy2Id].x * 11 + newstate->agents[enemy2Id].y)) * 121 +
+                                       (newstate->agents[teammateId].dead || newstate->agents[teammateId].x < 0 ? 0 : newstate->agents[teammateId].x * 11 + newstate->agents[teammateId].y)) * 121 +
                             newstate->bombs.count)*6+
                             depth)*6+
                             (newstate->bombs.count > 0 ? newstate->bombs[newstate->bombs.count-1] : 0))*10000 +
                             (newstate->bombs.count > 1 ? newstate->bombs[newstate->bombs.count-2] : 0))*10000 +
                             (newstate->bombs.count > 2 ? newstate->bombs[newstate->bombs.count-3] : 0))*10000 +
                             (newstate->bombs.count > 3 ? newstate->bombs[newstate->bombs.count-4] : 0))*10000 +
-                            newstate->agents[newourId].maxBombCount)*10 +
-                            newstate->agents[newourId].bombStrength)*10 +
+                            newstate->agents[ourId].maxBombCount)*10 +
+                            newstate->agents[ourId].bombStrength)*10 +
                             newstate->agents[0].dead*8 + newstate->agents[1].dead*4 + newstate->agents[2].dead*2 + newstate->agents[3].dead;
 
                     if(visitedSteps.count(hash) > 0) {
-                        if(ourId == 3 && seenAgents == 0 && state->timeStep==23) {
+                        /*if(ourId == 3 && seenAgents == 0 && state->timeStep==23) {
                             for (int i = 0; i < moves_in_chain.count; i++)
                                 std::cout << moves_in_chain[i] << " ";
                             std::cout << "continue " << hash << std::endl;
-                        }
+                        }*/
                         delete newstate;
                         continue;
                     }
