@@ -97,9 +97,8 @@ float CologneAgent::runAlreadyPlantedBombs(State * state)
     return point;
 }
 
-//#define RANDOM_TIEBREAK
-//#define SCENE_HASH_MEMORY
-//With random-tiebreak: 50% less simsteps, 3% less wins :( , 10-20% less ties against simple. Turned off by default.
+//#define RANDOM_TIEBREAK //With random-tiebreak: 50% less simsteps, 3-6% less wins :( , 5-20% less ties against simple. Turned off by default.
+//#define SCENE_HASH_MEMORY //8-10x less simsteps, but 40% less wins :((
 float CologneAgent::runOneStep(const bboard::State * state, int depth)
 {
     bboard::Move moves_in_one_step[4]; //was: moves
@@ -235,23 +234,26 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                     else
                         point = runAlreadyPlantedBombs(newstate);
 
-                    if (point < minPointE2) { minPointE2 = point; }
+                    if (point > -100 && point < minPointE2) { minPointE2 = point; }
 
                     delete newstate;
                 }
-                if (minPointE2 < minPointE1) { minPointE1 = minPointE2; }
+                if (minPointE2 > -100 && minPointE2 < minPointE1) { minPointE1 = minPointE2; }
             }
-            if (minPointE1 > maxTeammate) { maxTeammate = minPointE1;}
+            if (minPointE1 <100 && minPointE1 > maxTeammate) { maxTeammate = minPointE1;}
         }
 
         moves_in_chain.RemoveAt(moves_in_chain.count - 1);
         best_moves_in_chain.count = std::max(depth+1, best_moves_in_chain.count);
+
+        if(maxTeammate > -100) {
 #ifdef RANDOM_TIEBREAK
-        if (maxTeammate == maxPoint) { bestmoves[bestmoves.count] = move; bestmoves.count++;}
-        if (maxTeammate > maxPoint) { maxPoint = maxTeammate; bestmoves.count = 1; bestmoves[0] = move;}
+            if (maxTeammate == maxPoint) { bestmoves[bestmoves.count] = move; bestmoves.count++;}
+            if (maxTeammate > maxPoint) { maxPoint = maxTeammate; bestmoves.count = 1; bestmoves[0] = move;}
 #else
         if (maxTeammate > maxPoint) { maxPoint = maxTeammate; best_moves_in_chain[depth] = move;}
 #endif
+        }
     }
 #ifdef RANDOM_TIEBREAK
     if(bestmoves.count > 0) {
