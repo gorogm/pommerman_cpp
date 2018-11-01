@@ -81,20 +81,13 @@ float CologneAgent::runAlreadyPlantedBombs(State * state)
         //Exit if match decided, maybe we would die later from an other bomb, so that disturbs pointing and decision making
         if(state->aliveAgents < 2 || (state->aliveAgents == 2 && ((state->agents[0].dead && state->agents[2].dead) || (state->agents[1].dead && state->agents[3].dead))))
             break;
-        //bboard::Step(newstate4, moves);
+        //bboard::Step(state, moves);
         util::TickBombs(*state);
         state->relTimeStep++;
         //simulatedSteps++;
     }
 
-    float point = scoreState(state);
-    /*if(point > bestPoint)
-    {
-        bestPoint = point;
-        best_moves_in_chain = moves_in_chain;
-    }*/
-
-    return point;
+    return scoreState(state);
 }
 
 //#define RANDOM_TIEBREAK //With nobomb-random-tiebreak: 10% less simsteps, 3% less wins :( , 5-10% less ties against simple. Turned off by default. See log_test_02_tie.txt
