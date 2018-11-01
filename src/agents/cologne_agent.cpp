@@ -2,6 +2,8 @@
 #include "agents.hpp"
 #include "strategy.hpp"
 #include "step_utility.hpp"
+#include <list>
+#include <cstring>
 
 using namespace bboard;
 using namespace bboard::strategy;
@@ -18,6 +20,14 @@ CologneAgent::CologneAgent()
 bool CologneAgent::_CheckPos2(const State* state, bboard::Position pos)
 {
     return !util::IsOutOfBounds(pos) && IS_WALKABLE_OR_AGENT(state->board[pos.y][pos.x]);
+}
+bool CologneAgent::_CheckPos2(const State* state, int x, int y)
+{
+    return !util::IsOutOfBounds(x, y) && IS_WALKABLE_OR_AGENT(state->board[y][x]);
+}
+bool CologneAgent::_CheckPos3(const State* state, int x, int y)
+{
+    return !util::IsOutOfBounds(x, y) && state->board[y][x] != WOOD && state->board[y][x] != RIGID;
 }
 
 float CologneAgent::laterBetter(float reward, int timestaps)
@@ -70,6 +80,13 @@ float CologneAgent::scoreState(State * state) {
     if(moves_in_chain[0] == 0) point -= reward_first_step_idle;
     if(lastMoveWasBlocked && ((state->timeStep + ourId) % 4) == 0 && moves_in_chain[0] == lastBlockedMove)
         point -= 0.1f;
+
+    for(int i=0; i<positions_in_chain.count; i++)
+    {
+        if(leadsToDeadEnd[positions_in_chain[i].x + BOARD_SIZE * positions_in_chain[i].y])
+            point -= 0.001f;
+        break; //only for the first move, as the leadsToDeadEnd can be deprecated if calculated with flames, bombs, woods. Yields better results.
+    }
 
     return point;
 }
@@ -221,6 +238,9 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
                     }
 #endif
 
+                    Position myNewPos; myNewPos.x = newstate->agents[newstate->ourId].x; myNewPos.y = newstate->agents[newstate->ourId].y;
+                    positions_in_chain[depth] = myNewPos;positions_in_chain.count++;
+
                     float point;
                     if (depth + 1 < myMaxDepth)
                         point = runOneStep(newstate, depth + 1);
@@ -229,6 +249,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
 
                     if (point > -100 && point < minPointE2) { minPointE2 = point; }
 
+                    positions_in_chain.count--;
                     delete newstate;
                 }
                 if (minPointE2 > -100 && minPointE2 < minPointE1) { minPointE1 = minPointE2; }
@@ -264,8 +285,53 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
     return maxPoint;
 }
 
+void CologneAgent::createDeadEndMap(const State* state)
+{
+    short walkable_neighbours[BOARD_SIZE*BOARD_SIZE];
+    memset(walkable_neighbours, 0, BOARD_SIZE*BOARD_SIZE*sizeof(short));
+    std::list<Position> deadEnds;
+    for(int x=0; x<BOARD_SIZE; x++)
+    {
+        for(int y=0; y<BOARD_SIZE; y++) {
+            if(_CheckPos2(state, x, y))
+            {
+                walkable_neighbours[x + BOARD_SIZE * y] = (int)_CheckPos2(state, x-1, y)+(int)_CheckPos2(state, x, y-1)+(int)_CheckPos2(state, x+1, y)+(int)_CheckPos2(state, x, y+1);
+                if(walkable_neighbours[x + BOARD_SIZE * y] < 2)
+                {
+                    Position p;
+                    p.x = x;
+                    p.y = y;
+                    deadEnds.push_back(p);
+                }
+            }
+        }
+    }
+
+
+    memset(leadsToDeadEnd, 0, BOARD_SIZE*BOARD_SIZE*sizeof(bool));
+
+    std::function<void (int, int)> recurseFillWaysToDeadEnds = [&](int x, int y) {
+        leadsToDeadEnd[x + BOARD_SIZE * y] = true;
+
+        if(x > 0 && walkable_neighbours[x-1 + BOARD_SIZE*y] < 2 && leadsToDeadEnd[x-1 + BOARD_SIZE * y]==false)
+            recurseFillWaysToDeadEnds(x-1, y);
+        if(x < BOARD_SIZE-1 && walkable_neighbours[x+1 + BOARD_SIZE*y] < 2 && leadsToDeadEnd[x+1 + BOARD_SIZE * y]==false)
+            recurseFillWaysToDeadEnds(x+1, y);
+        if(y > 0 && walkable_neighbours[x + BOARD_SIZE * (y-1)] < 2 && leadsToDeadEnd[x + BOARD_SIZE * (y-1)]==false)
+            recurseFillWaysToDeadEnds(x, y-1);
+        if(y < BOARD_SIZE-1 && walkable_neighbours[x + BOARD_SIZE * (y+1)] < 2 && leadsToDeadEnd[x + BOARD_SIZE * (y+1)]==false)
+            recurseFillWaysToDeadEnds(x, y+1);
+    };
+
+    for(Position p : deadEnds)
+    {
+        recurseFillWaysToDeadEnds(p.x, p.y);
+    }
+}
+
 Move CologneAgent::act(const State* state)
 {
+    createDeadEndMap(state);
     visitedSteps.clear();
     simulatedSteps = 0;
     bestPoint = -100.0f;
@@ -276,6 +342,7 @@ Move CologneAgent::act(const State* state)
     enemy1Id = state->enemy1Id;
     enemy2Id = state->enemy2Id;
     teammateId = state->teammateId;
+    positions_in_chain.count = 0;
     for(int i=0; i<10; i++)
         best_points_in_chain[i] = -1000;
     int seenEnemies = 0;

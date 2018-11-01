@@ -124,6 +124,7 @@ struct SimpleAgent : bboard::Agent
         int simulatedSteps = 0;
         bboard::FixedQueue<int, 5> myMoves;
         bboard::FixedQueue<int, 40> moves_in_chain;
+        bboard::FixedQueue<bboard::Position, 40> positions_in_chain;
         bboard::FixedQueue<int, 40> best_moves_in_chain;
         bboard::FixedQueue<float, 40> best_points_in_chain;
         bboard::Position expectedPosInNewTurn;
@@ -138,6 +139,9 @@ struct SimpleAgent : bboard::Agent
 
 
         bool _CheckPos2(const bboard::State* state, bboard::Position pos);
+        bool _CheckPos2(const bboard::State* state, int x, int y);
+        bool _CheckPos3(const bboard::State* state, int x, int y);
+        void createDeadEndMap(const bboard::State* state);
         float laterBetter(float reward, int timestaps);
         float soonerBetter(float reward, int timestaps);
 
@@ -149,6 +153,7 @@ struct SimpleAgent : bboard::Agent
 
         std::set<uint128_t> visitedSteps;
         int ourId, teammateId, enemy1Id, enemy2Id;
+        bool leadsToDeadEnd[bboard::BOARD_SIZE*bboard::BOARD_SIZE];
     };
 // more agents to be included?
 
