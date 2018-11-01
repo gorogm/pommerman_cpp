@@ -182,8 +182,8 @@ inline const T& FixedQueue<T, TSize>::operator[] (const int offset) const
  */
 struct Position
 {
-    int x;
-    int y;
+    int x; // column
+    int y; // row
 };
 
 inline bool operator==(const Position& here, const Position& other)
