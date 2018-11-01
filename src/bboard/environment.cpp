@@ -236,6 +236,11 @@ void Environment::MakeGameFromPython(int ourId)
             else if(board[state->powerup_kick[i].x + state->powerup_kick[i].y * 11] == PyFOG)
                 board[state->powerup_kick[i].x + state->powerup_kick[i].y * 11] = PyKICK; //so it will be added again
         }
+        for(int i=0; i < state->woods.count; i++)
+        {
+            if(board[state->woods[i].x + state->woods[i].y * 11] == PyFOG)
+                board[state->woods[i].x + state->woods[i].y * 11] = PyWOOD; //so it will be added again
+        }
 
         state->woods.count = 0;
         state->powerup_incr.count = 0;

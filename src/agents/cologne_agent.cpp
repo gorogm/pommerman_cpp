@@ -74,8 +74,9 @@ float CologneAgent::scoreState(State * state) {
         point -= (std::abs(state->powerup_incr[i].x - state->agents[ourId].x) + std::abs(state->powerup_incr[i].y - state->agents[ourId].y)) / reward_move_to_pickup;
     for(int i=0; i < state->powerup_extrabomb.count; i++)
         point -= (std::abs(state->powerup_extrabomb[i].x - state->agents[ourId].x) + std::abs(state->powerup_extrabomb[i].y - state->agents[ourId].y)) / reward_move_to_pickup;
-    for(int i=0; i < state->woods.count; i++)
-        point -= (std::abs(state->woods[i].x - state->agents[ourId].x) + std::abs(state->woods[i].y - state->agents[ourId].y)) / 1000.0f;
+    //Following woods decrease points a little bit, I tried 3 different test setups. It would help, but it doesnt. Turned off.
+    //for(int i=0; i < state->woods.count; i++)
+    //    point -= (std::abs(state->woods[i].x - state->agents[ourId].x) + std::abs(state->woods[i].y - state->agents[ourId].y)) / 1000.0f;
 
     if(moves_in_chain[0] == 0) point -= reward_first_step_idle;
     if(lastMoveWasBlocked && ((state->timeStep + ourId) % 4) == 0 && moves_in_chain[0] == lastBlockedMove)
