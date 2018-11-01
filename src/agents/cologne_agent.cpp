@@ -251,16 +251,23 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
             if (maxTeammate == maxPoint) { bestmoves[bestmoves.count] = move; bestmoves.count++;}
             if (maxTeammate > maxPoint) { maxPoint = maxTeammate; bestmoves.count = 1; bestmoves[0] = move;}
 #else
-        if (maxTeammate > maxPoint) { maxPoint = maxTeammate; best_moves_in_chain[depth] = move;}
+            if (maxTeammate > maxPoint) {
+                maxPoint = maxTeammate;
+                if(maxPoint > best_points_in_chain[depth]) { best_points_in_chain[depth] = maxPoint; best_moves_in_chain[depth] = move; } }
 #endif
         }
     }
 #ifdef RANDOM_TIEBREAK
     if(bestmoves.count > 0) {
-        best_moves_in_chain[depth] = bestmoves[(state->timeStep / 4) % bestmoves.count];
+        if(maxPoint > best_points_in_chain[depth])
+        {
+            best_moves_in_chain[depth] = bestmoves[(state->timeStep / 4) % bestmoves.count];
+            best_points_in_chain[depth] = maxPoint;
+        }
     }else
         best_moves_in_chain[depth] = 0;
 #endif
+
     return maxPoint;
 }
 
@@ -271,6 +278,9 @@ Move CologneAgent::act(const State* state)
     bestPoint = -100.0f;
     enemyIteration1 = 0; enemyIteration2 = 0; teammateIteration = 0; seenAgents = 0;
     best_moves_in_chain.count = 0;
+    best_points_in_chain.count = 10;
+    for(int i=0; i<10; i++)
+        best_points_in_chain[i] = -1000;
     int seenEnemies = 0;
     if(!state->agents[state->teammateId].dead && state->agents[state->teammateId].x >= 0) {
         seenAgents++;

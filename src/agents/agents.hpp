@@ -125,6 +125,7 @@ struct SimpleAgent : bboard::Agent
         bboard::FixedQueue<int, 5> myMoves;
         bboard::FixedQueue<int, 40> moves_in_chain;
         bboard::FixedQueue<int, 40> best_moves_in_chain;
+        bboard::FixedQueue<float, 40> best_points_in_chain;
         bboard::Position expectedPosInNewTurn;
         bool lastMoveWasBlocked = false;
         int lastBlockedMove = 0;
