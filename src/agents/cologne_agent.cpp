@@ -97,7 +97,7 @@ float CologneAgent::runAlreadyPlantedBombs(State * state)
     return point;
 }
 
-//#define RANDOM_TIEBREAK //With random-tiebreak: 50% less simsteps, 3-6% less wins :( , 5-20% less ties against simple. Turned off by default.
+//#define RANDOM_TIEBREAK //With nobomb-random-tiebreak: 10% less simsteps, 3% less wins :( , 5-10% less ties against simple. Turned off by default. See log_test_02_tie.txt
 //#define SCENE_HASH_MEMORY //8-10x less simsteps, but 40% less wins :((
 float CologneAgent::runOneStep(const bboard::State * state, int depth)
 {
@@ -248,7 +248,7 @@ float CologneAgent::runOneStep(const bboard::State * state, int depth)
 
         if(maxTeammate > -100) {
 #ifdef RANDOM_TIEBREAK
-            if (maxTeammate == maxPoint) { bestmoves[bestmoves.count] = move; bestmoves.count++;}
+            if (maxTeammate == maxPoint && move != 5) { bestmoves[bestmoves.count] = move; bestmoves.count++;}
             if (maxTeammate > maxPoint) { maxPoint = maxTeammate; bestmoves.count = 1; bestmoves[0] = move;}
 #else
             if (maxTeammate > maxPoint) {

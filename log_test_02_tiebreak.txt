@@ -1,0 +1,22 @@
+cologne_agent.py shutdown, avg simsteps per turns:  14.462  k
+cologne_agent.py shutdown, avg simsteps per turns:  13.363  k
+wins: 253/260 = 0.9730769230769231
+base
+
+cologne_agent.py shutdown, avg simsteps per turns:  14.462  k
+cologne_agent.py shutdown, avg simsteps per turns:  13.363  k
+wins: 253/260 = 0.9730769230769231
+fake hacked_tiebreak, only first accepted - tehát nem teljesen hibás a tiebrake-es algorithm
+
+tie 91%
+
+cologne_agent.py shutdown, avg simsteps per turns:  13.209  k
+cologne_agent.py shutdown, avg simsteps per turns:  12.43  k
+wins: 264/278 = 0.9496402877697842
+tiebreak_nobomb - wow ez 3%-kal jobb, mint ami bombát is rak le, de még mindig 3 %-kal rosszabb a base-nél
+
+cologne_agent.py shutdown, avg simsteps per turns:  14.478  k
+cologne_agent.py shutdown, avg simsteps per turns:  13.611  k
+wins: 251/259 = 0.9691119691119691
+tie_nobomb_preferIdle - ez meg nagyon hasonló a base-hez, csak picit rosszabb...
+
