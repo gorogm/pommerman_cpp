@@ -81,6 +81,8 @@ float CologneAgent::scoreState(State * state) {
     if(moves_in_chain[0] == 0) point -= reward_first_step_idle;
     if(lastMoveWasBlocked && ((state->timeStep + ourId) % 4) == 0 && moves_in_chain[0] == lastBlockedMove)
         point -= 0.1f;
+    if(sameAs6_12_turns_ago && ((state->timeStep + ourId) % 4) == 0 && moves_in_chain[0] == moveHistory[moveHistory.count-6])
+        point -= 0.1f;
 
     for(int i=0; i<positions_in_chain.count; i++)
     {
@@ -381,15 +383,27 @@ Move CologneAgent::act(const State* state)
     }
     myMaxDepth = 6 - seenAgents;
 
-    for(int i=0; i<4; i++)
+    sameAs6_12_turns_ago = true;
+    for(int agentId=0; agentId<4; agentId++)
     {
-        if(previousPositions[i].count == 12)
-            previousPositions[i].RemoveAt(0);
+        if(previousPositions[agentId].count == 12) {
+            if(previousPositions[agentId][0].x != state->agents[agentId].x || previousPositions[agentId][0].y != state->agents[agentId].y)
+                sameAs6_12_turns_ago = false;
+            if(previousPositions[agentId][6].x != state->agents[agentId].x || previousPositions[agentId][6].y != state->agents[agentId].y)
+                sameAs6_12_turns_ago = false;
+            previousPositions[agentId].RemoveAt(0);
+        }else{
+            sameAs6_12_turns_ago = false;
+        }
+
         Position p;
-        p.x = state->agents[i].x;
-        p.y = state->agents[i].y;
-        previousPositions[i][previousPositions[i].count] = p;
+        p.x = state->agents[agentId].x;
+        p.y = state->agents[agentId].y;
+        previousPositions[agentId][previousPositions[agentId].count] = p;
+        previousPositions[agentId].count++;
     }
+    if(sameAs6_12_turns_ago)
+        std::cout << "SAME AS BEFORE!!!!" << std::endl;
 
     const AgentInfo& a = state->agents[ourId];
     if(state->timeStep > 1 && (expectedPosInNewTurn.x != a.x || expectedPosInNewTurn.y != a.y))
@@ -409,6 +423,12 @@ Move CologneAgent::act(const State* state)
     }
 
     float point = runOneStep(state, 0);
+
+    if(moveHistory.count == 12) {
+        moveHistory.RemoveAt(0);
+    }
+    moveHistory[moveHistory.count] = best_moves_in_chain[0];
+    moveHistory.count++;
 
     std::cout << "turn#" << state->timeStep << " ourId:" << ourId << " point: " << point << " selected: ";
     for(int i=0; i<best_moves_in_chain.count; i++)

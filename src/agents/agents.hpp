@@ -135,7 +135,8 @@ struct SimpleAgent : bboard::Agent
         int seenAgents = 0;
         int enemyIteration1 = 0, enemyIteration2 = 0, teammateIteration = 0;
         int myMaxDepth = 0;
-        std::array<bboard::FixedQueue<bboard::Position, 13>, 4 > previousPositions;
+        std::array<bboard::FixedQueue<bboard::Position, 15>, 4 > previousPositions;
+        bboard::FixedQueue<int, 15> moveHistory;
 
 
         bool _CheckPos2(const bboard::State* state, bboard::Position pos);
@@ -154,6 +155,7 @@ struct SimpleAgent : bboard::Agent
         std::set<uint128_t> visitedSteps;
         int ourId, teammateId, enemy1Id, enemy2Id;
         bool leadsToDeadEnd[bboard::BOARD_SIZE*bboard::BOARD_SIZE];
+        bool sameAs6_12_turns_ago = true;
     };
 // more agents to be included?
 
