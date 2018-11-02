@@ -166,7 +166,7 @@ void Environment::MakeGameFromPython(int ourId)
                         SetBombTime(*b, bomb_life[i]);
                         state->agents[bombId].bombCount++;
                         state->bombs.count++;
-                        std::cout << "Bomb under agent " << board[i] - PyAGENT0 << " at " << x << " " << y << " time: " << bomb_life[i] << std::endl;
+                        //std::cout << "Bomb under agent " << board[i] - PyAGENT0 << " at " << x << " " << y << " time: " << bomb_life[i] << std::endl;
                     }
                     break;
                 default:
@@ -394,7 +394,7 @@ void Environment::MakeGameFromPython(int ourId)
         state->agents[state->enemy2Id].maxBombCount = std::max(state->agents[state->enemy2Id].maxBombCount, state->agents[state->enemy2Id].bombCount);
         state->agents[state->teammateId].maxBombCount = std::max(state->agents[state->teammateId].maxBombCount, state->agents[state->teammateId].bombCount);
 
-        state->aliveAgents = 1 + int(agent1Alive) + int(agent2Alive) + int(agent3Alive);
+        state->aliveAgents = int(agent0Alive) + int(agent1Alive) + int(agent2Alive) + int(agent3Alive);
         state->agents[state->ourId].x = posy;
         state->agents[state->ourId].y = posx;
         state->agents[state->ourId].canKick = can_kick;
