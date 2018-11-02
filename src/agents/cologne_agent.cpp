@@ -79,9 +79,9 @@ float CologneAgent::scoreState(State * state) {
     //    point -= (std::abs(state->woods[i].x - state->agents[ourId].x) + std::abs(state->woods[i].y - state->agents[ourId].y)) / 1000.0f;
 
     if(moves_in_chain[0] == 0) point -= reward_first_step_idle;
-    if(lastMoveWasBlocked && ((state->timeStep + ourId) % 4) == 0 && moves_in_chain[0] == lastBlockedMove)
+    if(lastMoveWasBlocked && ((state->timeStep/4 + ourId) % 4) == 0 && moves_in_chain[0] == lastBlockedMove)
         point -= 0.1f;
-    if(sameAs6_12_turns_ago && ((state->timeStep + ourId) % 4) == 0 && moves_in_chain[0] == moveHistory[moveHistory.count-6])
+    if(sameAs6_12_turns_ago && ((state->timeStep/4 + ourId) % 4) == 0 && moves_in_chain[0] == moveHistory[moveHistory.count-6])
         point -= 0.1f;
 
     for(int i=0; i<positions_in_chain.count; i++)
