@@ -63,6 +63,18 @@ float CologneAgent::scoreState(State * state) {
     point += reward_collectedPowerup * state->agents[ourId].collectedPowerupPoints * teamBalance;
     point += reward_collectedPowerup * state->agents[teammateId].collectedPowerupPoints / teamBalance;
 
+    if(state->aliveAgents == 0)
+    {
+        //point += soonerBetter(??, state->relTimeStep); //we win
+    }else if (state->aliveAgents < 3) {
+        if (state->agents[ourId].dead && state->agents[teammateId].dead) {
+            point += laterBetter(-20.0f, state->relTimeStep); //we lost
+        }
+        if (state->agents[enemy1Id].dead && state->agents[enemy2Id].dead) {
+            point += soonerBetter(+20.0f, state->relTimeStep); //we win
+        }
+    }
+
     if(state->agents[enemy1Id].x >= 0)
         point -= (std::abs(state->agents[enemy1Id].x - state->agents[ourId].x) + std::abs(state->agents[enemy1Id].y - state->agents[ourId].y)) / reward_move_to_enemy;
     if(state->agents[enemy2Id].x >= 0)
