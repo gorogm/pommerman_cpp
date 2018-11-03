@@ -133,8 +133,7 @@ struct SimpleAgent : bboard::Agent
         unsigned int turns = 0;
         unsigned int totalSimulatedSteps = 0;
         int seenAgents = 0;
-        int enemyIteration1 = 0, enemyIteration2 = 0, teammateIteration = 0;
-        int myMaxDepth = 0;
+        int enemyIteration1 = 0, enemyIteration2 = 0, teammateIteration = 0, myMaxDepth = 0;
         std::array<bboard::FixedQueue<bboard::Position, 15>, 4 > previousPositions;
         bboard::FixedQueue<int, 15> moveHistory;
 
