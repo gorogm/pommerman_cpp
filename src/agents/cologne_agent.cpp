@@ -47,26 +47,56 @@ namespace agents {
             return reward * (float) std::pow(reward_sooner_later_ratio, timestaps);
     }
 
-    float CologneAgent::scoreState(State *state) {
+    StepResult CologneAgent::scoreState(State *state) {
+        StepResult stepRes;
         float teamBalance = (ourId < 2 ? 1.01f : 0.99f);
-        float point = laterBetter(-10 * state->agents[ourId].dead, state->agents[ourId].diedAt - state->timeStep);
-        if (state->agents[teammateId].x >= 0)
+        float point = 0.0f;
+        if (state->agents[ourId].dead) {
+            point += laterBetter(-10 * state->agents[ourId].dead, state->agents[ourId].diedAt - state->timeStep);
+#ifdef GM_DEBUGMODE_COMMENTS
+            stepRes.comment += "I_die ";
+#endif
+        }
+        if (state->agents[teammateId].x >= 0 && state->agents[teammateId].dead) {
             point += laterBetter(-10 * state->agents[teammateId].dead,
                                  state->agents[teammateId].diedAt - state->timeStep);
-        point += 3 * soonerBetter(state->agents[enemy1Id].dead, state->agents[enemy1Id].diedAt - state->timeStep);
-        point += 3 * soonerBetter(state->agents[enemy2Id].dead, state->agents[enemy2Id].diedAt - state->timeStep);
+#ifdef GM_DEBUGMODE_COMMENTS
+            stepRes.comment += "kanka_dies ";
+#endif
+        }
+        if (state->agents[enemy1Id].x >= 0 && state->agents[enemy1Id].dead) {
+            point += 3 * soonerBetter(state->agents[enemy1Id].dead, state->agents[enemy1Id].diedAt - state->timeStep);
+#ifdef GM_DEBUGMODE_COMMENTS
+            stepRes.comment += "sapsaltavuk1_dies ";
+#endif
+        }
+        if (state->agents[enemy2Id].x >= 0 && state->agents[enemy2Id].dead) {
+            point += 3 * soonerBetter(state->agents[enemy2Id].dead, state->agents[enemy2Id].diedAt - state->timeStep);
+#ifdef GM_DEBUGMODE_COMMENTS
+            stepRes.comment += "sapsaltavuk2_dies ";
+#endif
+        }
         point += 0.3f * state->woodDemolished;
         point += reward_collectedPowerup * state->agents[ourId].collectedPowerupPoints * teamBalance;
         point += reward_collectedPowerup * state->agents[teammateId].collectedPowerupPoints / teamBalance;
 
         if (state->aliveAgents == 0) {
             //point += soonerBetter(??, state->relTimeStep); //we win
+#ifdef GM_DEBUGMODE_COMMENTS
+            stepRes.comment += "tie ";
+#endif
         } else if (state->aliveAgents < 3) {
             if (state->agents[ourId].dead && state->agents[teammateId].dead) {
                 point += laterBetter(-20.0f, state->relTimeStep); //we lost
+#ifdef GM_DEBUGMODE_COMMENTS
+                stepRes.comment += "we_lost ";
+#endif
             }
             if (state->agents[enemy1Id].dead && state->agents[enemy2Id].dead) {
                 point += soonerBetter(+20.0f, state->relTimeStep); //we win
+#ifdef GM_DEBUGMODE_COMMENTS
+                stepRes.comment += "we_win ";
+#endif
             }
         }
 
@@ -106,10 +136,15 @@ namespace agents {
             break; //only for the first move, as the leadsToDeadEnd can be deprecated if calculated with flames, bombs, woods. Yields better results.
         }
 
-        return point;
+#ifdef GM_DEBUGMODE_ON
+        stepRes.point = point;
+#else
+        stepRes = point;
+#endif
+        return stepRes;
     }
 
-    float CologneAgent::runAlreadyPlantedBombs(State *state) {
+    StepResult CologneAgent::runAlreadyPlantedBombs(State *state) {
         for (int i = 0; i < 10; i++) {
             //Exit if match decided, maybe we would die later from an other bomb, so that disturbs pointing and decision making
             if (state->aliveAgents < 2 || (state->aliveAgents == 2 &&
@@ -127,7 +162,8 @@ namespace agents {
 
 //#define RANDOM_TIEBREAK //With nobomb-random-tiebreak: 10% less simsteps, 3% less wins :( , 5-10% less ties against simple. Turned off by default. See log_test_02_tie.txt
 //#define SCENE_HASH_MEMORY //8-10x less simsteps, but 40% less wins :((
-    float CologneAgent::runOneStep(const bboard::State *state, int depth) {
+    StepResult CologneAgent::runOneStep(const bboard::State *state, int depth) {
+        StepResult stepRes;
         bboard::Move moves_in_one_step[4]; //was: moves
         moves_in_one_step[0] = bboard::Move::IDLE;
         moves_in_one_step[1] = bboard::Move::IDLE;
@@ -135,10 +171,17 @@ namespace agents {
         moves_in_one_step[3] = bboard::Move::IDLE;
 
         const AgentInfo &a = state->agents[ourId];
-        float maxPoint = -100;
+#ifdef GM_DEBUGMODE_ON
+        stepRes.point = -100;
+#else
+        stepRes = -100;
+#endif
+
 #ifdef RANDOM_TIEBREAK
         FixedQueue<int, 6> bestmoves;
 #endif
+        //int moves[]{1,2,3,4,0,5};
+        //for(int move : moves)
         for (int move = 0; move < 6; move++) {
             Position desiredPos = bboard::util::DesiredPosition(a.x, a.y, (bboard::Move) move);
             // if we don't have bomb
@@ -159,6 +202,7 @@ namespace agents {
             moves_in_chain.AddElem(move);
 
             float maxTeammate = -100;
+            StepResult futureStepsT;
             for (int moveT = 5; moveT >= 0; moveT--) {
                 if (moveT > 0) {
                     if (depth >= teammateIteration ||
@@ -187,6 +231,7 @@ namespace agents {
                 moves_in_one_step[teammateId] = (bboard::Move) moveT;
 
                 float minPointE1 = 100;
+                StepResult futureStepsE1;
                 for (int moveE1 = 5; moveE1 >= 0; moveE1--) {
                     if (moveE1 > 0) {
                         if (depth >= enemyIteration1 ||
@@ -213,6 +258,7 @@ namespace agents {
                     moves_in_one_step[enemy1Id] = (bboard::Move) moveE1;
 
                     float minPointE2 = 100;
+                    StepResult futureStepsE2;
                     for (int moveE2 = 5; moveE2 >= 0; moveE2--) {
                         if (moveE2 > 0) {
                             if (depth >= enemyIteration2 ||
@@ -246,18 +292,18 @@ namespace agents {
 
 #ifdef SCENE_HASH_MEMORY
                         uint128_t hash = ((((((((((((uint128_t)(newstate->agents[ourId].x * 11 + newstate->agents[ourId].y) * 121 +
-                                             (newstate->agents[enemy1Id].dead || newstate->agents[enemy1Id].x < 0 ? 0 : newstate->agents[enemy1Id].x * 11 + newstate->agents[enemy1Id].y)) * 121 +
-                                            (newstate->agents[enemy2Id].dead || newstate->agents[enemy2Id].x < 0 ? 0 : newstate->agents[enemy2Id].x * 11 + newstate->agents[enemy2Id].y)) * 121 +
-                                           (newstate->agents[teammateId].dead || newstate->agents[teammateId].x < 0 ? 0 : newstate->agents[teammateId].x * 11 + newstate->agents[teammateId].y)) * 121 +
-                                newstate->bombs.count)*6+
-                                depth)*6+
-                                (newstate->bombs.count > 0 ? newstate->bombs[newstate->bombs.count-1] : 0))*10000 +
-                                (newstate->bombs.count > 1 ? newstate->bombs[newstate->bombs.count-2] : 0))*10000 +
-                                (newstate->bombs.count > 2 ? newstate->bombs[newstate->bombs.count-3] : 0))*10000 +
-                                (newstate->bombs.count > 3 ? newstate->bombs[newstate->bombs.count-4] : 0))*10000 +
-                                newstate->agents[ourId].maxBombCount)*10 +
-                                newstate->agents[ourId].bombStrength)*10 +
-                                newstate->agents[0].dead*8 + newstate->agents[1].dead*4 + newstate->agents[2].dead*2 + newstate->agents[3].dead;
+                                         (newstate->agents[enemy1Id].dead || newstate->agents[enemy1Id].x < 0 ? 0 : newstate->agents[enemy1Id].x * 11 + newstate->agents[enemy1Id].y)) * 121 +
+                                        (newstate->agents[enemy2Id].dead || newstate->agents[enemy2Id].x < 0 ? 0 : newstate->agents[enemy2Id].x * 11 + newstate->agents[enemy2Id].y)) * 121 +
+                                       (newstate->agents[teammateId].dead || newstate->agents[teammateId].x < 0 ? 0 : newstate->agents[teammateId].x * 11 + newstate->agents[teammateId].y)) * 121 +
+                            newstate->bombs.count)*6+
+                            depth)*6+
+                            (newstate->bombs.count > 0 ? newstate->bombs[newstate->bombs.count-1] : 0))*10000 +
+                            (newstate->bombs.count > 1 ? newstate->bombs[newstate->bombs.count-2] : 0))*10000 +
+                            (newstate->bombs.count > 2 ? newstate->bombs[newstate->bombs.count-3] : 0))*10000 +
+                            (newstate->bombs.count > 3 ? newstate->bombs[newstate->bombs.count-4] : 0))*10000 +
+                            newstate->agents[ourId].maxBombCount)*10 +
+                            newstate->agents[ourId].bombStrength)*10 +
+                            newstate->agents[0].dead*8 + newstate->agents[1].dead*4 + newstate->agents[2].dead*2 + newstate->agents[3].dead;
 
                     if(visitedSteps.count(hash) > 0) {
                         delete newstate;
@@ -274,52 +320,79 @@ namespace agents {
                         positions_in_chain[depth] = myNewPos;
                         positions_in_chain.count++;
 
-                        float point;
+                        StepResult futureSteps;
                         if (depth + 1 < myMaxDepth)
-                            point = runOneStep(newstate, depth + 1);
+                            futureSteps = runOneStep(newstate, depth + 1);
                         else
-                            point = runAlreadyPlantedBombs(newstate);
+                            futureSteps = runAlreadyPlantedBombs(newstate);
 
-                        if (point > -100 && point < minPointE2) { minPointE2 = point; }
+                        if ((float)futureSteps > -100 && (float)futureSteps < minPointE2) {
+                            minPointE2 = (float)futureSteps;
+#ifdef GM_DEBUGMODE_STEPS
+                            futureSteps.steps.AddElem(moveE2);
+#endif
+                            futureStepsE2 = futureSteps;
+                        }
 
                         positions_in_chain.count--;
                         delete newstate;
                     }
-                    if (minPointE2 > -100 && minPointE2 < minPointE1) { minPointE1 = minPointE2; }
+                    if (minPointE2 > -100 && minPointE2 < minPointE1) {
+                        minPointE1 = minPointE2;
+#ifdef GM_DEBUGMODE_STEPS
+                        futureStepsE2.steps.AddElem(moveE1);
+#endif
+                        futureStepsE1 = futureStepsE2;
+                    }
                 }
-                if (minPointE1 < 100 && minPointE1 > maxTeammate) { maxTeammate = minPointE1; }
+                if (minPointE1 < 100 && minPointE1 > maxTeammate) {
+                    maxTeammate = minPointE1;
+#ifdef GM_DEBUGMODE_STEPS
+                    futureStepsE1.steps.AddElem(moveT);
+#endif
+                    futureStepsT = futureStepsE1;
+                }
             }
 
             moves_in_chain.RemoveAt(moves_in_chain.count - 1);
-            best_moves_in_chain.count = std::max(depth + 1, best_moves_in_chain.count);
 
             if (maxTeammate > -100) {
 #ifdef RANDOM_TIEBREAK
                 if (maxTeammate == maxPoint && move != 5) { bestmoves[bestmoves.count] = move; bestmoves.count++;}
-                if (maxTeammate > maxPoint) { maxPoint = maxTeammate; bestmoves.count = 1; bestmoves[0] = move;}
+            if (maxTeammate > maxPoint) { maxPoint = maxTeammate; bestmoves.count = 1; bestmoves[0] = move;}
 #else
-                if (maxTeammate > maxPoint) {
-                    maxPoint = maxTeammate;
-                    if (maxPoint > best_points_in_chain[depth]) {
-                        best_points_in_chain[depth] = maxPoint;
-                        best_moves_in_chain[depth] = move;
-                    }
+                if (maxTeammate > (float)stepRes) {
+#ifdef GM_DEBUGMODE_STEPS
+                    futureStepsT.steps.AddElem(move);
+#else
+                    if(depth == 0)
+                        depth_0_Move = move;
+#endif
+                    stepRes = futureStepsT;
                 }
 #endif
             }
         }
+
 #ifdef RANDOM_TIEBREAK
         if(bestmoves.count > 0) {
-            if(maxPoint > best_points_in_chain[depth])
-            {
+        if(maxPoint > best_points_in_chain[depth])
+        {
+            bool foundIdle = false;
+            for(int i=0; i<bestmoves.count; i++)
+                if(bestmoves[i] == 0) {
+                    best_moves_in_chain[depth] = 0;
+                    foundIdle = true;
+                }
+            if(!foundIdle)
                 best_moves_in_chain[depth] = bestmoves[(state->timeStep / 4) % bestmoves.count];
-                best_points_in_chain[depth] = maxPoint;
-            }
-        }else
-            best_moves_in_chain[depth] = 0;
+            best_points_in_chain[depth] = maxPoint;
+        }
+    }else
+        best_moves_in_chain[depth] = 0;
 #endif
 
-        return maxPoint;
+        return stepRes;
     }
 
     void CologneAgent::createDeadEndMap(const State *state) {
@@ -371,20 +444,15 @@ namespace agents {
         createDeadEndMap(state);
         visitedSteps.clear();
         simulatedSteps = 0;
-        bestPoint = -100.0f;
         enemyIteration1 = 0;
         enemyIteration2 = 0;
         teammateIteration = 0;
         seenAgents = 0;
-        best_moves_in_chain.count = 0;
-        best_points_in_chain.count = 10;
         ourId = state->ourId;
         enemy1Id = state->enemy1Id;
         enemy2Id = state->enemy2Id;
         teammateId = state->teammateId;
         positions_in_chain.count = 0;
-        for (int i = 0; i < 10; i++)
-            best_points_in_chain[i] = -1000;
         int seenEnemies = 0;
         if (!state->agents[teammateId].dead && state->agents[teammateId].x >= 0) {
             seenAgents++;
@@ -457,30 +525,46 @@ namespace agents {
                 std::cout << " - Racing with enemy2, probably";
             std::cout << std::endl;
             lastMoveWasBlocked = true;
-            lastBlockedMove = best_moves_in_chain[0];
+            lastBlockedMove = moveHistory[moveHistory.count - 1];
         } else {
             lastMoveWasBlocked = false;
         }
 
-        float point = runOneStep(state, 0);
+        StepResult stepRes = runOneStep(state, 0);
 
+#ifdef GM_DEBUGMODE_STEPS
+        int myMove = stepRes.steps[stepRes.steps.count - 1];
+#else
+        int myMove = depth_0_Move;
+#endif
         if (moveHistory.count == 12) {
             moveHistory.RemoveAt(0);
         }
-        moveHistory[moveHistory.count] = best_moves_in_chain[0];
+        moveHistory[moveHistory.count] = myMove;
         moveHistory.count++;
 
-        std::cout << "turn#" << state->timeStep << " ourId:" << ourId << " point: " << point << " selected: ";
-        for (int i = 0; i < best_moves_in_chain.count; i++)
-            std::cout << (int) best_moves_in_chain[i] << " > ";
-        std::cout << " simulated steps: " << simulatedSteps;
+        std::cout << "turn#" << state->timeStep << " ourId:" << ourId << " point: " << (float)stepRes << " selected: ";
+        std::cout << myMove << " simulated steps: " << simulatedSteps;
         std::cout << ", depth " << myMaxDepth << " " << teammateIteration << " " << enemyIteration1 << " "
                   << enemyIteration2 << std::endl;
+#ifdef GM_DEBUGMODE_STEPS
+        for (int i = 0; i < stepRes.steps.count; i++) {
+            std::cout << (int) stepRes.steps[stepRes.steps.count - 1 - i] << " ";
+            if (i % 4 == 3)
+                std::cout << " | ";
+        }
+#endif
+
+#ifdef GM_DEBUGMODE_COMMENTS
+        std::cout << stepRes.comment << std::endl;
+#else
+        std::cout << std::endl;
+#endif
 
         totalSimulatedSteps += simulatedSteps;
         turns++;
-        expectedPosInNewTurn = bboard::util::DesiredPosition(a.x, a.y, (bboard::Move) best_moves_in_chain[0]);
-        return (bboard::Move) best_moves_in_chain[0];
+        expectedPosInNewTurn = bboard::util::DesiredPosition(a.x, a.y, (bboard::Move) myMove);
+        return (bboard::Move) myMove;
     }
 
     void CologneAgent::PrintDetailedInfo() {

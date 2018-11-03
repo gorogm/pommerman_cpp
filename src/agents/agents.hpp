@@ -105,6 +105,28 @@ struct SimpleAgent : bboard::Agent
         float laterBetter(float reward, int timestaps);
         float soonerBetter(float reward, int timestaps);
     };
+
+//#define GM_DEBUGMODE_ON
+#ifdef GM_DEBUGMODE_ON
+#define GM_DEBUGMODE_STEPS //5% slower
+//#define GM_DEBUGMODE_COMMENTS //30% slower
+#endif
+
+#ifdef GM_DEBUGMODE_ON
+    struct StepResult
+    {
+        float point = -100.0f;
+#ifdef GM_DEBUGMODE_STEPS
+        bboard::FixedQueue<int, 40> steps;
+#endif
+#ifdef GM_DEBUGMODE_COMMENTS
+        std::string comment;
+#endif
+        explicit operator float() { return point; }
+    };
+#else
+    typedef float StepResult;
+#endif
     struct CologneAgent : bboard::Agent
     {
         std::mt19937_64 rng;
@@ -114,19 +136,17 @@ struct SimpleAgent : bboard::Agent
 
         bboard::Move act(const bboard::State* state) override;
 
-        float runAlreadyPlantedBombs(bboard::State * state);
-        float runOneStep(const bboard::State * state, int depth);
-        float scoreState(bboard::State * state);
-
+        StepResult runAlreadyPlantedBombs(bboard::State * state);
+        StepResult runOneStep(const bboard::State * state, int depth);
+        StepResult scoreState(bboard::State * state);
         void PrintDetailedInfo();
-
-        float bestPoint;
         int simulatedSteps = 0;
-        bboard::FixedQueue<int, 5> myMoves;
+
+#ifndef GM_DEBUGMODE_STEPS
+        int depth_0_Move = 0;
+#endif
         bboard::FixedQueue<int, 40> moves_in_chain;
         bboard::FixedQueue<bboard::Position, 40> positions_in_chain;
-        bboard::FixedQueue<int, 40> best_moves_in_chain;
-        bboard::FixedQueue<float, 40> best_points_in_chain;
         bboard::Position expectedPosInNewTurn;
         bool lastMoveWasBlocked = false;
         int lastBlockedMove = 0;
