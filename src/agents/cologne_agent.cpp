@@ -134,6 +134,12 @@ namespace agents {
         if (sameAs6_12_turns_ago && ((state->timeStep / 4 + ourId) % 4) == 0 && moves_in_chain[0] == moveHistory[moveHistory.count - 6])
             point -= 0.1f;
 
+        if(!state->agents[teammateId].dead && state->agents[teammateId].x >= 0 && leadsToDeadEnd[state->agents[teammateId].x + BOARD_SIZE * state->agents[teammateId].y])
+            point -= 0.0004f;
+        if(!state->agents[enemy1Id].dead && state->agents[enemy1Id].x >= 0 && leadsToDeadEnd[state->agents[enemy1Id].x + BOARD_SIZE * state->agents[enemy1Id].y])
+            point += 0.0004f;
+        if(!state->agents[enemy2Id].dead && state->agents[enemy2Id].x >= 0 && leadsToDeadEnd[state->agents[enemy2Id].x + BOARD_SIZE * state->agents[enemy2Id].y])
+            point += 0.0004f;
         for (int i = 0; i < positions_in_chain.count; i++) {
             if (leadsToDeadEnd[positions_in_chain[i].x + BOARD_SIZE * positions_in_chain[i].y])
                 point -= 0.001f;
