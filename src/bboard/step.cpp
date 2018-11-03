@@ -42,6 +42,11 @@ void Step(State* state, Move* moves)
             rootIdx++;
             i = roots[rootIdx];
         }
+        if(i==-1)
+        {
+            std::cout << "ERROR in step.cpp Step(), indexing agent with -1" << std::endl;
+            continue;
+        }
         const Move m = moves[i];
 
         if(state->agents[i].dead || m == Move::IDLE || state->agents[i].x < 0)
