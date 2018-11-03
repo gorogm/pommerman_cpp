@@ -85,6 +85,10 @@ void Environment::MakeGameFromPython(int ourId)
         state->agents[1].collectedPowerupPoints = 0;
         state->agents[2].collectedPowerupPoints = 0;
         state->agents[3].collectedPowerupPoints = 0;
+        state->agents[0].woodDemolished = 0;
+        state->agents[1].woodDemolished = 0;
+        state->agents[2].woodDemolished = 0;
+        state->agents[3].woodDemolished = 0;
         state->timeStep++;
         state->teammateId = teammate_id - 10;
 
@@ -260,6 +264,10 @@ void Environment::MakeGameFromPython(int ourId)
         state->agents[1].collectedPowerupPoints = 0;
         state->agents[2].collectedPowerupPoints = 0;
         state->agents[3].collectedPowerupPoints = 0;
+        state->agents[0].woodDemolished = 0;
+        state->agents[1].woodDemolished = 0;
+        state->agents[2].woodDemolished = 0;
+        state->agents[3].woodDemolished = 0;
         state->timeStep++;
         state->teammateId = teammate_id - 10;
 

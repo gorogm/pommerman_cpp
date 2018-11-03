@@ -76,9 +76,14 @@ namespace agents {
             stepRes.comment += "sapsaltavuk2_dies ";
 #endif
         }
-        point += 0.3f * state->woodDemolished;
+        point += 0.3f * state->agents[ourId].woodDemolished;
+        point += 0.3f * state->agents[teammateId].woodDemolished;
+        point -= 0.3f * state->agents[enemy1Id].woodDemolished;
+        point -= 0.3f * state->agents[enemy2Id].woodDemolished;
         point += reward_collectedPowerup * state->agents[ourId].collectedPowerupPoints * teamBalance;
         point += reward_collectedPowerup * state->agents[teammateId].collectedPowerupPoints / teamBalance;
+        point -= reward_collectedPowerup * state->agents[enemy1Id].collectedPowerupPoints;
+        point -= reward_collectedPowerup * state->agents[enemy1Id].collectedPowerupPoints;
 
         if (state->aliveAgents == 0) {
             //point += soonerBetter(??, state->relTimeStep); //we win
@@ -126,8 +131,7 @@ namespace agents {
         if (moves_in_chain[0] == 0) point -= reward_first_step_idle;
         if (lastMoveWasBlocked && ((state->timeStep / 4 + ourId) % 4) == 0 && moves_in_chain[0] == lastBlockedMove)
             point -= 0.1f;
-        if (sameAs6_12_turns_ago && ((state->timeStep / 4 + ourId) % 4) == 0 &&
-            moves_in_chain[0] == moveHistory[moveHistory.count - 6])
+        if (sameAs6_12_turns_ago && ((state->timeStep / 4 + ourId) % 4) == 0 && moves_in_chain[0] == moveHistory[moveHistory.count - 6])
             point -= 0.1f;
 
         for (int i = 0; i < positions_in_chain.count; i++) {

@@ -54,7 +54,19 @@ inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature = 0)
         s.board[y][x] = Item::FLAMES + signature;
         if(wasWood)
         {
-            s.woodDemolished += 1.0f - s.relTimeStep/100.0f; //TODO GM: only if we placed the bomb
+            //Give reward to closest agent
+            int closestAgent = -1;
+            int closestDistance = INT32_MAX;
+            for(int agentId=0; agentId<4; agentId++) {
+                if (!s.agents[agentId].dead && s.agents[agentId].x >= 0 && (std::abs(s.agents[agentId].x - x) + std::abs(s.agents[agentId].y - y)) < closestDistance) {
+                    closestAgent = agentId;
+                    closestDistance = (std::abs(s.agents[agentId].x - x) + std::abs(s.agents[agentId].y - y));
+                }
+            }
+            if(closestAgent >= 0) {
+                s.agents[closestAgent].woodDemolished += 1.0f - s.relTimeStep / 100.0f;
+            }
+
             s.board[y][x] += WOOD_POWFLAG(old); // set the powerup flag
         }
         return !wasWood; // if wood, then only destroy 1
