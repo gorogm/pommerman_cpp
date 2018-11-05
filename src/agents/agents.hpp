@@ -92,7 +92,6 @@ struct SimpleAgent : bboard::Agent
 
         float bestPoint;
         int simulatedSteps = 0;
-        bboard::FixedQueue<int, 5> myMoves;
         bboard::FixedQueue<int, 40> moves_in_chain;
         bboard::FixedQueue<int, 40> best_moves_in_chain;
         bboard::Position expectedPosInNewTurn;
@@ -102,8 +101,8 @@ struct SimpleAgent : bboard::Agent
         unsigned int totalSimulatedSteps = 0;
 
         bool _CheckPos2(const bboard::State* state, bboard::Position pos);
-        float laterBetter(float reward, int timestaps);
-        float soonerBetter(float reward, int timestaps);
+        float laterBetter(float reward, int timestamps);
+        float soonerBetter(float reward, int timestamps);
     };
 
 //#define GM_DEBUGMODE_ON
@@ -162,8 +161,8 @@ struct SimpleAgent : bboard::Agent
         bool _CheckPos2(const bboard::State* state, int x, int y);
         bool _CheckPos3(const bboard::State* state, int x, int y);
         void createDeadEndMap(const bboard::State* state);
-        float laterBetter(float reward, int timestaps);
-        float soonerBetter(float reward, int timestaps);
+        float laterBetter(float reward, int timestamps);
+        float soonerBetter(float reward, int timestmaps);
 
         float reward_first_step_idle = 0.001f;
         float reward_sooner_later_ratio = 0.98f;
