@@ -126,6 +126,7 @@ struct SimpleAgent : bboard::Agent
 #else
     typedef float StepResult;
 #endif
+
     struct CologneAgent : bboard::Agent
     {
         std::mt19937_64 rng;
@@ -146,6 +147,60 @@ struct SimpleAgent : bboard::Agent
 #endif
         bboard::FixedQueue<int, 40> moves_in_chain;
         bboard::FixedQueue<bboard::Position, 40> positions_in_chain;
+        bboard::Position expectedPosInNewTurn;
+        bool lastMoveWasBlocked = false;
+        int lastBlockedMove = 0;
+        unsigned int turns = 0;
+        unsigned int totalSimulatedSteps = 0;
+        int seenAgents = 0;
+        int enemyIteration1 = 0, enemyIteration2 = 0, teammateIteration = 0, myMaxDepth = 0;
+        std::array<bboard::FixedQueue<bboard::Position, 15>, 4 > previousPositions;
+        bboard::FixedQueue<int, 15> moveHistory;
+
+
+        bool _CheckPos2(const bboard::State* state, bboard::Position pos);
+        bool _CheckPos2(const bboard::State* state, int x, int y);
+        bool _CheckPos3(const bboard::State* state, int x, int y);
+        void createDeadEndMap(const bboard::State* state);
+        float laterBetter(float reward, int timestamps);
+        float soonerBetter(float reward, int timestmaps);
+
+        float reward_first_step_idle = 0.001f;
+        float reward_sooner_later_ratio = 0.98f;
+        float reward_collectedPowerup = 0.5f;
+        float reward_move_to_enemy = 100.0f;
+        float reward_move_to_pickup = 1000.0f;
+
+        std::set<uint128_t> visitedSteps;
+        int ourId, teammateId, enemy1Id, enemy2Id;
+        bool leadsToDeadEnd[bboard::BOARD_SIZE*bboard::BOARD_SIZE];
+        bool sameAs6_12_turns_ago = true;
+    };
+
+    struct DortmundAgent : bboard::Agent
+    {
+        std::mt19937_64 rng;
+        std::uniform_int_distribution<int> intDist;
+
+        DortmundAgent();
+
+        bboard::Move act(const bboard::State* state) override;
+
+        StepResult runAlreadyPlantedBombs(bboard::State * state);
+        StepResult runOneStep(const bboard::State * state, int depth);
+        StepResult scoreState(bboard::State * state);
+        void PrintDetailedInfo();
+        int simulatedSteps = 0;
+
+#ifndef GM_DEBUGMODE_STEPS
+        int depth_0_Move = 0;
+#endif
+        static bboard::FixedQueue<int, 40> moves_in_chain;
+#pragma omp threadprivate(moves_in_chain)
+
+        static bboard::FixedQueue<bboard::Position, 40> positions_in_chain;
+#pragma omp threadprivate(positions_in_chain)
+
         bboard::Position expectedPosInNewTurn;
         bool lastMoveWasBlocked = false;
         int lastBlockedMove = 0;

@@ -4,30 +4,34 @@
 #include "step_utility.hpp"
 #include <list>
 #include <cstring>
+#include <omp.h>
 
 using namespace bboard;
 using namespace bboard::strategy;
 
+bboard::FixedQueue<int, 40> agents::DortmundAgent::moves_in_chain;
+bboard::FixedQueue<bboard::Position, 40> agents::DortmundAgent::positions_in_chain;
+
 namespace agents {
-    CologneAgent::CologneAgent() {
+    DortmundAgent::DortmundAgent() {
         std::random_device rd;  // non explicit seed
         rng = std::mt19937_64(rd());
         intDist = std::uniform_int_distribution<int>(0, 4); // no bombs
     }
 
-    bool CologneAgent::_CheckPos2(const State *state, bboard::Position pos) {
+    bool DortmundAgent::_CheckPos2(const State *state, bboard::Position pos) {
         return !util::IsOutOfBounds(pos) && IS_WALKABLE_OR_AGENT(state->board[pos.y][pos.x]);
     }
 
-    bool CologneAgent::_CheckPos2(const State *state, int x, int y) {
+    bool DortmundAgent::_CheckPos2(const State *state, int x, int y) {
         return !util::IsOutOfBounds(x, y) && IS_WALKABLE_OR_AGENT(state->board[y][x]);
     }
 
-    bool CologneAgent::_CheckPos3(const State *state, int x, int y) {
+    bool DortmundAgent::_CheckPos3(const State *state, int x, int y) {
         return !util::IsOutOfBounds(x, y) && state->board[y][x] != WOOD && state->board[y][x] != RIGID;
     }
 
-    float CologneAgent::laterBetter(float reward, int timestaps) {
+    float DortmundAgent::laterBetter(float reward, int timestaps) {
         if (reward == 0.0f)
             return reward;
 
@@ -37,7 +41,7 @@ namespace agents {
             return reward * (float) std::pow(reward_sooner_later_ratio, timestaps);
     }
 
-    float CologneAgent::soonerBetter(float reward, int timestaps) {
+    float DortmundAgent::soonerBetter(float reward, int timestaps) {
         if (reward == 0.0f)
             return reward;
 
@@ -47,7 +51,7 @@ namespace agents {
             return reward * (float) std::pow(reward_sooner_later_ratio, timestaps);
     }
 
-    StepResult CologneAgent::scoreState(State *state) {
+    StepResult DortmundAgent::scoreState(State *state) {
         StepResult stepRes;
         float teamBalance = (ourId < 2 ? 1.01f : 0.99f);
         float point = 0.0f;
@@ -154,7 +158,7 @@ namespace agents {
         return stepRes;
     }
 
-    StepResult CologneAgent::runAlreadyPlantedBombs(State *state) {
+    StepResult DortmundAgent::runAlreadyPlantedBombs(State *state) {
         for (int i = 0; i < 10; i++) {
             //Exit if match decided, maybe we would die later from an other bomb, so that disturbs pointing and decision making
             if (state->aliveAgents < 2 || (state->aliveAgents == 2 &&
@@ -172,10 +176,11 @@ namespace agents {
 
 //#define RANDOM_TIEBREAK //With nobomb-random-tiebreak: 10% less simsteps, 3% less wins :( , 5-10% less ties against simple. Turned off by default. See log_test_02_tie.txt
 //#define SCENE_HASH_MEMORY //8-10x less simsteps, but 40% less wins :((
-    StepResult CologneAgent::runOneStep(const bboard::State *state, const int depth) {
+    StepResult DortmundAgent::runOneStep(const bboard::State *state, const int depth) {
         StepResult stepRes;
         bboard::Move moves_in_one_step[4];
         const AgentInfo &a = state->agents[ourId];
+        int choosenMove = 100;
 #ifdef GM_DEBUGMODE_ON
         stepRes.point = -100;
 #else
@@ -185,6 +190,8 @@ namespace agents {
 #ifdef RANDOM_TIEBREAK
         FixedQueue<int, 6> bestmoves;
 #endif
+#pragma omp set_dynamic(0)
+#pragma omp parallel for private(moves_in_one_step) shared(stepRes) num_threads(depth < 1 ? 6 : 1)
         //int moves[]{1,2,3,4,0,5};
         //for(int move : moves)
         for (int move = 0; move < 6; move++)
@@ -294,6 +301,8 @@ namespace agents {
                         newstate->relTimeStep++;
 
                         bboard::Step(newstate, moves_in_one_step);
+
+#pragma omp atomic
                         simulatedSteps++;
 
 #ifdef SCENE_HASH_MEMORY
@@ -367,14 +376,26 @@ namespace agents {
                 if (maxTeammate == maxPoint && move != 5) { bestmoves[bestmoves.count] = move; bestmoves.count++;}
             if (maxTeammate > maxPoint) { maxPoint = maxTeammate; bestmoves.count = 1; bestmoves[0] = move;}
 #else
-                if (maxTeammate > (float)stepRes) {
-#ifdef GM_DEBUGMODE_STEPS
-                    futureStepsT.steps.AddElem(move);
-#else
-                    if(depth == 0)
-                        depth_0_Move = move;
+//#pragma omp critical (depth)
+                {
+#ifdef _OPENMP //If OpenMP runs, we have to ensure that the same action will be choosen on equal points - the first one
+                    if (maxTeammate == (float) stepRes && move < choosenMove) {
+                        choosenMove = move;
+                        stepRes = futureStepsT;
+                        if (depth == 0)
+                            depth_0_Move = move;
+                    }
 #endif
-                    stepRes = futureStepsT;
+                    if (maxTeammate > (float) stepRes) {
+                        choosenMove = move;
+#ifdef GM_DEBUGMODE_STEPS
+                        futureStepsT.steps.AddElem(move);
+#else
+                        if (depth == 0)
+                            depth_0_Move = move;
+#endif
+                        stepRes = futureStepsT;
+                    }
                 }
 #endif
             }
@@ -401,7 +422,7 @@ namespace agents {
         return stepRes;
     }
 
-    void CologneAgent::createDeadEndMap(const State *state) {
+    void DortmundAgent::createDeadEndMap(const State *state) {
         short walkable_neighbours[BOARD_SIZE * BOARD_SIZE];
         memset(walkable_neighbours, 0, BOARD_SIZE * BOARD_SIZE * sizeof(short));
         std::list<Position> deadEnds;
@@ -446,7 +467,7 @@ namespace agents {
         }
     }
 
-    Move CologneAgent::act(const State *state) {
+    Move DortmundAgent::act(const State *state) {
         createDeadEndMap(state);
         visitedSteps.clear();
         simulatedSteps = 0;
@@ -573,7 +594,7 @@ namespace agents {
         return (bboard::Move) myMove;
     }
 
-    void CologneAgent::PrintDetailedInfo() {
+    void DortmundAgent::PrintDetailedInfo() {
     }
 
 }

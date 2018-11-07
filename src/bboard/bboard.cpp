@@ -498,6 +498,7 @@ ConfigInfo readHyperparams(std::string configFile) {
 std::array<std::shared_ptr<bboard::Environment>, 4> envs;
 std::array<std::shared_ptr<agents::BerlinAgent>, 4> berlinAgents;
 std::array<std::shared_ptr<agents::CologneAgent>, 4> cologneAgents;
+std::array<std::shared_ptr<agents::DortmundAgent>, 4> dortmundAgents;
 void init_agent_berlin(int id)
 {
     envs[id] = std::make_shared<bboard::Environment>();
@@ -509,28 +510,34 @@ void init_agent_cologne(int id)
     envs[id] = std::make_shared<bboard::Environment>();
     cologneAgents[id] = std::make_shared<agents::CologneAgent>();
     envs[id]->MakeGameFromPython(id);
+}
+void init_agent_dortmund(int id)
+{
+    envs[id] = std::make_shared<bboard::Environment>();
+    dortmundAgents[id] = std::make_shared<agents::DortmundAgent>();
+    envs[id]->MakeGameFromPython(id);
 
     ConfigInfo hyperparams = readHyperparams("/tmp/hyperparams.txt");
 
     if(hyperparams.count("reward_first_step_idle") > 0) {
         std::cout << "Settings reward_first_step_idle to " << hyperparams["reward_first_step_idle"] << std::endl;
-        cologneAgents[id]->reward_first_step_idle = hyperparams["reward_first_step_idle"];
+        dortmundAgents[id]->reward_first_step_idle = hyperparams["reward_first_step_idle"];
     }
     if(hyperparams.count("reward_sooner_later_ratio") > 0) {
         std::cout << "Settings reward_sooner_later_ratio to " << hyperparams["reward_sooner_later_ratio"] << std::endl;
-        cologneAgents[id]->reward_sooner_later_ratio = hyperparams["reward_sooner_later_ratio"];
+        dortmundAgents[id]->reward_sooner_later_ratio = hyperparams["reward_sooner_later_ratio"];
     }
     if(hyperparams.count("reward_collectedPowerup") > 0) {
         std::cout << "Settings reward_collectedPowerup to " << hyperparams["reward_collectedPowerup"] << std::endl;
-        cologneAgents[id]->reward_collectedPowerup = hyperparams["reward_collectedPowerup"];
+        dortmundAgents[id]->reward_collectedPowerup = hyperparams["reward_collectedPowerup"];
     }
     if(hyperparams.count("reward_move_to_enemy") > 0) {
         std::cout << "Settings reward_move_to_enemy to " << hyperparams["reward_move_to_enemy"] << std::endl;
-        cologneAgents[id]->reward_move_to_enemy = hyperparams["reward_move_to_enemy"];
+        dortmundAgents[id]->reward_move_to_enemy = hyperparams["reward_move_to_enemy"];
     }
     if(hyperparams.count("reward_move_to_pickup") > 0) {
         std::cout << "Settings reward_move_to_pickup to " << hyperparams["reward_move_to_pickup"] << std::endl;
-        cologneAgents[id]->reward_move_to_pickup = hyperparams["reward_move_to_pickup"];
+        dortmundAgents[id]->reward_move_to_pickup = hyperparams["reward_move_to_pickup"];
     }
 }
 
@@ -557,6 +564,18 @@ float episode_end_cologne(int id)
     return avg_simsteps_per_turn;
 }
 
+float episode_end_dortmund(int id)
+{
+    if(dortmundAgents[id]->turns == 0)
+        dortmundAgents[id]->turns++;
+    float avg_simsteps_per_turn = dortmundAgents[id]->totalSimulatedSteps / (float)dortmundAgents[id]->turns;
+    std::cout << "Episode end for agent " << id << ". Turns: " << dortmundAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
+    dortmundAgents[id] = std::make_shared<agents::DortmundAgent>();
+    envs[id] = std::make_shared<bboard::Environment>();
+    envs[id]->MakeGameFromPython(id);
+    return avg_simsteps_per_turn;
+}
+
 int getStep_berlin(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
     //std::cout << std::endl;
@@ -571,15 +590,27 @@ int getStep_berlin(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive,
 }
 int getStep_cologne(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
-    std::cout << std::endl;
+    //std::cout << std::endl;
 
     envs[id]->MakeGameFromPython_cologne(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
 
     cologneAgents[id]->id = envs[id]->GetState().ourId;
-    PrintState(&envs[id]->GetState());
+    //PrintState(&envs[id]->GetState());
 
     // Ask the agent where to go
     return (int)cologneAgents[id]->act(&envs[id]->GetState());
+}
+int getStep_dortmund(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+{
+    std::cout << std::endl;
+
+    envs[id]->MakeGameFromPython_dortmund(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+
+    dortmundAgents[id]->id = envs[id]->GetState().ourId;
+    PrintState(&envs[id]->GetState());
+
+    // Ask the agent where to go
+    return (int)dortmundAgents[id]->act(&envs[id]->GetState());
 }
 
 extern "C"
@@ -613,5 +644,20 @@ EXPORTIT float c_episode_end_cologne(int id)
 EXPORTIT int c_getStep_cologne(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
     return getStep_cologne(id, agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+}
+
+EXPORTIT void c_init_agent_dortmund(int id)
+{
+    init_agent_dortmund(id);
+}
+
+EXPORTIT float c_episode_end_dortmund(int id)
+{
+    return episode_end_dortmund(id);
+}
+
+EXPORTIT int c_getStep_dortmund(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+{
+    return getStep_dortmund(id, agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
 }
 }
