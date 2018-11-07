@@ -446,7 +446,7 @@ void ProxyAct(Move& writeBack, Agent& agent, State& state)
 void CollectMovesAsync(Move m[AGENT_COUNT], Environment& e)
 {
     std::thread threads[AGENT_COUNT];
-    for(uint i = 0; i < AGENT_COUNT; i++)
+    for(unsigned int i = 0; i < AGENT_COUNT; i++)
     {
         if(!e.GetState().agents[i].dead)
         {
@@ -457,7 +457,7 @@ void CollectMovesAsync(Move m[AGENT_COUNT], Environment& e)
         }
     }
     Pause(true); //competitive pause
-    for(uint i = 0; i < AGENT_COUNT; i++)
+    for(unsigned int i = 0; i < AGENT_COUNT; i++)
     {
         if(!e.GetState().agents[i].dead)
         {
@@ -482,7 +482,7 @@ void Environment::Step(bool competitiveTimeLimit)
     }
     else
     {
-        for(uint i = 0; i < AGENT_COUNT; i++)
+        for(unsigned int i = 0; i < AGENT_COUNT; i++)
         {
             if(!state->agents[i].dead)
             {
@@ -526,14 +526,14 @@ State& Environment::GetState() const
     return *state.get();
 }
 
-Agent* Environment::GetAgent(uint agentID) const
+Agent* Environment::GetAgent(unsigned int agentID) const
 {
     return agents[agentID];
 }
 
 void Environment::SetAgents(std::array<Agent*, AGENT_COUNT> agents)
 {
-    for(uint i = 0; i < AGENT_COUNT; i++)
+    for(unsigned int i = 0; i < AGENT_COUNT; i++)
     {
         agents[i]->id = int(i);
     }

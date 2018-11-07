@@ -18,7 +18,7 @@ namespace bboard::strategy
  * @brief RMapInfo Filling an RMap lets you collect additional
  * information. These are encoded into RMapInfo
  */
-typedef uint RMapInfo;
+typedef unsigned int RMapInfo;
 const int chalf = 0xFFFF;
 
 /**

@@ -541,7 +541,7 @@ public:
      * @param agentID
      * @return
      */
-    Agent* GetAgent(uint agentID) const;
+    Agent* GetAgent(unsigned int agentID) const;
 
     /**
      * @brief SetStepListener Sets the step listener. Step listener

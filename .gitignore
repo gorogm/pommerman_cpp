@@ -4,3 +4,5 @@ build/
 
 # exclude personal IDE project files
 .qtcreator.*
+
+.mypy_cache/

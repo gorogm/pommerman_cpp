@@ -11,6 +11,12 @@
 #include <fstream>
 #include <sstream>
 
+#ifdef _WIN32
+#  define EXPORTIT __declspec( dllexport )
+#else
+#  define EXPORTIT
+#endif
+
 namespace bboard
 {
 
@@ -578,32 +584,33 @@ int getStep_cologne(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive
 
 extern "C"
 {
-void c_init_agent_berlin(int id)
+
+EXPORTIT void c_init_agent_berlin(int id)
 {
     init_agent_berlin(id);
 }
 
-float c_episode_end_berlin(int id)
+EXPORTIT float c_episode_end_berlin(int id)
 {
     return episode_end_berlin(id);
 }
 
-int c_getStep_berlin(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+EXPORTIT int c_getStep_berlin(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
     return getStep_berlin(id, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
 }
 
-void c_init_agent_cologne(int id)
+EXPORTIT void c_init_agent_cologne(int id)
 {
     init_agent_cologne(id);
 }
 
-float c_episode_end_cologne(int id)
+EXPORTIT float c_episode_end_cologne(int id)
 {
     return episode_end_cologne(id);
 }
 
-int c_getStep_cologne(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+EXPORTIT int c_getStep_cologne(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
     return getStep_cologne(id, agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
 }

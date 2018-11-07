@@ -261,7 +261,7 @@ void PrintPath(RMap &r, Position from, Position to)
     path[0] = {to.x, to.y};
     Position curr = path[0];
 
-    for(uint i = 0; !(curr == from); i++)
+    for(unsigned int i = 0; !(curr == from); i++)
     {
         pathx.insert(curr);
         int idx = r.GetPredecessor(curr.x, curr.y);
