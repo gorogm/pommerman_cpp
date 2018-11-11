@@ -5,6 +5,8 @@ FROM ubuntu:18.04
 #RUN apt-get install -y software-properties-common vim
 #RUN add-apt-repository ppa:jonathonf/python-3.6
 RUN apt-get update && apt-get install -f -y python3.6 python3-pip gcc-7 g++-7 cmake
+# To not have GL import errors:
+RUN apt-get install -y libglu1-mesa-dev freeglut3-dev mesa-common-dev
 
 #FROM alpine
 #RUN apk add --update    python3 python3-dev py3-pip build-base && rm -rf /var/cache/apk/*
