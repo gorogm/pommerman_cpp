@@ -1,4 +1,4 @@
-﻿#ifndef BBOARD_H_
+#ifndef BBOARD_H_
 #define BBOARD_H_
 
 #include <array>
@@ -240,7 +240,8 @@ struct AgentInfo
 #define BMB_POS_Y(x)    (((x) & 0xF0) >> 4)     // [ 4, 8]
 #define BMB_ID(x)       (((x) & 0xF00) >> 8)    // [ 8,12]
 #define BMB_STRENGTH(x) (((x) & 0xF000) >> 12)  // [12,16]
-#define BMB_TIME(x)     (((x) & 0xF0000) >> 16) // [16,64]
+#define BMB_TIME(x)     (((x) & 0xF0000) >> 16) // [16,20]
+#define BMB_VEL(x)      (((x) & 0xF00000) >> 20) // [20,24]
 
 /**
  * Represents all information about a single
@@ -253,7 +254,8 @@ struct AgentInfo
  * [ 4,  8]  y-Position
  * [ 8, 12]  ID
  * [12, 16]  Strength
- * [16, 64]  Time
+ * [16, 20]  Time
+ * [20, 24]  Velocity
  */
 typedef int Bomb;
 
@@ -262,7 +264,8 @@ const int cmask0_4   =  ~0xF;
 const int cmask4_8   =  ~0xF0;
 const int cmask8_12  =  ~0xF00;
 const int cmask12_16 =  ~0xF000;
-const int cmask16_r  =   0xFFFF;
+const int cmask16_20 =  ~0xF0000;
+const int cmask20_24 =  ~0xF00000;
 
 inline void ReduceBombTimer(Bomb& bomb)
 {
@@ -282,7 +285,11 @@ inline void SetBombStrength(Bomb& bomb, int strength)
 }
 inline void SetBombTime(Bomb& bomb, int time)
 {
-    bomb = (bomb & cmask16_r) + (time << 16);
+    bomb = (bomb & cmask16_20) + (time << 16);
+}
+inline void SetBombVelocity(Bomb& bomb, int vel)
+{
+	bomb = (bomb & cmask20_24) + (vel<< 20);
 }
 
 /**
