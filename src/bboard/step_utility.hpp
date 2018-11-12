@@ -16,13 +16,24 @@ namespace bboard::util
 Position DesiredPosition(int x, int y, Move m);
 
 
+
+// check if move is valid for an agent
+bool IsValidDirection(State* s, int x, int y, Move m);
+
 /**
  * @brief FillDestPos Fills an array of destination positions.
  * @param s The State
  * @param m An array of all agent moves
  * @param p The array to be filled wih dest positions
  */
-void FillDestPos(State* s, Move m[AGENT_COUNT], Position p[AGENT_COUNT]);
+void FillDestAgentPos(State* s, std::vector<AgentInfo*> aliveAgents, Move m[AGENT_COUNT], Position dest_agent_bos[AGENT_COUNT]);
+
+/**
+ * @brief FillDestPos Fills an array of destination positions for bombs.
+ * @param s The State
+ * @param p The array to be filled wih dest positions
+ */
+void FillDestBombPos(State* s, Position dest_bomb_pos[MAX_BOMBS]);
 
 /**
  * @brief FixSwitchMove Fixes the desired positions if the agents want
@@ -30,14 +41,21 @@ void FillDestPos(State* s, Move m[AGENT_COUNT], Position p[AGENT_COUNT]);
  * @param s The state
  * @param desiredPositions an array of desired positions
  */
-void FixSwitchMove(State* s, Position desiredPositions[AGENT_COUNT]);
+void FixSwitchMove(State* s, std::vector<AgentInfo*> aliveAgents, Position d[AGENT_COUNT], Position dest_bomb_pos[MAX_BOMBS]);
 
 /**
  * TODO: Fill doc for dependency resolving
  *
  */
-int ResolveDependencies(State* s, Position des[AGENT_COUNT],
-                        int dependency[AGENT_COUNT], int chain[AGENT_COUNT]);
+void ResolveDependencies(State* s, std::vector<AgentInfo*> aliveAgents, Position des_agent_pos[AGENT_COUNT], Position des_bomb_pos[MAX_BOMBS],
+	std::unordered_map<Position, int, PositionHash>& agent_occupancy,
+	std::unordered_map<Position, int, PositionHash>& bomb_occupancy);
+
+void HandleKicks(State* s, std::vector<AgentInfo*> aliveAgents, Position des_agent_pos[AGENT_COUNT], Position des_bomb_pos[MAX_BOMBS],
+	std::unordered_map<Position, int, PositionHash>& agent_occupancy,
+	std::unordered_map<Position, int, PositionHash>& bomb_occupancy,
+	Move* moves);
+
 
 /**
  * @brief TickFlames Counts down all flames in the flame queue
@@ -97,6 +115,11 @@ inline bool IsOutOfBounds(const Position& pos)
 inline bool IsOutOfBounds(const int& x, const int& y)
 {
     return x < 0 || y < 0 || x >= BOARD_SIZE || y >= BOARD_SIZE;
+}
+
+inline bool IsPositionOnBoard(Position pos)
+{
+	return !IsOutOfBounds(pos);
 }
 
 }

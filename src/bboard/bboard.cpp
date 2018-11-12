@@ -149,6 +149,7 @@ void State::PlantBomb(int x, int y, int id, bool setItem)
     SetBombStrength(*b, agents[id].bombStrength);
     // TODO: velocity
     SetBombTime(*b, BOMB_LIFETIME);
+	SetBombVelocity(*b, 0);
 
     if(setItem)
     {
@@ -307,6 +308,10 @@ void State::PutAgentsInCorners(int a0, int a1, int a2, int a3)
 
     agents[a1].x = agents[a2].x = BOARD_SIZE - 1;
     agents[a2].y = agents[a3].y = BOARD_SIZE - 1;
+	agents[a0].id = a0;
+	agents[a1].id = a1;
+	agents[a2].id = a2;
+	agents[a3].id = a3;
 }
 
 //////////////////////

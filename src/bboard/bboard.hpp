@@ -191,6 +191,19 @@ inline bool operator==(const Position& here, const Position& other)
     return here.x == other.x && here.y == other.y;
 }
 
+inline bool operator!=(const Position& here, const Position& other)
+{
+	return here.x != other.x || here.y != other.y;
+}
+
+struct PositionHash
+{
+	std::size_t operator()(const Position& p) const
+	{
+		return BOARD_SIZE * p.y + p.x;
+	}
+};
+
 inline std::ostream & operator<<(std::ostream & str, const Position& v)
 {
     str << "(" << v.x << ", " << v.y << ")";;
@@ -218,6 +231,7 @@ inline std::ostream & operator<<(std::ostream & str, const Position& v)
  */
 struct AgentInfo
 {
+	int id;
     int x; // column
     int y; // row
 

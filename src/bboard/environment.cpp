@@ -419,18 +419,17 @@ void Environment::MakeGameFromPython(int ourId)
     void Environment::MakeGameFromPython_dortmund(bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life,
                                                  double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
     {
-        state->agents[0].bombCount = 0;
-        state->agents[1].bombCount = 0;
-        state->agents[2].bombCount = 0;
-        state->agents[3].bombCount = 0;
-        state->agents[0].diedAt = state->timeStep;
-        state->agents[1].diedAt = state->timeStep;
-        state->agents[2].diedAt = state->timeStep;
-        state->agents[3].diedAt = state->timeStep;
         state->agents[0].dead = !agent0Alive;
         state->agents[1].dead = !agent1Alive;
         state->agents[2].dead = !agent2Alive;
         state->agents[3].dead = !agent3Alive;
+		
+		for (int i = 0; i < AGENT_COUNT; i++)
+		{
+			state->agents[i].bombCount = 0;
+			state->agents[i].id = i;
+			state->agents[i].diedAt = state->timeStep;
+		}
 
         for(int i=0; i < state->bombs.count; i++)
         {

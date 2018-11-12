@@ -14,141 +14,90 @@ void Step(State* state, Move* moves)
     ///////////////////////
 
     util::TickFlames(*state);
-    util::TickBombs(*state);
+
+	std::vector<AgentInfo*> aliveAgents;
+	aliveAgents.reserve(AGENT_COUNT);
+	for (int i = 0; i < AGENT_COUNT; i++)
+	{
+		// we do not consider out of sight agents either
+		if (!state->agents[i].dead || state->agents[i].x < 0)
+		{
+			aliveAgents.push_back(&state->agents[i]);
+		}
+	}
+
 
     ///////////////////////
     //  Player Movement  //
     ///////////////////////
 
-    Position destPos[AGENT_COUNT];
-    util::FillDestPos(state, moves, destPos);
-    util::FixSwitchMove(state, destPos);
+    Position des_agent_pos[AGENT_COUNT];
+    util::FillDestAgentPos(state, aliveAgents, moves, des_agent_pos);
 
-    int dependency[AGENT_COUNT] = {-1, -1, -1, -1};
-    int roots[AGENT_COUNT] = {-1, -1, -1, -1};
+	Position des_bomb_pos[MAX_BOMBS];
+	util::FillDestBombPos(state, des_bomb_pos);
 
-    // the amount of chain roots
-    const int rootNumber = util::ResolveDependencies(state, destPos, dependency, roots);
-    const bool ouroboros = rootNumber == 0; // ouroboros formation?
+    util::FixSwitchMove(state, aliveAgents, des_agent_pos, des_bomb_pos);
 
-    int rootIdx = 0;
-    int i = rootNumber == 0 ? 0 : roots[0]; // no roots -> start from 0
+	// fill agent, and bomb occupancy
+	std::unordered_map<Position, int, PositionHash> agent_occupancy;
+	std::unordered_map<Position, int, PositionHash> bomb_occupancy;
+	for (int i = 0; i < aliveAgents.size(); i++)
+	{
+		agent_occupancy[des_agent_pos[i]] += 1;
+	}
+	for (int i = 0; i < state->bombs.count; i++)
+	{
+		bomb_occupancy[des_bomb_pos[i]] += 1;
+	}
 
-    // iterates 4 times but the index i jumps around the dependencies
-    for(int _ = 0; _ < AGENT_COUNT; _++, i = dependency[i])
-    {
-        if(i == -1)
-        {
-            rootIdx++;
-            i = roots[rootIdx];
-        }
-        if(i==-1)
-        {
-            std::cout << "ERROR in step.cpp Step(), indexing agent with -1" << std::endl;
-            continue;
-        }
-        const Move m = moves[i];
+	util::ResolveDependencies(state, aliveAgents, des_agent_pos, des_bomb_pos, agent_occupancy, bomb_occupancy);
 
-        if(state->agents[i].dead || m == Move::IDLE || state->agents[i].x < 0)
-        {
-            continue;
-        }
-        else if(m == Move::BOMB)
-        {
-            state->PlantBomb(state->agents[i].x, state->agents[i].y, i);
-            continue;
-        }
+	util::HandleKicks(state, aliveAgents, des_agent_pos, des_bomb_pos, agent_occupancy, bomb_occupancy, moves);
 
+	//move agents, collect powerup
+	for (int num_agent = 0; num_agent < aliveAgents.size(); num_agent++)
+	{
+		AgentInfo& agent = *aliveAgents[num_agent];
+		Position agent_pos{ agent.x, agent.y };
+		if (des_agent_pos[num_agent] != agent_pos)
+		{
+			Position temp_pos = util::DesiredPosition(agent.x, agent.y, moves[agent.id]);
+			agent.x = temp_pos.x;
+			agent.y = temp_pos.y;
+			int& target_pos_board = state->board[temp_pos.y][temp_pos.x];
+			if (IS_POWERUP(target_pos_board))
+			{
+				util::ConsumePowerup(*state, agent.id, target_pos_board);
+				target_pos_board = 0;
+			}
+		}
+	}
 
-        int x = state->agents[i].x;
-        int y = state->agents[i].y;
+	util::TickBombs(*state);
 
-        Position desired = destPos[i];
-
-        if(util::IsOutOfBounds(desired))
-        {
-            continue;
-        }
-
-        int itemOnDestination = state->board[desired.y][desired.x];
-
-        //if ouroboros, the bomb will be covered by an agent
-        if(ouroboros)
-        {
-            for(int j = 0; j < state->bombs.count; j++)
-            {
-                if(BMB_POS_X(state->bombs[j]) == desired.x
-                        && BMB_POS_Y(state->bombs[j]) == desired.y)
-                {
-                    itemOnDestination = Item::BOMB;
-                    break;
-                }
-            }
-        }
-
-        if(IS_FLAME(itemOnDestination))
-        {
-            state->Kill(i);
-            if(state->board[y][x] == Item::AGENT0 + i)
-            {
-                if(state->HasBomb(x, y))
-                {
-                    state->board[y][x] = Item::BOMB;
-                }
-                else
-                {
-                    state->board[y][x] = Item::PASSAGE;
-                }
-
-            }
-            continue;
-        }
-        if(util::HasDPCollision(*state, destPos, i))
-        {
-            continue;
-        }
-
-        //
-        // All checks passed - you can try a move now
-        //
-
-
-        // Collect those sweet power-ups
-        if(IS_POWERUP(itemOnDestination))
-        {
-            util::ConsumePowerup(*state, i, itemOnDestination);
-            itemOnDestination = 0;
-        }
-
-        // execute move if the destination is free
-        // (in the rare case of ouroboros, make the move even
-        // if an agent occupies the spot)
-        if(itemOnDestination == Item::PASSAGE)
-            //GM: If there is a bomb at ouroboros, some agents move, some can't, so they end up on the same position and program crashes.
-            //Now ouroboros will not move, which is invalid, but happens rarely and doesn't crash.
-                //|| (ouroboros && itemOnDestination >= Item::AGENT0))
-        {
-            // only override the position I came from if it has not been
-            // overridden by a different agent that already took this spot
-            if(state->board[y][x] == Item::AGENT0 + i)
-            {
-                if(state->HasBomb(x, y))
-                {
-                    state->board[y][x] = Item::BOMB;
-                }
-                else
-                {
-                    state->board[y][x] = 0;
-                }
-
-            }
-            state->board[desired.y][desired.x] = Item::AGENT0 + i;
-            state->agents[i].x = desired.x;
-            state->agents[i].y = desired.y;
-        }
-
-    }
-
+	for (int num_bomb = 0; num_bomb < state->bombs.count; num_bomb++)
+	{
+		Bomb& bomb = state->bombs[num_bomb];
+		int bomb_x = BMB_POS_X(bomb);
+		int bomb_y = BMB_POS_Y(bomb);
+		state->board[bomb_y][bomb_x] = Item::BOMB;
+	};
+	
+	for (int num_agent = 0; num_agent < aliveAgents.size(); num_agent++)
+	{
+		AgentInfo& agent = *aliveAgents[num_agent];
+		Position agent_pos{ agent.x, agent.y };
+		if (IS_FLAME(state->board[agent.y][agent.x]))
+		{
+			state->Kill(agent.id);
+		}
+		else
+		{
+			state->board[agent.y][agent.x] = Item::AGENT0 + agent.id;
+		}
+	}
+	//////////////
 }
 
 }
