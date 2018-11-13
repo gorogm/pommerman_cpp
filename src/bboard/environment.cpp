@@ -433,17 +433,9 @@ void Environment::MakeGameFromPython(int ourId)
         state->agents[2].dead = !agent2Alive;
         state->agents[3].dead = !agent3Alive;
 
-        for(int i=0; i < state->bombs.count; i++)
-        {
-            int boardPos = BMB_POS_X(state->bombs[i]) + BMB_POS_Y(state->bombs[i]) * 11;
-            if(board[boardPos] == PyPASSAGE || board[boardPos] == PyFLAMES || BMB_TIME(state->bombs[i]) == 1) {
-                state->bombs.RemoveAt(i);
-                i--;
-            }else {
-                ReduceBombTimer(state->bombs[i]); //Can be read from bomb_life array, if not in fog
-                state->agents[BMB_ID(state->bombs[i])].bombCount++;
-            }
-        }
+        auto previousBombs = state->bombs;
+        state->bombs.count = 0;
+
         for(int i=0; i < state->powerup_incr.count; i++)
         {
             if(board[state->powerup_incr[i].x + state->powerup_incr[i].y * 11] >= PyAGENT0)
@@ -531,28 +523,15 @@ void Environment::MakeGameFromPython(int ourId)
                     //New bombs are born under an agent, and added there. so here in theory we only handle bombs which were placed in fog and discovered later
                     state->board[y][x] = BOMB;
                     {
-                        bool already_handled = false;
-                        for (int bombindex = 0; bombindex < state->bombs.count; bombindex++) {
-                            if(BMB_POS_X(state->bombs[bombindex]) == x && BMB_POS_Y(state->bombs[bombindex]) == y)
-                            {
-                                already_handled = true;
-                                SetBombTime(state->bombs[bombindex], bomb_life[i]); //should already be it !!
-                                break;
-                            }
-                        }
-                        if(!already_handled)
-                        {
-                            int bombId = state->ourId; //The owner is unknown :(
-                            Bomb *b = &state->bombs.NextPos();
-                            SetBombID(*b, bombId);
-                            SetBombPosition(*b, x, y);
-                            SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
-                            // TODO: velocity
-                            SetBombTime(*b, bomb_life[i]);
-                            state->agents[bombId].bombCount++;
-                            state->bombs.count++;
-                            std::cout << "Found an unknown bomb at " << y << x << std::endl;
-                        }
+
+                        Bomb *b = &state->bombs.NextPos();
+                        SetBombID(*b, 5); //Unknown bomb
+                        SetBombPosition(*b, x, y);
+                        SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
+                        //SetBombVelocity(*b, 0);
+                        SetBombTime(*b, bomb_life[i]);
+                        //state->agents[bombId].bombCount++;
+                        state->bombs.count++;
                     }
                     break;
                 case PyFLAMES:
@@ -590,38 +569,116 @@ void Environment::MakeGameFromPython(int ourId)
                     state->agents[board[i] - PyAGENT0].y = y;
                     if((int)bomb_blast_strength[i] > 0) //hidden bomb under us
                     {
-                        bool already_handled = false;
-                        for (int bombindex = 0; bombindex < state->bombs.count; bombindex++) {
-                            if(BMB_POS_X(state->bombs[bombindex]) == x && BMB_POS_Y(state->bombs[bombindex]) == y)
-                            {
-                                already_handled = true;
-                                SetBombTime(state->bombs[bombindex], bomb_life[i]); //should already be it !!
-                                break;
-                            }
+                        int bombId = board[i] - PyAGENT0;//the agent who placed it
+                        Bomb *b = &state->bombs.NextPos();
+                        SetBombID(*b, bombId);
+                        SetBombPosition(*b, x, y);
+                        SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
+                        //SetBombVelocity(*b, 0);
+                        SetBombTime(*b, bomb_life[i]);
+                        if (bomb_life[i] > 8) //Let's assume it was placed by the guy on the top
+                        {
+                            //extra info: the agent's bomb-strength
+                            state->agents[bombId].bombStrength = (int)bomb_blast_strength[i] - 1;
                         }
-                        if(!already_handled) {
-                            int bombId = board[i] - PyAGENT0;//the agent who placed it
-                            Bomb *b = &state->bombs.NextPos();
-                            SetBombID(*b, bombId);
-                            SetBombPosition(*b, x, y);
-                            SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
-                            // TODO: velocity
-                            SetBombTime(*b, bomb_life[i]);
-                            if (bomb_life[i] > 8) //Let's assume it was placed by the guy on the top
-                            {
-                                //extra info: the agent's bomb-strength
-                                state->agents[bombId].bombStrength = (int)bomb_blast_strength[i] - 1;
-                            }
-                            state->agents[bombId].bombCount++;
-                            state->bombs.count++;
-                        }
-                        std::cout << "Bomb under agent " << board[i] - PyAGENT0 << " at " << x << " " << y << " time: " << bomb_life[i] << std::endl;
+                        state->bombs.count++;
+
+                        std::cout << "Bomb under agent " << board[i] - PyAGENT0 << " at " << y << " " << x << " time: " << bomb_life[i] << std::endl;
                     }
                     break;
                 default:
                     std::cout << "Unknown item in py board: " << board[i] << std::endl;
             }
         }
+
+        for(int bomb_index=0; bomb_index < previousBombs.count; bomb_index++) {
+            if (BMB_TIME(previousBombs[bomb_index]) == 1) {
+                //exploded since that
+                previousBombs.RemoveAt(bomb_index);
+                bomb_index--;
+                continue;
+            }
+            Position expectedPosition = bboard::util::DesiredPosition(BMB_POS_X(previousBombs[bomb_index]), BMB_POS_Y(previousBombs[bomb_index]), (bboard::Move) BMB_VEL(previousBombs[bomb_index]));
+            if(_CheckPos_basic(state.get(), expectedPosition.x, expectedPosition.y))
+            {
+                //Could move
+                if(state->board[expectedPosition.y][expectedPosition.x] == FOG)
+                {
+                    state->bombs.AddElem(previousBombs[bomb_index]);
+                    SetBombTime(state->bombs[state->bombs.count - 1], BMB_TIME(previousBombs[bomb_index])-1);
+                    std::cout << "Bomb known from memory in fog at " << BMB_POS_Y(state->bombs[state->bombs.count - 1]) << " " << BMB_POS_X(state->bombs[state->bombs.count - 1]) << std::endl;
+                }else if(bomb_blast_strength[expectedPosition.y * BOARD_SIZE + expectedPosition.x] > 0)
+                {
+                    bool found = false;
+                    for(int bomb_index2=0; bomb_index2 < state->bombs.count; bomb_index2++) {
+                        if(BMB_POS_X(state->bombs[bomb_index2]) == expectedPosition.x && BMB_POS_Y(state->bombs[bomb_index2]) == expectedPosition.y)
+                        {
+                            found = true;
+                            if(BMB_TIME(state->bombs[bomb_index2]) != BMB_TIME(previousBombs[bomb_index]) - 1)
+                                std::cout << "Unexpected bomb time at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
+                            else
+                                std::cout << "Matched old and new bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
+
+                            SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
+                            break;
+                        }
+                    }
+
+                    if(!found)
+                    {
+                        std::cout << "Bomb is lost around " << expectedPosition.y << " " << expectedPosition.x << std::endl;
+                    }
+                }else{
+                    std::cout << "Bomb is lost around " << expectedPosition.y << " " << expectedPosition.x << std::endl;
+                }
+
+            }else{
+                //Couldn't move
+                if(state->board[BMB_POS_Y(previousBombs[bomb_index])][BMB_POS_X(previousBombs[bomb_index])] == FOG)
+                {
+                    //SetBombVelocity(previousBombs[bomb_index], 0); //Stopping
+                    state->bombs.AddElem(previousBombs[bomb_index]);
+                    SetBombTime(state->bombs[state->bombs.count - 1], BMB_TIME(previousBombs[bomb_index])-1);
+                }else if(state->board[BMB_POS_Y(previousBombs[bomb_index])][BMB_POS_X(previousBombs[bomb_index])] == BOMB)
+                {
+                    bool found = false;
+                    for(int bomb_index2=0; bomb_index2 < state->bombs.count; bomb_index2++) {
+                        if(BMB_POS(state->bombs[bomb_index2]) == BMB_POS(previousBombs[bomb_index]))
+                        {
+                            found = true;
+                            if(BMB_TIME(state->bombs[bomb_index2]) != BMB_TIME(previousBombs[bomb_index]) - 1)
+                                std::cout << "Unexpected STOPPED bomb time at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
+                            else
+                                std::cout << "Matched STOPPED old and new bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
+
+                            //SetBombVelocity(state->bombs[bomb_index2], 0); //Stopping
+                            SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
+                            break;
+                        }
+                    }
+                    if(!found)
+                    {
+                        std::cout << "STOPPED Bomb is lost around " << expectedPosition.y << " " << expectedPosition.x << std::endl;
+                    }
+                }else{
+                    std::cout << "STOPPED Bomb is lost around " << expectedPosition.y << " " << expectedPosition.x << std::endl;
+                }
+            }
+        }
+
+
+        int i, j;
+        for (i = 0; i < state->bombs.count-1; i++) {
+            if (BMB_ID_KNOWN(state->bombs[i]))
+                state->agents[BMB_ID(state->bombs[i])].bombCount++;
+        }
+
+        for (i = 0; i < state->bombs.count-1; i++) {
+            for (j = 0; j < state->bombs.count - 1 - i; j++)
+                if (BMB_TIME(state->bombs[j]) > BMB_TIME(state->bombs[j + 1]))
+                    std::swap(state->bombs[j], state->bombs[j + 1]);
+        }
+
 
         state->agents[state->enemy1Id].maxBombCount = std::max(state->agents[state->enemy1Id].maxBombCount, state->agents[state->enemy1Id].bombCount);
         state->agents[state->enemy2Id].maxBombCount = std::max(state->agents[state->enemy2Id].maxBombCount, state->agents[state->enemy2Id].bombCount);
@@ -634,11 +691,6 @@ void Environment::MakeGameFromPython(int ourId)
         state->agents[state->ourId].bombCount = state->agents[state->ourId].maxBombCount - ammo; //should be already OK from bomb enumeration
         state->agents[state->ourId].bombStrength = blast_strength - 1;
 
-        int i, j;
-        for (i = 0; i < state->bombs.count-1; i++)
-            for (j = 0; j < state->bombs.count-1-i; j++)
-                if (BMB_TIME(state->bombs[j]) > BMB_TIME(state->bombs[j+1]))
-                    std::swap(state->bombs[j], state->bombs[j+1]);
     }
 
 void Environment::StartGame(int timeSteps, bool render, bool stepByStep)
