@@ -135,7 +135,7 @@ inline bool IsOutOfBounds(const int& x, const int& y)
 
 bool _CheckPos_basic(State * state, int x, int y)
 {
-    return !IsOutOfBounds(x, y) && state->board[y][x] != RIGID;
+    return !IsOutOfBounds(x, y) && state->board[y][x] != RIGID && !IS_WOOD(state->board[y][x]);
 }
 
 ///////////////////
