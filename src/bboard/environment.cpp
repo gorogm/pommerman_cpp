@@ -3,6 +3,7 @@
 #include <functional>
 
 #include "bboard.hpp"
+#include "step_utility.hpp"
 
 namespace bboard
 {
