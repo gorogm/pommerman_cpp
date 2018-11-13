@@ -207,8 +207,7 @@ namespace agents {
             if (move > 0 && move < 5 && !_CheckPos2(state, desiredPos))
                 continue;
             //no two opposite steps please!
-            if (depth > 0 && move > 0 && move < 5 && moves_in_chain[depth - 1] > 0 && moves_in_chain[depth - 1] < 5 &&
-                std::abs(moves_in_chain[depth - 1] - move) == 2)
+            if (depth > 0 && move > 0 && move < 5 && moves_in_chain[4*(depth - 1)] > 0 && moves_in_chain[4*(depth - 1)] < 5 && std::abs(moves_in_chain[4*(depth - 1)] - move) == 2)
                 continue;
 
             moves_in_one_step[ourId] = (bboard::Move) move;
@@ -242,6 +241,7 @@ namespace agents {
                 }
 
                 moves_in_one_step[teammateId] = (bboard::Move) moveT;
+                moves_in_chain.AddElem(moveT);
 
                 float minPointE1 = 100;
                 StepResult futureStepsE1;
@@ -269,6 +269,7 @@ namespace agents {
                     }
 
                     moves_in_one_step[enemy1Id] = (bboard::Move) moveE1;
+                    moves_in_chain.AddElem(moveE1);
 
                     float minPointE2 = 100;
                     StepResult futureStepsE2;
@@ -296,6 +297,7 @@ namespace agents {
                         }
 
                         moves_in_one_step[enemy2Id] = (bboard::Move) moveE2;
+                        moves_in_chain.AddElem(moveE2);
 
                         bboard::State *newstate = new bboard::State(*state);
                         newstate->relTimeStep++;
@@ -320,13 +322,14 @@ namespace agents {
                             newstate->agents[ourId].bombStrength)*10 +
                             newstate->agents[0].dead*8 + newstate->agents[1].dead*4 + newstate->agents[2].dead*2 + newstate->agents[3].dead;
 
-                    if(visitedSteps.count(hash) > 0) {
-                        delete newstate;
-                        continue;
-                    }
-                    else {
-                        visitedSteps.insert(hash);
-                    }
+                        if(visitedSteps.count(hash) > 0) {
+                            delete newstate;
+                            moves_in_chain.count--;
+                            continue;
+                        }
+                        else {
+                            visitedSteps.insert(hash);
+                        }
 #endif
 
                         Position myNewPos;
@@ -350,6 +353,7 @@ namespace agents {
                         }
 
                         positions_in_chain.count--;
+                        moves_in_chain.count--;
                         delete newstate;
                     }
                     if (minPointE2 > -100 && minPointE2 < minPointE1) {
@@ -359,6 +363,7 @@ namespace agents {
 #endif
                         futureStepsE1 = futureStepsE2;
                     }
+                    moves_in_chain.count--;
                 }
                 if (minPointE1 < 100 && minPointE1 > maxTeammate) {
                     maxTeammate = minPointE1;
@@ -367,9 +372,8 @@ namespace agents {
 #endif
                     futureStepsT = futureStepsE1;
                 }
+                moves_in_chain.count--;
             }
-
-            moves_in_chain.RemoveAt(moves_in_chain.count - 1);
 
             if (maxTeammate > -100) {
 #ifdef RANDOM_TIEBREAK
@@ -399,6 +403,7 @@ namespace agents {
                 }
 #endif
             }
+            moves_in_chain.count--;
         }
 
 #ifdef RANDOM_TIEBREAK
