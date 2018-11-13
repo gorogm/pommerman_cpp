@@ -17,7 +17,7 @@ LABEL version="1.0"
 LABEL releaseDate="2018.11.11."
 LABEL maintainer="gorogm@gmail.com"
 
-ADD playground/examples/docker-agent /agent
+ADD docker/runners /agent
 
 # @TODO to be replaced with `pip install pommerman`
 ADD playground /pommerman
