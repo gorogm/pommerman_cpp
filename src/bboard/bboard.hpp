@@ -235,6 +235,8 @@ struct AgentInfo
 
 
 // BOMB MACROS
+#define BMB_ID_UNKNOWN  5
+
 #define BMB_POS(x)      (((x) & 0xFF))          // [ 0, 8]
 #define BMB_POS_X(x)    (((x) & 0xF))           // [ 0, 4]
 #define BMB_POS_Y(x)    (((x) & 0xF0) >> 4)     // [ 4, 8]
@@ -242,6 +244,8 @@ struct AgentInfo
 #define BMB_STRENGTH(x) (((x) & 0xF000) >> 12)  // [12,16]
 #define BMB_TIME(x)     (((x) & 0xF0000) >> 16) // [16,20]
 #define BMB_VEL(x)      (((x) & 0xF00000) >> 20) // [20,24]
+
+#define BMB_ID_KNOWN(x) (BMB_ID(x) < BMB_ID_UNKNOWN)
 
 /**
  * Represents all information about a single
@@ -599,6 +603,7 @@ void InitState(State* state, int a0, int a1, int a2, int a3);
  */
 void Step(State* state, Move* moves);
 
+bool _CheckPos_basic(State * state, int x, int y);
 /**
  * @brief StartGame starts a game and prints in the terminal output
  * (blocking)
