@@ -453,23 +453,38 @@ namespace agents {
         std::function<void(int, int)> recurseFillWaysToDeadEnds = [&](int x, int y) {
             leadsToDeadEnd[x + BOARD_SIZE * y] = true;
 
-            if (x > 0 && walkable_neighbours[x - 1 + BOARD_SIZE * y] < 2 &&
-                leadsToDeadEnd[x - 1 + BOARD_SIZE * y] == false)
+            if (x > 0 && walkable_neighbours[x - 1 + BOARD_SIZE * y] < 3 && !leadsToDeadEnd[x - 1 + BOARD_SIZE * y])
                 recurseFillWaysToDeadEnds(x - 1, y);
-            if (x < BOARD_SIZE - 1 && walkable_neighbours[x + 1 + BOARD_SIZE * y] < 2 &&
-                leadsToDeadEnd[x + 1 + BOARD_SIZE * y] == false)
+            if (x < BOARD_SIZE - 1 && walkable_neighbours[x + 1 + BOARD_SIZE * y] < 3 && !leadsToDeadEnd[x + 1 + BOARD_SIZE * y])
                 recurseFillWaysToDeadEnds(x + 1, y);
-            if (y > 0 && walkable_neighbours[x + BOARD_SIZE * (y - 1)] < 2 &&
-                leadsToDeadEnd[x + BOARD_SIZE * (y - 1)] == false)
+            if (y > 0 && walkable_neighbours[x + BOARD_SIZE * (y - 1)] < 3 && !leadsToDeadEnd[x + BOARD_SIZE * (y - 1)])
                 recurseFillWaysToDeadEnds(x, y - 1);
-            if (y < BOARD_SIZE - 1 && walkable_neighbours[x + BOARD_SIZE * (y + 1)] < 2 &&
-                leadsToDeadEnd[x + BOARD_SIZE * (y + 1)] == false)
+            if (y < BOARD_SIZE - 1 && walkable_neighbours[x + BOARD_SIZE * (y + 1)] < 3 &&  !leadsToDeadEnd[x + BOARD_SIZE * (y + 1)])
                 recurseFillWaysToDeadEnds(x, y + 1);
         };
 
+//#define DEBUG_LEADS_TO_DEAD_END
         for (Position p : deadEnds) {
+#ifdef DEBUG_LEADS_TO_DEAD_END
+            std::cout << p.y << " " << p.x << std::endl;
+#endif
             recurseFillWaysToDeadEnds(p.x, p.y);
         }
+
+#ifdef DEBUG_LEADS_TO_DEAD_END
+            for (int i = 0; i < BOARD_SIZE; i++) {
+                for (int j = 0; j < BOARD_SIZE; j++) {
+                    std::cout << (int)walkable_neighbours[i * 11 + j] << " ";
+                }
+                std::cout << std::endl;
+            }
+            for (int i = 0; i < BOARD_SIZE; i++) {
+                for (int j = 0; j < BOARD_SIZE; j++) {
+                    std::cout << leadsToDeadEnd[i * 11 + j] ? " X " : " - ";
+                }
+                std::cout << std::endl;
+            }
+#endif
     }
 
     Move DortmundAgent::act(const State *state) {
