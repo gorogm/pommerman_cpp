@@ -57,7 +57,7 @@ void FillDestAgentPos(State* s, std::vector<AgentInfo*> aliveAgents, Move m[AGEN
 		}
 		if (move == Move::BOMB)
 		{
-			s->PlantBomb(agent.x, agent.y, i);
+			s->PlantBomb(agent.x, agent.y, agent.id);
 		}
 		else if (util::IsValidDirection(s, agent.x, agent.y, move))
 		{
@@ -169,9 +169,10 @@ void ResolveDependencies(State* s, std::vector<AgentInfo*> aliveAgents, Position
 	std::unordered_map<Position, int, PositionHash>& agent_occupancy,
 	std::unordered_map<Position, int, PositionHash>& bomb_occupancy)
 {
-	bool change = false;
-	do
+	bool change = true;
+	while(change)
 	{
+		change = false;
 		for (int num_agent = 0; num_agent < aliveAgents.size(); num_agent++)
 		{
 			AgentInfo& agent = *aliveAgents[num_agent];
@@ -199,7 +200,7 @@ void ResolveDependencies(State* s, std::vector<AgentInfo*> aliveAgents, Position
 				change = true;
 			}
 		}
-	} while (change);
+	};
 }
 
 void HandleKicks(State* s, std::vector<AgentInfo*> aliveAgents, Position des_agent_pos[AGENT_COUNT], Position des_bomb_pos[MAX_BOMBS],
