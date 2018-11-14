@@ -462,13 +462,13 @@ namespace agents {
         std::function<void(int, int)> recurseFillWaysToDeadEnds = [&](int x, int y) {
             leadsToDeadEnd[x + BOARD_SIZE * y] = true;
 
-            if (x > 0 && walkable_neighbours[x - 1 + BOARD_SIZE * y] < 3 && !leadsToDeadEnd[x - 1 + BOARD_SIZE * y])
+            if (x > 0 && walkable_neighbours[x - 1 + BOARD_SIZE * y] < 3 && !leadsToDeadEnd[x - 1 + BOARD_SIZE * y] && walkable_neighbours[x - 1 + BOARD_SIZE * y] > 0)
                 recurseFillWaysToDeadEnds(x - 1, y);
-            if (x < BOARD_SIZE - 1 && walkable_neighbours[x + 1 + BOARD_SIZE * y] < 3 && !leadsToDeadEnd[x + 1 + BOARD_SIZE * y])
+            if (x < BOARD_SIZE - 1 && walkable_neighbours[x + 1 + BOARD_SIZE * y] < 3 && !leadsToDeadEnd[x + 1 + BOARD_SIZE * y] && walkable_neighbours[x + 1 + BOARD_SIZE * y] > 0)
                 recurseFillWaysToDeadEnds(x + 1, y);
-            if (y > 0 && walkable_neighbours[x + BOARD_SIZE * (y - 1)] < 3 && !leadsToDeadEnd[x + BOARD_SIZE * (y - 1)])
+            if (y > 0 && walkable_neighbours[x + BOARD_SIZE * (y - 1)] < 3 && !leadsToDeadEnd[x + BOARD_SIZE * (y - 1)] && walkable_neighbours[x + BOARD_SIZE * (y - 1)] > 0)
                 recurseFillWaysToDeadEnds(x, y - 1);
-            if (y < BOARD_SIZE - 1 && walkable_neighbours[x + BOARD_SIZE * (y + 1)] < 3 &&  !leadsToDeadEnd[x + BOARD_SIZE * (y + 1)])
+            if (y < BOARD_SIZE - 1 && walkable_neighbours[x + BOARD_SIZE * (y + 1)] < 3 &&  !leadsToDeadEnd[x + BOARD_SIZE * (y + 1)] && walkable_neighbours[x + BOARD_SIZE * (y + 1)] > 0)
                 recurseFillWaysToDeadEnds(x, y + 1);
         };
 
