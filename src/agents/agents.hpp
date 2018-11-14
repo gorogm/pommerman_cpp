@@ -105,6 +105,7 @@ struct SimpleAgent : bboard::Agent
         float soonerBetter(float reward, int timestamps);
     };
 
+//#define DISPLAY_DEPTH0_POINTS
 //#define GM_DEBUGMODE_ON
 #ifdef GM_DEBUGMODE_ON
 #define GM_DEBUGMODE_STEPS //5% slower

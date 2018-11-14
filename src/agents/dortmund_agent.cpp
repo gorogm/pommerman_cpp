@@ -376,6 +376,11 @@ namespace agents {
             }
 
             if (maxTeammate > -100) {
+#ifdef DISPLAY_DEPTH0_POINTS
+                if(depth == 0)
+                    std::cout << "point for move " << move << ": " << maxTeammate << std::endl;
+#endif
+
 #ifdef RANDOM_TIEBREAK
                 if (maxTeammate == maxPoint && move != 5) { bestmoves[bestmoves.count] = move; bestmoves.count++;}
             if (maxTeammate > maxPoint) { maxPoint = maxTeammate; bestmoves.count = 1; bestmoves[0] = move;}
@@ -385,9 +390,13 @@ namespace agents {
 #ifdef _OPENMP //If OpenMP runs, we have to ensure that the same action will be choosen on equal points - the first one
                     if (maxTeammate == (float) stepRes && move < choosenMove) {
                         choosenMove = move;
-                        stepRes = futureStepsT;
+  #ifdef GM_DEBUGMODE_STEPS
+                        futureStepsT.steps.AddElem(move);
+  #else
                         if (depth == 0)
                             depth_0_Move = move;
+  #endif
+                        stepRes = futureStepsT;
                     }
 #endif
                     if (maxTeammate > (float) stepRes) {
