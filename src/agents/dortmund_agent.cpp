@@ -522,27 +522,28 @@ namespace agents {
             seenEnemies++;
         }
 
+        int iteratedAgents = 0;
         if (!state->agents[teammateId].dead && state->agents[teammateId].x >= 0) {
             int dist = std::abs(state->agents[ourId].x - state->agents[teammateId].x) +
                        std::abs(state->agents[ourId].y - state->agents[teammateId].y);
             if (dist < 3) teammateIteration++;
-            if (dist < 5) teammateIteration++;
+            if (dist < 5) {teammateIteration++; iteratedAgents++;}
         }
         if (!state->agents[enemy1Id].dead && state->agents[enemy1Id].x >= 0) {
             int dist = std::abs(state->agents[ourId].x - state->agents[enemy1Id].x) +
                        std::abs(state->agents[ourId].y - state->agents[enemy1Id].y);
             if (dist < 2) enemyIteration1++;
             if (dist < 3 && seenAgents == 1) enemyIteration1++;
-            if (dist < 5) enemyIteration1++;
+            if (dist < 5) {enemyIteration1++; iteratedAgents++;}
         }
         if (!state->agents[enemy2Id].dead && state->agents[enemy2Id].x >= 0) {
             int dist = std::abs(state->agents[ourId].x - state->agents[enemy2Id].x) +
                        std::abs(state->agents[ourId].y - state->agents[enemy2Id].y);
             if (dist < 2) enemyIteration2++;
             if (dist < 3 && seenAgents == 1) enemyIteration2++;
-            if (dist < 5) enemyIteration2++;
+            if (dist < 5) {enemyIteration2++; iteratedAgents++;}
         }
-        myMaxDepth = 6 - seenAgents;
+        myMaxDepth = 6 - iteratedAgents;
 
         sameAs6_12_turns_ago = true;
         for (int agentId = 0; agentId < 4; agentId++) {
