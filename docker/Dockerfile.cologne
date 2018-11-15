@@ -17,16 +17,16 @@ LABEL version="1.0"
 LABEL releaseDate="2018.11.11."
 LABEL maintainer="gorogm@gmail.com"
 
-ADD playground/examples/docker-agent /agent
+ADD docker/runners /agent
 
 # @TODO to be replaced with `pip install pommerman`
 ADD playground /pommerman
 RUN cd /pommerman && pip3 install .
 # end @TODO
 
-ADD src /opt/work/pommermanmunchen/src
-ADD CMakeLists.txt /opt/work/pommermanmunchen/CMakeLists.txt
-RUN cd /opt/work/pommermanmunchen && mkdir cmake-build-debug && cd cmake-build-debug && cmake .. && make
+ADD src /opt/work/pommerman_cpp/src
+ADD CMakeLists.txt /opt/work/pommerman_cpp/CMakeLists.txt
+RUN cd /opt/work/pommerman_cpp && mkdir cmake-build-debug && cd cmake-build-debug && cmake .. && make
 
 EXPOSE 10080
 
@@ -35,4 +35,4 @@ ENV NAME Agent
 # Run app.py when the container launches
 WORKDIR /agent
 ENTRYPOINT ["python3"]
-CMD ["run.py"]
+CMD ["run_cologne.py"]

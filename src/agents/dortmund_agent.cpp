@@ -145,7 +145,7 @@ namespace agents {
         if(!state->agents[enemy2Id].dead && state->agents[enemy2Id].x >= 0 && leadsToDeadEnd[state->agents[enemy2Id].x + BOARD_SIZE * state->agents[enemy2Id].y])
             point += 0.0004f;
         for (int i = 0; i < positions_in_chain.count; i++) {
-            if (leadsToDeadEnd[positions_in_chain[i].x + BOARD_SIZE * positions_in_chain[i].y])
+            if (leadsToDeadEnd[positions_in_chain[i].x + BOARD_SIZE * positions_in_chain[i].y] && iteratedAgents > 0)
                 point -= 0.001f;
             break; //only for the first move, as the leadsToDeadEnd can be deprecated if calculated with flames, bombs, woods. Yields better results.
         }
@@ -207,8 +207,7 @@ namespace agents {
             if (move > 0 && move < 5 && !_CheckPos2(state, desiredPos))
                 continue;
             //no two opposite steps please!
-            if (depth > 0 && move > 0 && move < 5 && moves_in_chain[depth - 1] > 0 && moves_in_chain[depth - 1] < 5 &&
-                std::abs(moves_in_chain[depth - 1] - move) == 2)
+            if (depth > 0 && move > 0 && move < 5 && moves_in_chain[4*(depth - 1)] > 0 && moves_in_chain[4*(depth - 1)] < 5 && std::abs(moves_in_chain[4*(depth - 1)] - move) == 2)
                 continue;
 
             moves_in_one_step[ourId] = (bboard::Move) move;
@@ -242,6 +241,7 @@ namespace agents {
                 }
 
                 moves_in_one_step[teammateId] = (bboard::Move) moveT;
+                moves_in_chain.AddElem(moveT);
 
                 float minPointE1 = 100;
                 StepResult futureStepsE1;
@@ -269,6 +269,7 @@ namespace agents {
                     }
 
                     moves_in_one_step[enemy1Id] = (bboard::Move) moveE1;
+                    moves_in_chain.AddElem(moveE1);
 
                     float minPointE2 = 100;
                     StepResult futureStepsE2;
@@ -296,11 +297,12 @@ namespace agents {
                         }
 
                         moves_in_one_step[enemy2Id] = (bboard::Move) moveE2;
+                        moves_in_chain.AddElem(moveE2);
 
-                        bboard::State *newstate = new bboard::State(*state);
-                        newstate->relTimeStep++;
+                        bboard::State newstate(*state);
+                        newstate.relTimeStep++;
 
-                        bboard::Step(newstate, moves_in_one_step);
+                        bboard::Step(&newstate, moves_in_one_step);
 
 #pragma omp atomic
                         simulatedSteps++;
@@ -320,26 +322,26 @@ namespace agents {
                             newstate->agents[ourId].bombStrength)*10 +
                             newstate->agents[0].dead*8 + newstate->agents[1].dead*4 + newstate->agents[2].dead*2 + newstate->agents[3].dead;
 
-                    if(visitedSteps.count(hash) > 0) {
-                        delete newstate;
-                        continue;
-                    }
-                    else {
-                        visitedSteps.insert(hash);
-                    }
+                        if(visitedSteps.count(hash) > 0) {
+                            moves_in_chain.count--;
+                            continue;
+                        }
+                        else {
+                            visitedSteps.insert(hash);
+                        }
 #endif
 
                         Position myNewPos;
-                        myNewPos.x = newstate->agents[newstate->ourId].x;
-                        myNewPos.y = newstate->agents[newstate->ourId].y;
+                        myNewPos.x = newstate.agents[newstate.ourId].x;
+                        myNewPos.y = newstate.agents[newstate.ourId].y;
                         positions_in_chain[depth] = myNewPos;
                         positions_in_chain.count++;
 
                         StepResult futureSteps;
                         if (depth + 1 < myMaxDepth)
-                            futureSteps = runOneStep(newstate, depth + 1);
+                            futureSteps = runOneStep(&newstate, depth + 1);
                         else
-                            futureSteps = runAlreadyPlantedBombs(newstate);
+                            futureSteps = runAlreadyPlantedBombs(&newstate);
 
                         if ((float)futureSteps > -100 && (float)futureSteps < minPointE2) {
                             minPointE2 = (float)futureSteps;
@@ -350,7 +352,7 @@ namespace agents {
                         }
 
                         positions_in_chain.count--;
-                        delete newstate;
+                        moves_in_chain.count--;
                     }
                     if (minPointE2 > -100 && minPointE2 < minPointE1) {
                         minPointE1 = minPointE2;
@@ -359,6 +361,7 @@ namespace agents {
 #endif
                         futureStepsE1 = futureStepsE2;
                     }
+                    moves_in_chain.count--;
                 }
                 if (minPointE1 < 100 && minPointE1 > maxTeammate) {
                     maxTeammate = minPointE1;
@@ -367,11 +370,15 @@ namespace agents {
 #endif
                     futureStepsT = futureStepsE1;
                 }
+                moves_in_chain.count--;
             }
 
-            moves_in_chain.RemoveAt(moves_in_chain.count - 1);
-
             if (maxTeammate > -100) {
+#ifdef DISPLAY_DEPTH0_POINTS
+                if(depth == 0)
+                    std::cout << "point for move " << move << ": " << maxTeammate << std::endl;
+#endif
+
 #ifdef RANDOM_TIEBREAK
                 if (maxTeammate == maxPoint && move != 5) { bestmoves[bestmoves.count] = move; bestmoves.count++;}
             if (maxTeammate > maxPoint) { maxPoint = maxTeammate; bestmoves.count = 1; bestmoves[0] = move;}
@@ -381,9 +388,13 @@ namespace agents {
 #ifdef _OPENMP //If OpenMP runs, we have to ensure that the same action will be choosen on equal points - the first one
                     if (maxTeammate == (float) stepRes && move < choosenMove) {
                         choosenMove = move;
-                        stepRes = futureStepsT;
+  #ifdef GM_DEBUGMODE_STEPS
+                        futureStepsT.steps.AddElem(move);
+  #else
                         if (depth == 0)
                             depth_0_Move = move;
+  #endif
+                        stepRes = futureStepsT;
                     }
 #endif
                     if (maxTeammate > (float) stepRes) {
@@ -399,6 +410,7 @@ namespace agents {
                 }
 #endif
             }
+            moves_in_chain.count--;
         }
 
 #ifdef RANDOM_TIEBREAK
@@ -448,23 +460,38 @@ namespace agents {
         std::function<void(int, int)> recurseFillWaysToDeadEnds = [&](int x, int y) {
             leadsToDeadEnd[x + BOARD_SIZE * y] = true;
 
-            if (x > 0 && walkable_neighbours[x - 1 + BOARD_SIZE * y] < 2 &&
-                leadsToDeadEnd[x - 1 + BOARD_SIZE * y] == false)
+            if (x > 0 && walkable_neighbours[x - 1 + BOARD_SIZE * y] < 3 && !leadsToDeadEnd[x - 1 + BOARD_SIZE * y] && walkable_neighbours[x - 1 + BOARD_SIZE * y] > 0)
                 recurseFillWaysToDeadEnds(x - 1, y);
-            if (x < BOARD_SIZE - 1 && walkable_neighbours[x + 1 + BOARD_SIZE * y] < 2 &&
-                leadsToDeadEnd[x + 1 + BOARD_SIZE * y] == false)
+            if (x < BOARD_SIZE - 1 && walkable_neighbours[x + 1 + BOARD_SIZE * y] < 3 && !leadsToDeadEnd[x + 1 + BOARD_SIZE * y] && walkable_neighbours[x + 1 + BOARD_SIZE * y] > 0)
                 recurseFillWaysToDeadEnds(x + 1, y);
-            if (y > 0 && walkable_neighbours[x + BOARD_SIZE * (y - 1)] < 2 &&
-                leadsToDeadEnd[x + BOARD_SIZE * (y - 1)] == false)
+            if (y > 0 && walkable_neighbours[x + BOARD_SIZE * (y - 1)] < 3 && !leadsToDeadEnd[x + BOARD_SIZE * (y - 1)] && walkable_neighbours[x + BOARD_SIZE * (y - 1)] > 0)
                 recurseFillWaysToDeadEnds(x, y - 1);
-            if (y < BOARD_SIZE - 1 && walkable_neighbours[x + BOARD_SIZE * (y + 1)] < 2 &&
-                leadsToDeadEnd[x + BOARD_SIZE * (y + 1)] == false)
+            if (y < BOARD_SIZE - 1 && walkable_neighbours[x + BOARD_SIZE * (y + 1)] < 3 &&  !leadsToDeadEnd[x + BOARD_SIZE * (y + 1)] && walkable_neighbours[x + BOARD_SIZE * (y + 1)] > 0)
                 recurseFillWaysToDeadEnds(x, y + 1);
         };
 
+//#define DEBUG_LEADS_TO_DEAD_END
         for (Position p : deadEnds) {
+#ifdef DEBUG_LEADS_TO_DEAD_END
+            std::cout << p.y << " " << p.x << std::endl;
+#endif
             recurseFillWaysToDeadEnds(p.x, p.y);
         }
+
+#ifdef DEBUG_LEADS_TO_DEAD_END
+            for (int i = 0; i < BOARD_SIZE; i++) {
+                for (int j = 0; j < BOARD_SIZE; j++) {
+                    std::cout << (int)walkable_neighbours[i * 11 + j] << " ";
+                }
+                std::cout << std::endl;
+            }
+            for (int i = 0; i < BOARD_SIZE; i++) {
+                for (int j = 0; j < BOARD_SIZE; j++) {
+                    std::cout << leadsToDeadEnd[i * 11 + j] ? " X " : " - ";
+                }
+                std::cout << std::endl;
+            }
+#endif
     }
 
     Move DortmundAgent::act(const State *state) {
@@ -493,27 +520,28 @@ namespace agents {
             seenEnemies++;
         }
 
+        iteratedAgents = 0;
         if (!state->agents[teammateId].dead && state->agents[teammateId].x >= 0) {
             int dist = std::abs(state->agents[ourId].x - state->agents[teammateId].x) +
                        std::abs(state->agents[ourId].y - state->agents[teammateId].y);
             if (dist < 3) teammateIteration++;
-            if (dist < 5) teammateIteration++;
+            if (dist < 5) {teammateIteration++; iteratedAgents++;}
         }
         if (!state->agents[enemy1Id].dead && state->agents[enemy1Id].x >= 0) {
             int dist = std::abs(state->agents[ourId].x - state->agents[enemy1Id].x) +
                        std::abs(state->agents[ourId].y - state->agents[enemy1Id].y);
             if (dist < 2) enemyIteration1++;
             if (dist < 3 && seenAgents == 1) enemyIteration1++;
-            if (dist < 5) enemyIteration1++;
+            if (dist < 5) {enemyIteration1++; iteratedAgents++;}
         }
         if (!state->agents[enemy2Id].dead && state->agents[enemy2Id].x >= 0) {
             int dist = std::abs(state->agents[ourId].x - state->agents[enemy2Id].x) +
                        std::abs(state->agents[ourId].y - state->agents[enemy2Id].y);
             if (dist < 2) enemyIteration2++;
             if (dist < 3 && seenAgents == 1) enemyIteration2++;
-            if (dist < 5) enemyIteration2++;
+            if (dist < 5) {enemyIteration2++; iteratedAgents++;}
         }
-        myMaxDepth = 6 - seenAgents;
+        myMaxDepth = 6 - iteratedAgents;
 
         sameAs6_12_turns_ago = true;
         for (int agentId = 0; agentId < 4; agentId++) {

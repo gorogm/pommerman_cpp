@@ -45,7 +45,8 @@ inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature = 0)
             if(BMB_POS(s.bombs[i]) == (x + (y << 4)))
             {
                 int bombStrength = BMB_STRENGTH(s.bombs[i]);
-                s.agents[BMB_ID(s.bombs[i])].bombCount--;
+                if(BMB_ID_KNOWN(s.bombs[i]))
+                    s.agents[BMB_ID(s.bombs[i])].bombCount--;
                 s.bombs.RemoveAt(i);
                 s.SpawnFlame(x, y, bombStrength);
                 break;
@@ -119,7 +120,8 @@ int ChooseItemInner(int tmp)
  */
 inline void PopBomb(State& state)
 {
-    state.agents[BMB_ID(state.bombs[0])].bombCount--;
+    if(BMB_ID_KNOWN(state.bombs[0]))
+        state.agents[BMB_ID(state.bombs[0])].bombCount--;
     state.bombs.PopElem();
 }
 
@@ -129,6 +131,11 @@ inline void PopBomb(State& state)
 inline bool IsOutOfBounds(const int& x, const int& y)
 {
     return x < 0 || y < 0 || x >= BOARD_SIZE || y >= BOARD_SIZE;
+}
+
+bool _CheckPos_basic(State * state, int x, int y)
+{
+    return !IsOutOfBounds(x, y) && state->board[y][x] != RIGID && !IS_WOOD(state->board[y][x]);
 }
 
 ///////////////////
@@ -403,9 +410,9 @@ void PrintState(State* state)
             {
                 std::printf("Agent %d:  X-(", i);
             }else {
-                std::printf("Agent %d: %s %d  %s %d  %s %d",
+                std::printf("Agent %d: %s %d/%d  %s %d  %s %d",
                             i,
-                            PrintItem(Item::EXTRABOMB).c_str(), state->agents[i].maxBombCount,
+                            PrintItem(Item::EXTRABOMB).c_str(), state->agents[i].maxBombCount, state->agents[i].bombCount,
                             PrintItem(Item::INCRRANGE).c_str(), state->agents[i].bombStrength,
                             PrintItem(Item::KICK).c_str(), state->agents[i].canKick);
             }
@@ -415,7 +422,20 @@ void PrintState(State* state)
             std::cout << "Bombs:  [  ";
             for(int i = 0; i < state->bombs.count; i++)
             {
-                std::cout << BMB_ID(state->bombs[i]) << "(" << BMB_POS_Y(state->bombs[i]) << ":" << BMB_POS_X(state->bombs[i]) << " d:" << BMB_STRENGTH(state->bombs[i]) << " -" << BMB_TIME(state->bombs[i]) << ") ";
+                std::cout << BMB_ID(state->bombs[i]) << "(" << BMB_POS_Y(state->bombs[i]) << ":" << BMB_POS_X(state->bombs[i]) << " d:" << BMB_STRENGTH(state->bombs[i]) << " -" << BMB_TIME(state->bombs[i]);
+                if(BMB_VEL(state->bombs[i]) == 0)
+                    std::cout << " S";
+                else if(BMB_VEL(state->bombs[i]) == 1)
+                    std::cout << " U";
+                else if(BMB_VEL(state->bombs[i]) == 2)
+                    std::cout << " D";
+                else if(BMB_VEL(state->bombs[i]) == 3)
+                    std::cout << " L";
+                else if(BMB_VEL(state->bombs[i]) == 4)
+                    std::cout << " R";
+                else
+                    std::cout << " ? ";
+                std::cout << ") ";
             }
             std::cout << "]";
         }
