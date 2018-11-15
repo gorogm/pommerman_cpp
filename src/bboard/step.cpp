@@ -20,7 +20,7 @@ void Step(State* state, Move* moves)
 	for (int i = 0; i < AGENT_COUNT; i++)
 	{
 		// we do not consider out of sight agents either
-		if (!state->agents[i].dead || state->agents[i].x < 0)
+		if (!state->agents[i].dead && state->agents[i].x >= 0 && state->agents[i].y >= 0)
 		{
 			aliveAgents.push_back(&state->agents[i]);
 		}
