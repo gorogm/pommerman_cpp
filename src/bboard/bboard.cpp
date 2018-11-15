@@ -71,7 +71,7 @@ inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature = 0)
                 }
             }
             if(closestAgent >= 0) {
-                s.agents[closestAgent].woodDemolished += 1.0f - s.relTimeStep / 100.0f;
+                s.agents[closestAgent].woodDemolished += 1.0f - s.relTimeStep / 50.0f;
             }
 
             s.board[y][x] += WOOD_POWFLAG(old); // set the powerup flag
