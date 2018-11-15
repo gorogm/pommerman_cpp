@@ -175,8 +175,17 @@ namespace agents {
                                            ((state->agents[0].dead && state->agents[2].dead) ||
                                             (state->agents[1].dead && state->agents[3].dead))))
                 break;
-            //bboard::Step(state, moves);
-            util::TickBombs(*state);
+
+//Slower but better simulation
+            bboard::Move moves_in_one_step[4];
+            moves_in_one_step[0] = Move::IDLE;
+            moves_in_one_step[1] = Move::IDLE;
+            moves_in_one_step[2] = Move::IDLE;
+            moves_in_one_step[3] = Move::IDLE;
+            bboard::Step(state, moves_in_one_step);
+//To use simplified, but quicker simulation, use:
+            //util::TickBombs(*state);
+
             state->relTimeStep++;
             //simulatedSteps++;
         }
