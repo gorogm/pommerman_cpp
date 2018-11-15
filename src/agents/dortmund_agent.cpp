@@ -80,10 +80,20 @@ namespace agents {
             stepRes.comment += "sapsaltavuk2_dies ";
 #endif
         }
+
+#ifdef GM_DEBUGMODE_COMMENTS
+        if(state->agents[ourId].woodDemolished > 0)
+            stepRes.comment += "woodDemolished ";
+#endif
         point += 0.3f * state->agents[ourId].woodDemolished;
         point += 0.3f * state->agents[teammateId].woodDemolished;
         point -= 0.3f * state->agents[enemy1Id].woodDemolished;
         point -= 0.3f * state->agents[enemy2Id].woodDemolished;
+
+#ifdef GM_DEBUGMODE_COMMENTS
+        if(state->agents[ourId].collectedPowerupPoints > 0)
+            stepRes.comment += "collectedPowerupPoints ";
+#endif
         point += reward_collectedPowerup * state->agents[ourId].collectedPowerupPoints * teamBalance;
         point += reward_collectedPowerup * state->agents[teammateId].collectedPowerupPoints / teamBalance;
         point -= reward_collectedPowerup * state->agents[enemy1Id].collectedPowerupPoints;

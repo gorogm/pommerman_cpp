@@ -146,7 +146,7 @@ void State::PlantBomb(int x, int y, int id, bool setItem)
 {
     if(agents[id].bombCount >= agents[id].maxBombCount)
     {
-        std::cout << "Can't place bomb, already used all" << std::endl;
+        std::cout << "Can't place bomb agent " << id << ", already used all" << std::endl;
         return;
     }
 
@@ -154,7 +154,7 @@ void State::PlantBomb(int x, int y, int id, bool setItem)
     SetBombID(*b, id);
     SetBombPosition(*b, x, y);
     SetBombStrength(*b, agents[id].bombStrength);
-    // TODO: velocity
+    SetBombVelocity(*b, 0);
     SetBombTime(*b, BOMB_LIFETIME);
 
     if(setItem)
