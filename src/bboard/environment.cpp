@@ -486,6 +486,11 @@ void Environment::MakeGameFromPython(int ourId)
         state->agents[2].woodDemolished = 0;
         state->agents[3].woodDemolished = 0;
         state->timeStep++;
+        if (teammate_id == 9)
+        {
+            //this means that we are in ffa mode!
+            throw std::runtime_error("ffa mode not supported");
+        }
         state->teammateId = teammate_id - 10;
 
         if(state->ourId == 1 || state->ourId == 3)
