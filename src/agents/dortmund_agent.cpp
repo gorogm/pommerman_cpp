@@ -145,7 +145,7 @@ namespace agents {
         if(!state->agents[enemy2Id].dead && state->agents[enemy2Id].x >= 0 && leadsToDeadEnd[state->agents[enemy2Id].x + BOARD_SIZE * state->agents[enemy2Id].y])
             point += 0.0004f;
         for (int i = 0; i < positions_in_chain.count; i++) {
-            if (leadsToDeadEnd[positions_in_chain[i].x + BOARD_SIZE * positions_in_chain[i].y])
+            if (leadsToDeadEnd[positions_in_chain[i].x + BOARD_SIZE * positions_in_chain[i].y] && iteratedAgents > 0)
                 point -= 0.001f;
             break; //only for the first move, as the leadsToDeadEnd can be deprecated if calculated with flames, bombs, woods. Yields better results.
         }
@@ -522,7 +522,7 @@ namespace agents {
             seenEnemies++;
         }
 
-        int iteratedAgents = 0;
+        iteratedAgents = 0;
         if (!state->agents[teammateId].dead && state->agents[teammateId].x >= 0) {
             int dist = std::abs(state->agents[ourId].x - state->agents[teammateId].x) +
                        std::abs(state->agents[ourId].y - state->agents[teammateId].y);
