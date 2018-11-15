@@ -299,10 +299,10 @@ namespace agents {
                         moves_in_one_step[enemy2Id] = (bboard::Move) moveE2;
                         moves_in_chain.AddElem(moveE2);
 
-                        bboard::State *newstate = new bboard::State(*state);
-                        newstate->relTimeStep++;
+                        bboard::State newstate(*state);
+                        newstate.relTimeStep++;
 
-                        bboard::Step(newstate, moves_in_one_step);
+                        bboard::Step(&newstate, moves_in_one_step);
 
 #pragma omp atomic
                         simulatedSteps++;
@@ -323,7 +323,6 @@ namespace agents {
                             newstate->agents[0].dead*8 + newstate->agents[1].dead*4 + newstate->agents[2].dead*2 + newstate->agents[3].dead;
 
                         if(visitedSteps.count(hash) > 0) {
-                            delete newstate;
                             moves_in_chain.count--;
                             continue;
                         }
@@ -333,16 +332,16 @@ namespace agents {
 #endif
 
                         Position myNewPos;
-                        myNewPos.x = newstate->agents[newstate->ourId].x;
-                        myNewPos.y = newstate->agents[newstate->ourId].y;
+                        myNewPos.x = newstate.agents[newstate.ourId].x;
+                        myNewPos.y = newstate.agents[newstate.ourId].y;
                         positions_in_chain[depth] = myNewPos;
                         positions_in_chain.count++;
 
                         StepResult futureSteps;
                         if (depth + 1 < myMaxDepth)
-                            futureSteps = runOneStep(newstate, depth + 1);
+                            futureSteps = runOneStep(&newstate, depth + 1);
                         else
-                            futureSteps = runAlreadyPlantedBombs(newstate);
+                            futureSteps = runAlreadyPlantedBombs(&newstate);
 
                         if ((float)futureSteps > -100 && (float)futureSteps < minPointE2) {
                             minPointE2 = (float)futureSteps;
@@ -354,7 +353,6 @@ namespace agents {
 
                         positions_in_chain.count--;
                         moves_in_chain.count--;
-                        delete newstate;
                     }
                     if (minPointE2 > -100 && minPointE2 < minPointE1) {
                         minPointE1 = minPointE2;
