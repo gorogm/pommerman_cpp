@@ -77,7 +77,11 @@ int ResolveDependencies(State* s, Position des[AGENT_COUNT],
 
             if(des[i].x == s->agents[j].x && des[i].y == s->agents[j].y)
             {
-                dependency[j] = i;
+                if(dependency[j] == -1) {
+                    dependency[j] = i;
+                }else{
+                    dependency[dependency[j]] = i;
+                }
                 isChainRoot = false;
                 break;
             }
