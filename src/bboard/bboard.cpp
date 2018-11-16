@@ -389,7 +389,7 @@ void StartGame(State* state, Agent* agents[AGENT_COUNT], int timeSteps)
     }
 }
 
-void PrintState(State* state)
+void PrintState(const State* state)
 {
     std::string result = "";
 

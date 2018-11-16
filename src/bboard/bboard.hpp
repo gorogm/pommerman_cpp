@@ -631,7 +631,7 @@ void StartGame(State* state, Agent* agents[AGENT_COUNT], int timeSteps);
  * @brief Prints the state into the standard output stream.
  * @param state The state to print
  */
-void PrintState(State* state);
+void PrintState(const State* state);
 
 /**
  * @brief Returns a string, corresponding to the given item
