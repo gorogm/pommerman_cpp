@@ -16,7 +16,7 @@ namespace agents {
     DortmundAgent::DortmundAgent() {
         std::random_device rd;  // non explicit seed
         rng = std::mt19937_64(rd());
-        intDist = std::uniform_int_distribution<int>(0, 4); // no bombs
+        intDist = std::uniform_int_distribution<int>(1, 4); // no bombs
     }
 
     bool DortmundAgent::_CheckPos2(const State *state, bboard::Position pos) {
@@ -524,10 +524,12 @@ namespace agents {
         if (!state->agents[enemy1Id].dead && state->agents[enemy1Id].x >= 0) {
             seenAgents++;
             seenEnemies++;
+            lastSeenEnemy = state->timeStep;
         }
         if (!state->agents[enemy2Id].dead && state->agents[enemy2Id].x >= 0) {
             seenAgents++;
             seenEnemies++;
+            lastSeenEnemy = state->timeStep;
         }
 
         iteratedAgents = 0;
@@ -595,7 +597,19 @@ namespace agents {
             lastMoveWasBlocked = false;
         }
 
-        StepResult stepRes = runOneStep(state, 0);
+        StepResult stepRes;
+
+        if(state->timeStep > 50 && (state->timeStep - lastSeenEnemy) > 20 && state->bombs.count == 0)
+        {
+            std::cout << "Long time no see, random action" << std::endl;
+#ifdef GM_DEBUGMODE_STEPS
+            stepRes.steps.AddElem(intDist(rng));
+#else
+            depth_0_Move = intDist(rng);
+#endif
+        }else{
+            stepRes = runOneStep(state, 0);
+        }
 
 #ifdef GM_DEBUGMODE_STEPS
         int myMove = stepRes.steps[stepRes.steps.count - 1];

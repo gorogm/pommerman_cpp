@@ -227,7 +227,7 @@ struct SimpleAgent : bboard::Agent
         float reward_move_to_pickup = 1000.0f;
 
         std::set<uint128_t> visitedSteps;
-        int ourId, teammateId, enemy1Id, enemy2Id;
+        int ourId, teammateId, enemy1Id, enemy2Id, lastSeenEnemy = 0;
         bool leadsToDeadEnd[bboard::BOARD_SIZE*bboard::BOARD_SIZE];
         bool sameAs6_12_turns_ago = true;
     };
