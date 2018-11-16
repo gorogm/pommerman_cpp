@@ -130,7 +130,7 @@ void FixSwitchMove(State* s, std::vector<AgentInfo*> aliveAgents, Position d[AGE
 		{
 			d[i] = { agent.x, agent.y };
 			int num_agent2 = crossings[border].first;
-			d[num_agent2] = { s->agents[num_agent2].x, s->agents[num_agent2].y };
+			d[num_agent2] = { s->agents[aliveAgents[num_agent2]->id].x, s->agents[aliveAgents[num_agent2]->id].y };
 		}
 		else {
 			crossings[border] = { i, true };
