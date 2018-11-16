@@ -169,18 +169,19 @@ namespace agents {
     }
 
     StepResult DortmundAgent::runAlreadyPlantedBombs(State *state) {
+
         for (int i = 0; i < 10; i++) {
             //Exit if match decided, maybe we would die later from an other bomb, so that disturbs pointing and decision making
             if (state->aliveAgents < 2 || (state->aliveAgents == 2 &&
                                            ((state->agents[0].dead && state->agents[2].dead) ||
                                             (state->agents[1].dead && state->agents[3].dead))))
                 break;
-            //bboard::Step(state, moves);
-            util::TickBombs(*state);
+
+            util::TickAndMoveBombs(*state);
             state->relTimeStep++;
             //simulatedSteps++;
         }
-
+//        util::TickAndMoveBombs10(*state);
         return scoreState(state);
     }
 

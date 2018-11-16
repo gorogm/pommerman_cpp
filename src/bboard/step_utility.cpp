@@ -132,9 +132,52 @@ void TickBombs(State& state)
         {
             break;
         }
-
     }
 }
+
+
+    void TickAndMoveBombs10(State& state){
+        //explode timed-out bombs
+        int stepSize = 1;
+        for(int remainingTime = 10; remainingTime>0; remainingTime-=stepSize) {
+            std::cout << stepSize<< std::endl;
+            __glibcxx_assert(stepSize > 0);
+            bool anyBodyMoves = false;
+            int minRemaining = 100;
+            state.relTimeStep += stepSize;
+            for (int i = 0; i < state.bombs.count; i++) {
+                for(int t = 0; t<stepSize; t++) //TODO: shift in one turn?
+                    ReduceBombTimer(state.bombs[i]);
+
+                if (BMB_TIME(state.bombs[i]) == 0) {
+                    __glibcxx_assert(i == 0);
+                    state.ExplodeTopBomb();
+                    i--;
+                } else {
+                    minRemaining = std::min(minRemaining, BMB_TIME(state.bombs[i]));
+                    if (BMB_VEL(state.bombs[i]) > 0) {
+                        Position desiredPos = bboard::util::DesiredPosition(BMB_POS_X(state.bombs[i]), BMB_POS_Y(state.bombs[i]),
+                                                                            (bboard::Move) BMB_VEL(state.bombs[i]));
+                        if (_CheckPos_any(&state, desiredPos.x, desiredPos.y)) {
+                            state.board[BMB_POS_Y(state.bombs[i])][BMB_POS_X(state.bombs[i])] = PASSAGE;
+                            SetBombPosition(state.bombs[i], desiredPos.x, desiredPos.y);
+                            state.board[desiredPos.y][desiredPos.x] = BOMB;
+                            anyBodyMoves = true;
+                        } else {
+                            SetBombVelocity(state.bombs[i], 0);
+                        }
+                    }
+                }
+            }
+
+            stepSize = (anyBodyMoves ? 1 : minRemaining);
+            //Exit if match decided, maybe we would die later from an other bomb, so that disturbs pointing and decision making
+            if (state.aliveAgents < 2 || (state.aliveAgents == 2 &&
+                                           ((state.agents[0].dead && state.agents[2].dead) ||
+                                            (state.agents[1].dead && state.agents[3].dead))))
+                break;
+        }
+    }
 
 void ConsumePowerup(State& state, int agentID, int powerUp)
 {

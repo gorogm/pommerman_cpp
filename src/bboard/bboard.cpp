@@ -137,6 +137,10 @@ bool _CheckPos_basic(State * state, int x, int y)
 {
     return !IsOutOfBounds(x, y) && state->board[y][x] != RIGID && !IS_WOOD(state->board[y][x]);
 }
+bool _CheckPos_any(State * state, int x, int y)
+{
+    return !IsOutOfBounds(x, y) && state->board[y][x] == PASSAGE;
+}
 
 ///////////////////
 // State Methods //

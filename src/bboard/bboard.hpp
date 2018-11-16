@@ -604,6 +604,7 @@ void InitState(State* state, int a0, int a1, int a2, int a3);
 void Step(State* state, Move* moves);
 
 bool _CheckPos_basic(State * state, int x, int y);
+bool _CheckPos_any(State * state, int x, int y);
 /**
  * @brief StartGame starts a game and prints in the terminal output
  * (blocking)

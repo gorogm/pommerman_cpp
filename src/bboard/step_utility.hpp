@@ -50,6 +50,34 @@ void TickFlames(State& state);
  * if they arrive at 10
  */
 void TickBombs(State& state);
+inline void TickAndMoveBombs(State& state){
+    //explode timed-out bombs
+    for(int i = 0; i < state.bombs.count; i++)
+    {
+        ReduceBombTimer(state.bombs[i]);
+
+        if(BMB_TIME(state.bombs[i]) == 0)
+        {
+            __glibcxx_assert(i == 0);
+            state.ExplodeTopBomb();
+            i--;
+        }
+        else
+        {
+            if(BMB_VEL(state.bombs[i]) > 0) {
+                Position desiredPos = bboard::util::DesiredPosition(BMB_POS_X(state.bombs[i]), BMB_POS_Y(state.bombs[i]), (bboard::Move) BMB_VEL(state.bombs[i]));
+                if (_CheckPos_any(&state, desiredPos.x, desiredPos.y)) {
+                    state.board[BMB_POS_Y(state.bombs[i])][BMB_POS_X(state.bombs[i])] = PASSAGE;
+                    SetBombPosition(state.bombs[i], desiredPos.x, desiredPos.y);
+                    state.board[desiredPos.y][desiredPos.x] = BOMB;
+                }else{
+                    SetBombVelocity(state.bombs[i], 0);
+                }
+            }
+        }
+    }
+}
+void TickAndMoveBombs10(State& state);
 
 /**
  * @brief ConsumePowerup Lets an agent consume a powerup
