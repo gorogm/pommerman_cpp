@@ -622,12 +622,16 @@ int getStep_cologne(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive
 }
 int getStep_dortmund(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
+#ifdef VERBOSE_STATE
     std::cout << std::endl;
+#endif
 
     envs[id]->MakeGameFromPython_dortmund(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
 
     dortmundAgents[id]->id = envs[id]->GetState().ourId;
+#ifdef VERBOSE_STATE
     PrintState(&envs[id]->GetState());
+#endif
 
     // Ask the agent where to go
     return (int)dortmundAgents[id]->act(&envs[id]->GetState());
