@@ -32,6 +32,8 @@ void FillDestPos(State* s, Move m[AGENT_COUNT], Position p[AGENT_COUNT]);
  */
 void FixSwitchMove(State* s, Position desiredPositions[AGENT_COUNT]);
 
+void MoveBombs(State* state, Position d[AGENT_COUNT]);
+
 /**
  * TODO: Fill doc for dependency resolving
  *

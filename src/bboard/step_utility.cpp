@@ -39,6 +39,7 @@ void FillDestPos(State* s, Move m[AGENT_COUNT], Position p[AGENT_COUNT])
 
 void FixSwitchMove(State* s, Position d[AGENT_COUNT])
 {
+    //If they want to step each other's place, nobody goes anywhere
     for(int i = 0; i < AGENT_COUNT; i++)
     {
         for(int j = i; j < AGENT_COUNT; j++)
@@ -50,6 +51,35 @@ void FixSwitchMove(State* s, Position d[AGENT_COUNT])
                 d[i].y = s->agents[i].y;
                 d[j].x = s->agents[j].x;
                 d[j].y = s->agents[j].y;
+            }
+        }
+    }
+}
+
+void MoveBombs(State* state, Position d[AGENT_COUNT])
+{
+    for(int bombIndex=0; bombIndex <state->bombs.count; bombIndex++) {
+        if (BMB_VEL(state->bombs[bombIndex]) > 0) {
+            Position desiredPos = bboard::util::DesiredPosition(BMB_POS_X(state->bombs[bombIndex]), BMB_POS_Y(state->bombs[bombIndex]),
+                                                                (bboard::Move) BMB_VEL(state->bombs[bombIndex]));
+            if (bboard::_CheckPos_any(state, desiredPos.x, desiredPos.y)) {
+                bool agentWantsToMoveThere = false;
+                for (int i = 0; i < AGENT_COUNT; i++) {
+                    if(d[i].x == desiredPos.x && d[i].y == desiredPos.y) {
+                        //Agent stays
+                        d[i].x = state->agents[i].x;
+                        d[i].y = state->agents[i].y;
+                        SetBombVelocity(state->bombs[bombIndex], 0);
+                        break;
+                    }
+                }
+                if (!agentWantsToMoveThere) {
+                    state->board[BMB_POS_Y(state->bombs[bombIndex])][BMB_POS_X(state->bombs[bombIndex])] = PASSAGE;
+                    SetBombPosition(state->bombs[bombIndex], desiredPos.x, desiredPos.y);
+                    state->board[desiredPos.y][desiredPos.x] = BOMB;
+                }
+            } else {
+                SetBombVelocity(state->bombs[bombIndex], 0);
             }
         }
     }
@@ -120,16 +150,14 @@ void TickBombs(State& state)
     }
 
     //explode timed-out bombs
-    int bombCount = state.bombs.count;
-    for(int i = 0; i < bombCount && state.bombs.count > 0; i++)
+    for(int i = 0; i < state.bombs.count; i++)
     {
         if(BMB_TIME(state.bombs[0]) == 0)
         {
+            __glibcxx_assert(i == 0);
             state.ExplodeTopBomb();
             i--;
-        }
-        else
-        {
+        }else{
             break;
         }
     }

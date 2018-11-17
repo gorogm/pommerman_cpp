@@ -139,7 +139,7 @@ bool _CheckPos_basic(State * state, int x, int y)
 }
 bool _CheckPos_any(State * state, int x, int y)
 {
-    return !IsOutOfBounds(x, y) && state->board[y][x] == PASSAGE;
+    return !IsOutOfBounds(x, y) && (state->board[y][x] == PASSAGE || state->board[y][x] == FLAMES);
 }
 
 ///////////////////

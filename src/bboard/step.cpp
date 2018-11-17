@@ -140,7 +140,6 @@ void Step(State* state, Move* moves)
                 {
                     state->board[y][x] = 0;
                 }
-
             }
             state->board[desired.y][desired.x] = Item::AGENT0 + i;
             state->agents[i].x = desired.x;
