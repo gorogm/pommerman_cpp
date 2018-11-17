@@ -218,7 +218,7 @@ namespace agents {
             if (move > 0 && move < 5 && !_CheckPos2(state, desiredPos))
                 continue;
             //no two opposite steps please!
-            if (depth > 0 && move > 0 && move < 5 && moves_in_chain[4*(depth - 1)] > 0 && moves_in_chain[4*(depth - 1)] < 5 && std::abs(moves_in_chain[4*(depth - 1)] - move) == 2)
+            if (depth > 0 && move > 0 && move < 5 && moves_in_chain[4*(depth - 1)+0] > 0 && moves_in_chain[4*(depth - 1)+0] < 5 && std::abs(moves_in_chain[4*(depth - 1)] - move) == 2)
                 continue;
 
             moves_in_one_step[ourId] = (bboard::Move) move;
@@ -243,6 +243,9 @@ namespace agents {
                     // if bomb is already under it
                     if (moveT == (int) bboard::Move::BOMB &&
                         state->HasBomb(state->agents[teammateId].x, state->agents[teammateId].y))
+                        continue;
+                    //no two opposite steps please!
+                    if (depth > 0 && moveT > 0 && moveT < 5 && moves_in_chain[4*(depth - 1)+1] > 0 && moves_in_chain[4*(depth - 1)+1] < 5 && std::abs(moves_in_chain[4*(depth - 1)+1] - moveT) == 2)
                         continue;
                 } else {
                     //We'll have same results with IDLE, IDLE
@@ -272,6 +275,9 @@ namespace agents {
                         if (moveE1 == (int) bboard::Move::BOMB &&
                             state->HasBomb(state->agents[enemy1Id].x, state->agents[enemy1Id].y))
                             continue;
+                        //no two opposite steps please!
+                        if (depth > 0 && moveE1 > 0 && moveE1 < 5 && moves_in_chain[4*(depth - 1)+2] > 0 && moves_in_chain[4*(depth - 1)+2] < 5 && std::abs(moves_in_chain[4*(depth - 1)+2] - moveE1) == 2)
+                            continue;
                     } else {
                         //We'll have same results with IDLE, IDLE
                         if (minPointE1 < 100 && state->agents[enemy1Id].x == desiredPos.x &&
@@ -299,6 +305,9 @@ namespace agents {
                             // if bomb is already under it
                             if (moveE2 == (int) bboard::Move::BOMB &&
                                 state->HasBomb(state->agents[enemy2Id].x, state->agents[enemy2Id].y))
+                                continue;
+                            //no two opposite steps please!
+                            if (depth > 0 && moveE2 > 0 && moveE2 < 5 && moves_in_chain[4*(depth - 1)+3] > 0 && moves_in_chain[4*(depth - 1)+3] < 5 && std::abs(moves_in_chain[4*(depth - 1)+3] - moveE2) == 2)
                                 continue;
                         } else {
                             //We'll have same results with IDLE, IDLE
