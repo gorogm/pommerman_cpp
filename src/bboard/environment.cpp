@@ -420,6 +420,7 @@ void Environment::MakeGameFromPython(int ourId)
     void Environment::MakeGameFromPython_dortmund(bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life,
                                                  double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
     {
+        state->start_time = std::chrono::high_resolution_clock::now();
         state->agents[0].bombCount = 0;
         state->agents[1].bombCount = 0;
         state->agents[2].bombCount = 0;

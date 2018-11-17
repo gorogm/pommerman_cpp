@@ -350,7 +350,17 @@ namespace agents {
 
                         StepResult futureSteps;
                         if (depth + 1 < myMaxDepth)
+                        {
+#ifdef TIME_LIMIT_ON
+                            size_t millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - newstate.start_time).count();
+                            if ((millis < 90) || (depth == 0 && millis < 95))
+                                futureSteps = runOneStep(&newstate, depth + 1);
+                            else
+                                futureSteps = runAlreadyPlantedBombs(&newstate);
+#else
                             futureSteps = runOneStep(&newstate, depth + 1);
+#endif
+                        }
                         else
                             futureSteps = runAlreadyPlantedBombs(&newstate);
 

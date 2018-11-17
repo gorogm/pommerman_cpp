@@ -8,6 +8,7 @@
 #include <iostream>
 #include <algorithm>
 #include <functional>
+#include <chrono>
 
 namespace bboard
 {
@@ -317,6 +318,8 @@ struct Flame
  */
 struct State
 {
+
+    std::chrono::high_resolution_clock::time_point start_time;
 
     /**
      * @brief operator [] This way you can reference a position
