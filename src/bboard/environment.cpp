@@ -646,8 +646,10 @@ void Environment::MakeGameFromPython(int ourId)
                             found = true;
                             if(BMB_TIME(state->bombs[bomb_index2]) != BMB_TIME(previousBombs[bomb_index]) - 1)
                                 std::cout << "Unexpected bomb time at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
+#ifdef VERBOSE_STATE
                             else
                                 std::cout << "Matched old and new bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
+#endif
 
                             SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
                             SetBombVelocity(state->bombs[bomb_index2], BMB_VEL(previousBombs[bomb_index]));

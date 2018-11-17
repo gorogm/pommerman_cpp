@@ -42,9 +42,9 @@ void Step(State* state, Move* moves)
             rootIdx++;
             i = roots[rootIdx];
         }
-        if(i==-1)
+        if(i < 0 || i > 3)
         {
-            std::cout << "ERROR in step.cpp Step(), indexing agent with -1" << std::endl;
+            std::cout << "ERROR in step.cpp Step(), indexing agent with " << i << std::endl;
             continue;
         }
         const Move m = moves[i];

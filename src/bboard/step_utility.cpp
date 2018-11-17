@@ -74,7 +74,7 @@ void MoveBombs(State* state, Position d[AGENT_COUNT])
             if (bboard::_CheckPos_any(state, desiredPos.x, desiredPos.y)) {
                 bool agentWantsToMoveThere = false;
                 for (int i = 0; i < AGENT_COUNT; i++) {
-                    if(d[i].x == desiredPos.x && d[i].y == desiredPos.y) {
+                    if(!state->agents[i].dead && state->agents[i].x >=0 && d[i].x == desiredPos.x && d[i].y == desiredPos.y) {
                         //Agent stays
                         d[i].x = state->agents[i].x;
                         d[i].y = state->agents[i].y;
