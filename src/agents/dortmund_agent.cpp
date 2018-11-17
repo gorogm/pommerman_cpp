@@ -278,6 +278,9 @@ namespace agents {
                         //no two opposite steps please!
                         if (depth > 0 && moveE1 > 0 && moveE1 < 5 && moves_in_chain[4*(depth - 1)+2] > 0 && moves_in_chain[4*(depth - 1)+2] < 5 && std::abs(moves_in_chain[4*(depth - 1)+2] - moveE1) == 2)
                             continue;
+                        //No long simulations if no step-bomb-step cycle
+                        if(depth > 1 && moves_in_chain[4*(depth - 2)+2] != 5 && moves_in_chain[4*(depth - 1)+2] != 5 && moveE1 != 5)
+                            continue;
                     } else {
                         //We'll have same results with IDLE, IDLE
                         if (minPointE1 < 100 && state->agents[enemy1Id].x == desiredPos.x &&
@@ -308,6 +311,9 @@ namespace agents {
                                 continue;
                             //no two opposite steps please!
                             if (depth > 0 && moveE2 > 0 && moveE2 < 5 && moves_in_chain[4*(depth - 1)+3] > 0 && moves_in_chain[4*(depth - 1)+3] < 5 && std::abs(moves_in_chain[4*(depth - 1)+3] - moveE2) == 2)
+                                continue;
+                            //No long simulations if no step-bomb-step cycle
+                            if(depth > 1 && moves_in_chain[4*(depth - 2)+3] != 5 && moves_in_chain[4*(depth - 1)+3] != 5 && moveE2 != 5)
                                 continue;
                         } else {
                             //We'll have same results with IDLE, IDLE
@@ -562,14 +568,14 @@ namespace agents {
         if (!state->agents[enemy1Id].dead && state->agents[enemy1Id].x >= 0) {
             int dist = std::abs(state->agents[ourId].x - state->agents[enemy1Id].x) +
                        std::abs(state->agents[ourId].y - state->agents[enemy1Id].y);
-            if (dist < 2) enemyIteration1++;
+            if (dist < 3) enemyIteration1++;
             if (dist < 3 && seenAgents == 1) enemyIteration1++;
             if (dist < 5) {enemyIteration1++; iteratedAgents++;}
         }
         if (!state->agents[enemy2Id].dead && state->agents[enemy2Id].x >= 0) {
             int dist = std::abs(state->agents[ourId].x - state->agents[enemy2Id].x) +
                        std::abs(state->agents[ourId].y - state->agents[enemy2Id].y);
-            if (dist < 2) enemyIteration2++;
+            if (dist < 3) enemyIteration2++;
             if (dist < 3 && seenAgents == 1) enemyIteration2++;
             if (dist < 5) {enemyIteration2++; iteratedAgents++;}
         }
