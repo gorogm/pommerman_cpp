@@ -42,8 +42,17 @@ void FixSwitchMove(State* s, Position d[AGENT_COUNT])
     //If they want to step each other's place, nobody goes anywhere
     for(int i = 0; i < AGENT_COUNT; i++)
     {
-        for(int j = i; j < AGENT_COUNT; j++)
+        if(s->agents[i].dead || s->agents[i].x < 0)
         {
+            continue;
+        }
+        for(int j = i + 1; j < AGENT_COUNT; j++)
+        {
+
+            if(s->agents[j].dead || s->agents[j].x < 0)
+            {
+                continue;
+            }
             if(d[i].x == s->agents[j].x && d[i].y == s->agents[j].y &&
                     d[j].x == s->agents[i].x && d[j].y == s->agents[i].y)
             {
@@ -229,7 +238,7 @@ bool HasDPCollision(const State& state, Position dp[AGENT_COUNT], int agentID)
 {
     for(int i = 0; i < AGENT_COUNT; i++)
     {
-        if(agentID == i || state.agents[i].dead) continue;
+        if(agentID == i || state.agents[i].dead || state.agents[i].x < 0) continue;
         if(dp[agentID] == dp[i])
         {
             // a destination position conflict will never
