@@ -37,8 +37,9 @@ void FillDestPos(State* s, Move m[AGENT_COUNT], Position p[AGENT_COUNT])
     }
 }
 
-void FixSwitchMove(State* s, Position d[AGENT_COUNT])
+bool FixSwitchMove(State* s, Position d[AGENT_COUNT])
 {
+    bool any_switch = false;
     //If they want to step each other's place, nobody goes anywhere
     for(int i = 0; i < AGENT_COUNT; i++)
     {
@@ -56,6 +57,7 @@ void FixSwitchMove(State* s, Position d[AGENT_COUNT])
             if(d[i].x == s->agents[j].x && d[i].y == s->agents[j].y &&
                     d[j].x == s->agents[i].x && d[j].y == s->agents[i].y)
             {
+                any_switch = true;
                 d[i].x = s->agents[i].x;
                 d[i].y = s->agents[i].y;
                 d[j].x = s->agents[j].x;
@@ -63,6 +65,7 @@ void FixSwitchMove(State* s, Position d[AGENT_COUNT])
             }
         }
     }
+    return any_switch;
 }
 
 void MoveBombs(State* state, Position d[AGENT_COUNT])

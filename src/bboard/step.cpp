@@ -7,7 +7,7 @@ namespace bboard
 {
 
 
-void Step(State* state, Move* moves)
+bool Step(State* state, Move* moves)
 {
     ///////////////////////
     // Flames, Explosion //
@@ -23,6 +23,9 @@ void Step(State* state, Move* moves)
     Position destPos[AGENT_COUNT];
     util::FillDestPos(state, moves, destPos);
     util::FixSwitchMove(state, destPos);
+    bool any_switch = util::FixSwitchMove(state, destPos);
+    // if all the agents successfully moved to their (initial) destination
+    bool agentMoveSuccess = !any_switch;
     util::MoveBombs(state, destPos);
 
     int dependency[AGENT_COUNT] = {-1, -1, -1, -1};
@@ -46,6 +49,7 @@ void Step(State* state, Move* moves)
         if(i < 0 || i > 3)
         {
             std::cout << "ERROR in step.cpp Step(), indexing agent with " << i << std::endl;
+            agentMoveSuccess = false;
             continue;
         }
         const Move m = moves[i];
@@ -183,6 +187,7 @@ void Step(State* state, Move* moves)
         }
 
     }
+    return agentMoveSuccess;
 
 }
 

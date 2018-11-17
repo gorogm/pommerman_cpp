@@ -328,8 +328,12 @@ namespace agents {
                         bboard::State newstate(*state);
                         newstate.relTimeStep++;
 
-                        bboard::Step(&newstate, moves_in_one_step);
-
+                        bool agentMoveSuccess = bboard::Step(&newstate, moves_in_one_step);
+                        if (!agentMoveSuccess)
+                        {
+                            moves_in_chain.count--;
+                            continue;
+                        }
 #pragma omp atomic
                         simulatedSteps++;
 

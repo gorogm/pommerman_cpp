@@ -30,7 +30,7 @@ void FillDestPos(State* s, Move m[AGENT_COUNT], Position p[AGENT_COUNT]);
  * @param s The state
  * @param desiredPositions an array of desired positions
  */
-void FixSwitchMove(State* s, Position desiredPositions[AGENT_COUNT]);
+bool FixSwitchMove(State* s, Position desiredPositions[AGENT_COUNT]);
 
 void MoveBombs(State* state, Position d[AGENT_COUNT]);
 

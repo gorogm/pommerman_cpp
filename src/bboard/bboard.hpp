@@ -603,8 +603,9 @@ void InitState(State* state, int a0, int a1, int a2, int a3);
  * @brief Applies given moves to the given board state.
  * @param state The state of the board
  * @param moves Array of 4 moves
+ * @return whether all agents successfully moved to their destinations
  */
-void Step(State* state, Move* moves);
+bool Step(State* state, Move* moves);
 
 bool _CheckPos_basic(State * state, int x, int y);
 bool _CheckPos_any(State * state, int x, int y);
