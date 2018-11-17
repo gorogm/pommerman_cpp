@@ -120,6 +120,41 @@ void Step(State* state, Move* moves)
             itemOnDestination = 0;
         }
 
+        /*if(itemOnDestination == Item::BOMB && state->agents[i].canKick)
+        {
+            //This part is not perfect. If 'Agent0(Right) Bomb(Standing) Agent1(Right)' is the setup, and Agent0 is simulated first, Agent0 can't kick the bomb, because Agent1 is there. It's not enough to check if Agent1's destination is elsewhere because maybe can't move there. In reality, all can move right.
+            Position bombDestPos = bboard::util::DesiredPosition(desired.x, desired.y, moves[i]);
+            if (bboard::_CheckPos_any(state, bombDestPos.x, bombDestPos.y)) {
+                for(int bombi=0; bombi<state->bombs.count; bombi++)
+                {
+                    if(BMB_POS_X(state->bombs[bombi]) == desired.x && BMB_POS_Y(state->bombs[bombi]) == desired.y)
+                    {
+                        SetBombPosition(state->bombs[bombi], bombDestPos.x, bombDestPos.y);
+                        SetBombVelocity(state->bombs[bombi], (int)moves[i]);
+                        state->board[bombDestPos.y][bombDestPos.x] = BOMB;
+                        state->board[desired.y][desired.x] = Item::AGENT0 + i;
+                        state->agents[i].x = desired.x;
+                        state->agents[i].y = desired.y;
+
+                        // only override the position I came from if it has not been
+                        // overridden by a different agent that already took this spot
+                        if(state->board[y][x] == Item::AGENT0 + i)
+                        {
+                            if(state->HasBomb(x, y))
+                            {
+                                state->board[y][x] = Item::BOMB;
+                            }
+                            else
+                            {
+                                state->board[y][x] = 0;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }//else: Agent can't kick the bomb
+        } else*/
+
         // execute move if the destination is free
         // (in the rare case of ouroboros, make the move even
         // if an agent occupies the spot)
