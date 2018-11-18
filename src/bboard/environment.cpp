@@ -733,8 +733,7 @@ void Environment::MakeGameFromPython(int ourId)
             }
         }
 
-
-        for (int i = 0; i < state->bombs.count-1; i++) {
+        for (int i = 0; i < state->bombs.count; i++) {
             if (BMB_ID_KNOWN(state->bombs[i]))
                 state->agents[BMB_ID(state->bombs[i])].bombCount++;
         }
