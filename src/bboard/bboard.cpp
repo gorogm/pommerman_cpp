@@ -672,6 +672,7 @@ float episode_end_dortmund(int id)
 
 int getStep_berlin(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
+    berlinAgents[id]->start_time = std::chrono::high_resolution_clock::now();
     //std::cout << std::endl;
 
     envs[id]->MakeGameFromPython_berlin(agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
@@ -684,6 +685,7 @@ int getStep_berlin(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive,
 }
 int getStep_cologne(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
+    cologneAgents[id]->start_time = std::chrono::high_resolution_clock::now();
     //std::cout << std::endl;
 
     envs[id]->MakeGameFromPython_cologne(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
@@ -696,6 +698,8 @@ int getStep_cologne(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive
 }
 int getStep_dortmund(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
+
+    dortmundAgents[id]->start_time = std::chrono::high_resolution_clock::now();
 #ifdef VERBOSE_STATE
     std::cout << std::endl;
 #endif

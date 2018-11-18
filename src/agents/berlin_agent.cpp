@@ -2,6 +2,7 @@
 #include "agents.hpp"
 #include "strategy.hpp"
 #include "step_utility.hpp"
+#include <chrono>
 
 using namespace bboard;
 using namespace bboard::strategy;
@@ -157,8 +158,18 @@ float BerlinAgent::runOneStep(const bboard::State * state, int depth)
 
                     float point;
                     if (depth < 4)
+                    {
+#ifdef TIME_LIMIT_ON
+                    size_t millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
+                    if (millis < 90 || (depth == 0 && millis < 95))
                         point = runOneStep(newstate, depth + 1);
                     else
+                        point = runAlreadyPlantedBombs(newstate);
+#else
+                        point = runOneStep(&newstate, depth + 1);
+#endif
+                        }
+                        else
                         point = runAlreadyPlantedBombs(newstate);
 
                     if (point < minPointE2) { minPointE2 = point; }

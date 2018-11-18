@@ -318,9 +318,6 @@ struct Flame
  */
 struct State
 {
-
-    std::chrono::high_resolution_clock::time_point start_time;
-
     /**
      * @brief operator [] This way you can reference a position
      * on the board with a Position (less verbose than board[..][..])

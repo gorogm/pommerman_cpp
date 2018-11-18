@@ -103,6 +103,7 @@ struct SimpleAgent : bboard::Agent
         bool _CheckPos2(const bboard::State* state, bboard::Position pos);
         float laterBetter(float reward, int timestamps);
         float soonerBetter(float reward, int timestamps);
+        std::chrono::high_resolution_clock::time_point start_time;
     };
 
 //#define DISPLAY_EXPECTATION
@@ -177,6 +178,7 @@ struct SimpleAgent : bboard::Agent
         int ourId, teammateId, enemy1Id, enemy2Id;
         bool leadsToDeadEnd[bboard::BOARD_SIZE*bboard::BOARD_SIZE];
         bool sameAs6_12_turns_ago = true;
+        std::chrono::high_resolution_clock::time_point start_time;
     };
 
     struct DortmundAgent : bboard::Agent
@@ -231,6 +233,7 @@ struct SimpleAgent : bboard::Agent
         int ourId, teammateId, enemy1Id, enemy2Id, lastSeenEnemy = 0;
         bool leadsToDeadEnd[bboard::BOARD_SIZE*bboard::BOARD_SIZE];
         bool sameAs6_12_turns_ago = true;
+        std::chrono::high_resolution_clock::time_point start_time;
     };
 // more agents to be included?
 

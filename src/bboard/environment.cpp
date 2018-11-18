@@ -421,7 +421,6 @@ void Environment::MakeGameFromPython(int ourId)
                                                  double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
     {
         util::TickFlames(*state);
-        state->start_time = std::chrono::high_resolution_clock::now();
         state->agents[0].bombCount = 0;
         state->agents[1].bombCount = 0;
         state->agents[2].bombCount = 0;
