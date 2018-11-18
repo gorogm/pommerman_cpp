@@ -640,11 +640,33 @@ namespace agents {
             stepRes = runOneStep(state, 0);
         }
 
+        #ifdef DISPLAY_EXPECTATION
+        bboard::Move moves_in_one_step[4];
+        #endif
 #ifdef GM_DEBUGMODE_STEPS
         int myMove = stepRes.steps[stepRes.steps.count - 1];
+        #ifdef DISPLAY_EXPECTATION
+        moves_in_one_step[ourId] = (bboard::Move)stepRes.steps[stepRes.steps.count - 1];
+        moves_in_one_step[teammateId] = (bboard::Move)stepRes.steps[stepRes.steps.count - 2];
+        moves_in_one_step[enemy1Id] = (bboard::Move)stepRes.steps[stepRes.steps.count - 3];
+        moves_in_one_step[enemy2Id] = (bboard::Move)stepRes.steps[stepRes.steps.count - 4];
+        #endif
 #else
         int myMove = depth_0_Move;
+        #ifdef DISPLAY_EXPECTATION
+        moves_in_one_step[ourId] = (bboard::Move)myMove;
+        moves_in_one_step[teammateId] = (bboard::Move)0;
+        moves_in_one_step[enemy1Id] = (bboard::Move)0;
+        moves_in_one_step[enemy2Id] = (bboard::Move)0;
+        #endif
 #endif
+#ifdef DISPLAY_EXPECTATION
+        State * newState = new State(*state);
+        bboard::Step(newState, moves_in_one_step);
+        std::cout << "Expected state" << std::endl;
+        bboard::PrintState(newState);
+#endif
+
         if (moveHistory.count == 12) {
             moveHistory.RemoveAt(0);
         }
