@@ -99,6 +99,17 @@ namespace agents {
         point -= reward_collectedPowerup * state->agents[enemy1Id].collectedPowerupPoints;
         point -= reward_collectedPowerup * state->agents[enemy1Id].collectedPowerupPoints;
 
+        //Attack same enemy
+        if(rushing)
+        {
+            point -= std::max(1, state->agents[teammateId].x) / 100.0f;
+
+            if(state->ourId % 2) //Meeting: left-up
+                point -= std::max(1, state->agents[teammateId].y) / 100.0f;
+            else //Meeting: left-down
+                point -= std::max(1, (BOARD_SIZE - state->agents[teammateId].y)) / 100.0f;
+        }
+
         if (state->aliveAgents == 0) {
             //point += soonerBetter(??, state->relTimeStep); //we win
 #ifdef GM_DEBUGMODE_COMMENTS
@@ -583,6 +594,8 @@ namespace agents {
             if (dist < 5) {enemyIteration2++; iteratedAgents++;}
         }
         myMaxDepth = 6 - iteratedAgents;
+
+        rushing = state->timeStep < 75 && !state->agents[enemy1Id].dead && !state->agents[enemy2Id].dead && seenAgents < 2;
 
         sameAs6_12_turns_ago = true;
         for (int agentId = 0; agentId < 4; agentId++) {

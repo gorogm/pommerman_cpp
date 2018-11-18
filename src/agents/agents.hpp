@@ -212,6 +212,7 @@ struct SimpleAgent : bboard::Agent
         int enemyIteration1 = 0, enemyIteration2 = 0, teammateIteration = 0, myMaxDepth = 0;
         std::array<bboard::FixedQueue<bboard::Position, 15>, 4 > previousPositions;
         bboard::FixedQueue<int, 15> moveHistory;
+        bool rushing = false;
 
 
         bool _CheckPos2(const bboard::State* state, bboard::Position pos);
