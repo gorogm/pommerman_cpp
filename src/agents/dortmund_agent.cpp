@@ -422,7 +422,7 @@ namespace agents {
                 if (maxTeammate == maxPoint && move != 5) { bestmoves[bestmoves.count] = move; bestmoves.count++;}
             if (maxTeammate > maxPoint) { maxPoint = maxTeammate; bestmoves.count = 1; bestmoves[0] = move;}
 #else
-//#pragma omp critical (depth)
+#pragma omp critical (depth)
                 {
 #ifdef _OPENMP //If OpenMP runs, we have to ensure that the same action will be choosen on equal points - the first one
                     if (maxTeammate == (float) stepRes && move < choosenMove) {
