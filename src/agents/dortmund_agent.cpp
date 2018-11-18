@@ -65,19 +65,19 @@ namespace agents {
             point += laterBetter(-10 * state->agents[teammateId].dead,
                                  state->agents[teammateId].diedAt - state->timeStep);
 #ifdef GM_DEBUGMODE_COMMENTS
-            stepRes.comment += "kanka_dies ";
+            stepRes.comment += "teammate_dies ";
 #endif
         }
         if (state->agents[enemy1Id].x >= 0 && state->agents[enemy1Id].dead) {
             point += 3 * soonerBetter(state->agents[enemy1Id].dead, state->agents[enemy1Id].diedAt - state->timeStep);
 #ifdef GM_DEBUGMODE_COMMENTS
-            stepRes.comment += "sapsaltavuk1_dies ";
+            stepRes.comment += "enemy1_dies ";
 #endif
         }
         if (state->agents[enemy2Id].x >= 0 && state->agents[enemy2Id].dead) {
             point += 3 * soonerBetter(state->agents[enemy2Id].dead, state->agents[enemy2Id].diedAt - state->timeStep);
 #ifdef GM_DEBUGMODE_COMMENTS
-            stepRes.comment += "sapsaltavuk2_dies ";
+            stepRes.comment += "enemy2_dies ";
 #endif
         }
 
