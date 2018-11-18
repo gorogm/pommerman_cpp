@@ -628,7 +628,7 @@ namespace agents {
 
         StepResult stepRes;
 
-        if(state->timeStep > 50 && (state->timeStep - lastSeenEnemy) > 20 && state->bombs.count == 0)
+        if(state->timeStep > 50 && (state->timeStep - lastSeenEnemy) > 20 && state->bombs.count == 0 && state->woods.count == 0)
         {
             std::cout << "Long time no see, random action" << std::endl;
 #ifdef GM_DEBUGMODE_STEPS
