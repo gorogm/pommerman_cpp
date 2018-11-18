@@ -286,6 +286,76 @@ void State::SpawnFlame(int x, int y, int strength)
     }
 }
 
+void State::SpawnFlame_passive(int x, int y, int strength)
+{
+    Flame& f = flames.NextPos();
+    f.position.x = x;
+    f.position.y = y;
+    f.strength = strength;
+    f.timeLeft = FLAME_LIFETIME-1;
+
+    // unique flame id
+    uint16_t signature = uint16_t((x + BOARD_SIZE * y) << 3);
+
+    flames.count++;
+
+    // override origin
+    __glibcxx_assert(board[y][x] = Item::FLAMES);
+    board[y][x] = Item::FLAMES + signature;
+
+    // right
+    for(int i = 1; i <= strength; i++)
+    {
+        if(x + i >= BOARD_SIZE) break; // bounds
+
+        if(IS_FLAME(board[y][x+i]))
+        {
+            board[y][x+i] = Item::FLAMES + signature;
+        }else{
+            break;
+        }
+    }
+
+    // left
+    for(int i = 1; i <= strength; i++)
+    {
+        if(x - i < 0) break; // bounds
+
+        if(IS_FLAME(board[y][x-i]))
+        {
+            board[y][x-i] = Item::FLAMES + signature;
+        }else{
+            break;
+        }
+    }
+
+    // top
+    for(int i = 1; i <= strength; i++)
+    {
+        if(y + i >= BOARD_SIZE) break; // bounds
+
+        if(IS_FLAME(board[y+i][x]))
+        {
+            board[y+i][x] = Item::FLAMES + signature;
+        }else{
+            break;
+        }
+    }
+
+    // bottom
+    for(int i = 1; i <= strength; i++)
+    {
+        if(y - i < 0) break; // bounds
+
+        if(IS_FLAME(board[y-i][x]))
+        {
+            board[y-i][x] = Item::FLAMES + signature;
+        }else{
+            break;
+        }
+    }
+}
+
 bool State::HasBomb(int x, int y) const
 {
     for(int i = 0; i < bombs.count; i++)

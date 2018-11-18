@@ -390,6 +390,8 @@ struct State
      */
     void SpawnFlame(int x, int y, int strength);
 
+    void SpawnFlame_passive(int x, int y, int strength);
+
     /**
      * @brief PopFlame extinguishes the top flame
      * of the flame queue.

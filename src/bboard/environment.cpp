@@ -420,6 +420,7 @@ void Environment::MakeGameFromPython(int ourId)
     void Environment::MakeGameFromPython_dortmund(bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life,
                                                  double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
     {
+        util::TickFlames(*state);
         state->start_time = std::chrono::high_resolution_clock::now();
         state->agents[0].bombCount = 0;
         state->agents[1].bombCount = 0;
@@ -541,7 +542,9 @@ void Environment::MakeGameFromPython(int ourId)
                     }
                     break;
                 case PyFLAMES:
-                    state->board[y][x] = FLAMES;
+                    if(!IS_FLAME(state->board[y][x]))
+                        state->board[y][x] = FLAMES;
+                    //else: don't delete the set FLAME-ID
                     break;
                 case PyFOG:
                     if(state->board[y][x] >= AGENT0)
@@ -600,6 +603,9 @@ void Environment::MakeGameFromPython(int ourId)
         for(int bomb_index=0; bomb_index < previousBombs.count; bomb_index++) {
             if (BMB_TIME(previousBombs[bomb_index]) == 1) {
                 //exploded since that
+
+                state->SpawnFlame_passive(BMB_POS_X(previousBombs[bomb_index]), BMB_POS_Y(previousBombs[bomb_index]), BMB_STRENGTH(previousBombs[bomb_index]));
+
                 previousBombs.RemoveAt(bomb_index);
                 bomb_index--;
                 continue;
@@ -637,6 +643,9 @@ void Environment::MakeGameFromPython(int ourId)
                 }else if(board[expectedPosition.y * BOARD_SIZE + expectedPosition.x] == PyFLAMES)
                 {
                     std::cout << "Bomb exploded probably at " << expectedPosition.y << " " << expectedPosition.x << std::endl;
+
+                    state->SpawnFlame_passive(BMB_POS_X(previousBombs[bomb_index]), BMB_POS_Y(previousBombs[bomb_index]), BMB_STRENGTH(previousBombs[bomb_index]));
+
                 }else if(bomb_blast_strength[expectedPosition.y * BOARD_SIZE + expectedPosition.x] > 0) //Not good to filter for AGENT or BOMB, because AGENT can be here if it kicked, without BOMB
                 {
                     bool found = false;
