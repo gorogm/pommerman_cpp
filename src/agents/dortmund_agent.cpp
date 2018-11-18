@@ -328,8 +328,7 @@ namespace agents {
                         bboard::State newstate(*state);
                         newstate.relTimeStep++;
 
-                        bool agentMoveSuccess = bboard::Step(&newstate, moves_in_one_step);
-                        if (!agentMoveSuccess)
+                        if (!bboard::Step(&newstate, moves_in_one_step))
                         {
                             moves_in_chain.count--;
                             continue;

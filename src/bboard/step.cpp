@@ -14,7 +14,6 @@ bool Step(State* state, Move* moves)
     ///////////////////////
 
     util::TickFlames(*state);
-    util::TickBombs(*state);
 
     ///////////////////////
     //  Player Movement  //
@@ -185,8 +184,10 @@ bool Step(State* state, Move* moves)
             state->agents[i].x = desired.x;
             state->agents[i].y = desired.y;
         }
-
     }
+
+    util::TickBombs(*state);
+
     return agentMoveSuccess;
 
 }
