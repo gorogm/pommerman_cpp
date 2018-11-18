@@ -124,7 +124,7 @@ bool Step(State* state, Move* moves)
             itemOnDestination = 0;
         }
 
-        /*if(itemOnDestination == Item::BOMB && state->agents[i].canKick)
+        if(itemOnDestination == Item::BOMB && state->agents[i].canKick)
         {
             //This part is not perfect. If 'Agent0(Right) Bomb(Standing) Agent1(Right)' is the setup, and Agent0 is simulated first, Agent0 can't kick the bomb, because Agent1 is there. It's not enough to check if Agent1's destination is elsewhere because maybe can't move there. In reality, all can move right.
             Position bombDestPos = bboard::util::DesiredPosition(desired.x, desired.y, moves[i]);
@@ -157,7 +157,7 @@ bool Step(State* state, Move* moves)
                     }
                 }
             }//else: Agent can't kick the bomb
-        } else*/
+        } else
 
         // execute move if the destination is free
         // (in the rare case of ouroboros, make the move even
