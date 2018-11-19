@@ -402,19 +402,19 @@ namespace agents {
                         simulatedSteps++;
 
 #ifdef SCENE_HASH_MEMORY
-                        uint128_t hash = ((((((((((((uint128_t)(newstate->agents[ourId].x * 11 + newstate->agents[ourId].y) * 121 +
-                                         (newstate->agents[enemy1Id].dead || newstate->agents[enemy1Id].x < 0 ? 0 : newstate->agents[enemy1Id].x * 11 + newstate->agents[enemy1Id].y)) * 121 +
-                                        (newstate->agents[enemy2Id].dead || newstate->agents[enemy2Id].x < 0 ? 0 : newstate->agents[enemy2Id].x * 11 + newstate->agents[enemy2Id].y)) * 121 +
-                                       (newstate->agents[teammateId].dead || newstate->agents[teammateId].x < 0 ? 0 : newstate->agents[teammateId].x * 11 + newstate->agents[teammateId].y)) * 121 +
-                            newstate->bombs.count)*6+
+                        uint128_t hash = ((((((((((((uint128_t)(newstate.agents[ourId].x * 11 + newstate.agents[ourId].y) * 121 +
+                                         (newstate.agents[enemy1Id].dead || newstate.agents[enemy1Id].x < 0 ? 0 : newstate.agents[enemy1Id].x * 11 + newstate.agents[enemy1Id].y)) * 121 +
+                                        (newstate.agents[enemy2Id].dead || newstate.agents[enemy2Id].x < 0 ? 0 : newstate.agents[enemy2Id].x * 11 + newstate.agents[enemy2Id].y)) * 121 +
+                                       (newstate.agents[teammateId].dead || newstate.agents[teammateId].x < 0 ? 0 : newstate.agents[teammateId].x * 11 + newstate.agents[teammateId].y)) * 121 +
+                            newstate.bombs.count)*6+
                             depth)*6+
-                            (newstate->bombs.count > 0 ? newstate->bombs[newstate->bombs.count-1] : 0))*10000 +
-                            (newstate->bombs.count > 1 ? newstate->bombs[newstate->bombs.count-2] : 0))*10000 +
-                            (newstate->bombs.count > 2 ? newstate->bombs[newstate->bombs.count-3] : 0))*10000 +
-                            (newstate->bombs.count > 3 ? newstate->bombs[newstate->bombs.count-4] : 0))*10000 +
-                            newstate->agents[ourId].maxBombCount)*10 +
-                            newstate->agents[ourId].bombStrength)*10 +
-                            newstate->agents[0].dead*8 + newstate->agents[1].dead*4 + newstate->agents[2].dead*2 + newstate->agents[3].dead;
+                            (newstate.bombs.count > 0 ? newstate.bombs[newstate.bombs.count-1] : 0))*10000 +
+                            (newstate.bombs.count > 1 ? newstate.bombs[newstate.bombs.count-2] : 0))*10000 +
+                            (newstate.bombs.count > 2 ? newstate.bombs[newstate.bombs.count-3] : 0))*10000 +
+                            (newstate.bombs.count > 3 ? newstate.bombs[newstate.bombs.count-4] : 0))*10000 +
+                            newstate.agents[ourId].maxBombCount)*10 +
+                            newstate.agents[ourId].bombStrength)*10 +
+                            newstate.agents[0].dead*8 + newstate.agents[1].dead*4 + newstate.agents[2].dead*2 + newstate.agents[3].dead;
 
                         if(visitedSteps.count(hash) > 0) {
                             moves_in_chain.count--;
