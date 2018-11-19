@@ -102,12 +102,66 @@ namespace agents {
         //Attack same enemy
         if(rushing)
         {
-            point -= std::max(1, state->agents[teammateId].x) / 100.0f;
+            point -= std::max(1, state->agents[ourId].x) / 100.0f;
 
-            if(state->ourId % 2) //Meeting: left-up
-                point -= std::max(1, state->agents[teammateId].y) / 100.0f;
-            else //Meeting: left-down
-                point -= std::max(1, (BOARD_SIZE - state->agents[teammateId].y)) / 100.0f;
+            if(state->ourId % 2) //Agent 1,3: meeting left-top
+                point -= std::max(1, state->agents[ourId].y) / 100.0f;
+            else //Agent 0,2: meeting: left-bottom
+                point -= std::max(1, (BOARD_SIZE - state->agents[ourId].y)) / 100.0f;
+        }
+
+        //This assumes that there is a highway channel around
+        if(goingAround)
+        {
+            bool weAreDown = previousPositions[ourId][previousPositions[ourId].count-1].y >= BOARD_SIZE - 3;
+            bool weAreUp = previousPositions[ourId][previousPositions[ourId].count-1].y < 3;
+            bool weAreRight = previousPositions[ourId][previousPositions[ourId].count-1].x >= BOARD_SIZE - 3;
+            bool weAreLeft = previousPositions[ourId][previousPositions[ourId].count-1].x < 3;
+#ifdef GM_DEBUGMODE_COMMENTS
+            if(weAreDown)
+                stepRes.comment += "weAreDown ";
+            if(weAreUp)
+                stepRes.comment += "weAreUp ";
+            if(weAreLeft)
+                stepRes.comment += "weAreLeft ";
+            if(weAreRight)
+                stepRes.comment += "weAreRight ";
+#endif
+            if(weAreDown || weAreUp)
+            {
+                //Moving horizontally
+
+                if((weAreDown && (state->ourId == 1 || state->ourId == 2)) || (weAreUp && (state->ourId == 0 || state->ourId == 3)))
+                    //Moving right
+                    point -= std::max(1, (BOARD_SIZE - state->agents[ourId].x)) / 100.0f;
+                else
+                    //Moving left
+                    point -= std::max(1, state->agents[ourId].x) / 100.0f;
+            }
+            if(weAreLeft || weAreRight)
+            {
+                //Moving vertically
+
+                if((weAreLeft && (state->ourId == 1 || state->ourId == 2)) || (weAreRight && (state->ourId == 0 || state->ourId == 3)))
+                    //Moving down
+                    point -= std::max(1, (BOARD_SIZE - state->agents[ourId].y)) / 100.0f;
+                else
+                    //Moving up
+                    point -= std::max(1, state->agents[ourId].y) / 100.0f;
+            }
+            if(!weAreDown && !weAreUp && !weAreLeft && !weAreRight)
+            {
+                //we are somewhere middle
+                if(state->agents[ourId].y < BOARD_SIZE / 2)
+                    point -= std::max(1, state->agents[ourId].y) / 100.0f;
+                else
+                    point -= std::max(1, (BOARD_SIZE - state->agents[ourId].y)) / 100.0f;
+
+                if(state->agents[ourId].x < BOARD_SIZE / 2)
+                    point -= std::max(1, state->agents[ourId].x) / 100.0f;
+                else
+                    point -= std::max(1, (BOARD_SIZE - state->agents[ourId].x)) / 100.0f;
+            }
         }
 
         if (state->aliveAgents == 0) {
@@ -639,19 +693,9 @@ namespace agents {
             lastMoveWasBlocked = false;
         }
 
-        StepResult stepRes;
+        goingAround = state->timeStep > 70 && (state->timeStep - lastSeenEnemy) > 2;
 
-        if(state->timeStep > 50 && (state->timeStep - lastSeenEnemy) > 20 && state->bombs.count == 0 && state->woods.count == 0)
-        {
-            std::cout << "Long time no see, random action" << std::endl;
-#ifdef GM_DEBUGMODE_STEPS
-            stepRes.steps.AddElem(intDist(rng));
-#else
-            depth_0_Move = intDist(rng);
-#endif
-        }else{
-            stepRes = runOneStep(state, 0);
-        }
+        StepResult stepRes = runOneStep(state, 0);
 
         #ifdef DISPLAY_EXPECTATION
         bboard::Move moves_in_one_step[4];
@@ -689,7 +733,7 @@ namespace agents {
         std::cout << "turn#" << state->timeStep << " ourId:" << ourId << " point: " << (float)stepRes << " selected: ";
         std::cout << myMove << " simulated steps: " << simulatedSteps;
         std::cout << ", depth " << myMaxDepth << " " << teammateIteration << " " << enemyIteration1 << " "
-                  << enemyIteration2 << std::endl;
+                  << enemyIteration2 << (rushing ? " rushing" : "") << (goingAround ? " goingAround" : "") <<  std::endl;
 #ifdef GM_DEBUGMODE_STEPS
         for (int i = 0; i < stepRes.steps.count; i++) {
             std::cout << (int) stepRes.steps[stepRes.steps.count - 1 - i] << " ";
