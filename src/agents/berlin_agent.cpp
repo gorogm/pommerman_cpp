@@ -166,7 +166,7 @@ float BerlinAgent::runOneStep(const bboard::State * state, int depth)
                     else
                         point = runAlreadyPlantedBombs(newstate);
 #else
-                        point = runOneStep(&newstate, depth + 1);
+                        point = runOneStep(newstate, depth + 1);
 #endif
                         }
                         else
