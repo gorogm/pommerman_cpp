@@ -229,6 +229,7 @@ struct SimpleAgent : bboard::Agent
         float reward_collectedPowerup = 0.474f;
         float reward_move_to_enemy = 100.0f;
         float reward_move_to_pickup = 1000.0f;
+        float reward_woodDemolished = 0.474f;
 
         std::set<uint128_t> visitedSteps;
         int ourId, teammateId, enemy1Id, enemy2Id, lastSeenEnemy = 0;

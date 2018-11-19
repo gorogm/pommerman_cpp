@@ -85,10 +85,10 @@ namespace agents {
         if(state->agents[ourId].woodDemolished > 0)
             stepRes.comment += "woodDemolished ";
 #endif
-        point += 0.3f * state->agents[ourId].woodDemolished;
-        point += 0.3f * state->agents[teammateId].woodDemolished;
-        point -= 0.3f * state->agents[enemy1Id].woodDemolished;
-        point -= 0.3f * state->agents[enemy2Id].woodDemolished;
+        point += reward_woodDemolished * state->agents[ourId].woodDemolished;
+        point += reward_woodDemolished * state->agents[teammateId].woodDemolished;
+        point -= reward_woodDemolished * state->agents[enemy1Id].woodDemolished;
+        point -= reward_woodDemolished * state->agents[enemy2Id].woodDemolished;
 
 #ifdef GM_DEBUGMODE_COMMENTS
         if(state->agents[ourId].collectedPowerupPoints > 0)
