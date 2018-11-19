@@ -234,19 +234,19 @@ namespace agents {
     }
 
     StepResult DortmundAgent::runAlreadyPlantedBombs(State *state) {
-
+//#define USE_NEW_ONECALL_EXPLOSION //Bit slower! 'TickAndMoveBombs10' can be deleted!!
+#ifdef USE_NEW_ONECALL_EXPLOSION
+        util::TickAndMoveBombs10(*state);
+#else
         for (int i = 0; i < 10; i++) {
             //Exit if match decided, maybe we would die later from an other bomb, so that disturbs pointing and decision making
-            if (state->aliveAgents < 2 || (state->aliveAgents == 2 &&
-                                           ((state->agents[0].dead && state->agents[2].dead) ||
-                                            (state->agents[1].dead && state->agents[3].dead))))
+            if (state->aliveAgents < 2 || (state->aliveAgents == 2 && ((state->agents[0].dead && state->agents[2].dead) || (state->agents[1].dead && state->agents[3].dead))))
                 break;
 
             util::TickAndMoveBombs(*state);
             state->relTimeStep++;
-            //simulatedSteps++;
         }
-//        util::TickAndMoveBombs10(*state);
+#endif
         return scoreState(state);
     }
 
