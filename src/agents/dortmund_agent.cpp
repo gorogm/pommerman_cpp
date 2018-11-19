@@ -257,6 +257,10 @@ namespace agents {
         bboard::Move moves_in_one_step[4];
         const AgentInfo &a = state->agents[ourId];
         int choosenMove = 100;
+
+		float score_matrix[36 * 36];
+		std::fill_n(score_matrix, 36 * 36, -10000.0f);
+
 #ifdef GM_DEBUGMODE_ON
         stepRes.point = -100;
 #else
@@ -449,6 +453,9 @@ namespace agents {
                         else
                             futureSteps = runAlreadyPlantedBombs(&newstate);
 
+#pragma omp atomic
+						score_matrix[(move * 6 + moveT) * 36 + moveE1 * 6 + moveE2] = futureSteps;
+
                         if ((float)futureSteps > -100 && (float)futureSteps < minPointE2) {
                             minPointE2 = (float)futureSteps;
 #ifdef GM_DEBUGMODE_STEPS
@@ -537,7 +544,32 @@ namespace agents {
         best_moves_in_chain[depth] = 0;
 #endif
 
-        return stepRes;
+		// max_min_move is our teams moves [0 .. 35]
+		int max_min_move = -1;
+		int min_move = -1;
+		float max_min_score = -10000.f;
+		for (int i = 0; i < 36; i++)
+		{
+			float min_score = 10000.f;
+			for (int j = 0; j < 36; j++)
+			{
+				float s = score_matrix[i * 36 + j];
+				if (s > -10000.f && s < min_score)
+				{
+					min_score = s;
+					min_move = j;
+				}
+			}
+			if (min_score < 10000.f && min_score > max_min_score)
+			{
+				max_min_score = min_score;
+				max_min_move = i;
+			}
+		}
+		if (depth == 0 && max_min_move != -1)
+			depth_0_Move = max_min_move / 6;
+		return max_min_score;
+        //return stepRes;
     }
 
     void DortmundAgent::createDeadEndMap(const State *state) {
