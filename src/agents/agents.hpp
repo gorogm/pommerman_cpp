@@ -226,7 +226,7 @@ struct SimpleAgent : bboard::Agent
 
         float reward_first_step_idle = 0.001f;
         float reward_sooner_later_ratio = 0.98f;
-        float reward_collectedPowerup = 0.5f;
+        float reward_collectedPowerup = 0.474f;
         float reward_move_to_enemy = 100.0f;
         float reward_move_to_pickup = 1000.0f;
 
