@@ -21,7 +21,7 @@ namespace agents {
     }
 
     bool DortmundAgent::_CheckPos2(const State *state, int x, int y, int agentId = -1) {
-        return !util::IsOutOfBounds(x, y) && (IS_WALKABLE_OR_AGENT(state->board[y][x]) || (agentId >= 0 && state->agents[agentId].canKick && state->board[y][x] == BOMB));
+        return !util::IsOutOfBounds(x, y) && (IS_WALKABLE_OR_AGENT(state->board[y][x]) /* || (agentId >= 0 && state->agents[agentId].canKick && state->board[y][x] == BOMB)*/ );
     }
 
 
@@ -276,9 +276,9 @@ namespace agents {
             // if move is impossible
             if (move > 0 && move < 5 && !_CheckPos2(state, desiredPos, ourId))
                 continue;
-            //no two opposite steps please - only after bomb if we can kick
-            if ((depth < 2 || !state->agents[ourId].canKick || moves_in_chain[4*(depth - 2)+0] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)], move))
-                continue;
+            //no two opposite steps please - only after bomb if we can kick or powerup. Slower and worse.
+            //if ((state->agents[ourId].collectedPowerupPoints == 0 || depth < 2 || !state->agents[ourId].canKick || moves_in_chain[4*(depth - 2)+0] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)], move))
+            //    continue;
 
             moves_in_one_step[ourId] = (bboard::Move) move;
             moves_in_chain.AddElem(move);
@@ -302,9 +302,9 @@ namespace agents {
                     if (moveT == (int) bboard::Move::BOMB &&
                         state->HasBomb(state->agents[teammateId].x, state->agents[teammateId].y))
                         continue;
-                    //no two opposite steps please - only after bomb if we can kick
-                    if ((depth < 2 || !state->agents[teammateId].canKick || moves_in_chain[4*(depth - 2)+1] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)+1], moveT))
-                        continue;
+                    //no two opposite steps please - only after bomb if we can kick or powerup. Slower and worse.
+                    //if ((state->agents[teammateId].collectedPowerupPoints == 0 || depth < 2 || !state->agents[teammateId].canKick || moves_in_chain[4*(depth - 2)+1] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)+1], moveT))
+                    //    continue;
                 } else {
                     //We'll have same results with IDLE, IDLE
                     if (maxTeammate > -100 && state->agents[teammateId].x == desiredPos.x &&
@@ -333,9 +333,9 @@ namespace agents {
                         if (moveE1 == (int) bboard::Move::BOMB &&
                             state->HasBomb(state->agents[enemy1Id].x, state->agents[enemy1Id].y))
                             continue;
-                        //no two opposite steps please - only after bomb if we can kick
-                        if ((depth < 2 || !state->agents[enemy1Id].canKick || moves_in_chain[4*(depth - 2)+2] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)+2], moveE1))
-                            continue;
+                        //no two opposite steps please - only after bomb if we can kick or powerup. Slower and worse.
+                        //if ((state->agents[enemy1Id].collectedPowerupPoints == 0 || depth < 2 || !state->agents[enemy1Id].canKick || moves_in_chain[4*(depth - 2)+2] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)+2], moveE1))
+                        //    continue;
                         //No long simulations if no step-bomb-step cycle
                         if(depth > 1 && moves_in_chain[4*(depth - 2)+2] != 5 && moves_in_chain[4*(depth - 1)+2] != 5 && moveE1 != 5)
                             continue;
@@ -367,9 +367,9 @@ namespace agents {
                             if (moveE2 == (int) bboard::Move::BOMB &&
                                 state->HasBomb(state->agents[enemy2Id].x, state->agents[enemy2Id].y))
                                 continue;
-                            //no two opposite steps please - only after bomb if we can kick
-                            if ((depth < 2 || !state->agents[enemy2Id].canKick || moves_in_chain[4*(depth - 2)+3] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)+3], moveE2))
-                                continue;
+                            //no two opposite steps please - only after bomb if we can kick or powerup. Slower and worse.
+                            //if ((state->agents[enemy2Id].collectedPowerupPoints == 0 || depth < 2 || !state->agents[enemy2Id].canKick || moves_in_chain[4*(depth - 2)+3] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)+3], moveE2))
+                            //    continue;
                             //No long simulations if no step-bomb-step cycle
                             if(depth > 1 && moves_in_chain[4*(depth - 2)+3] != 5 && moves_in_chain[4*(depth - 1)+3] != 5 && moveE2 != 5)
                                 continue;
