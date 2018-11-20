@@ -217,9 +217,8 @@ struct SimpleAgent : bboard::Agent
         bool rushing = false, goingAround = false;
 
 
-        bool _CheckPos2(const bboard::State* state, bboard::Position pos);
-        bool _CheckPos2(const bboard::State* state, int x, int y);
-        bool _CheckPos3(const bboard::State* state, int x, int y);
+        bool _CheckPos2(const bboard::State* state, bboard::Position pos, int agentId);
+        bool _CheckPos2(const bboard::State* state, int x, int y, int agentId);
         void createDeadEndMap(const bboard::State* state);
         float laterBetter(float reward, int timestamps);
         float soonerBetter(float reward, int timestmaps);
