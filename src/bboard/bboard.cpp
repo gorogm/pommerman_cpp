@@ -10,6 +10,7 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <cstring>
 
 #ifdef _WIN32
 #  define EXPORTIT __declspec( dllexport )
@@ -762,8 +763,45 @@ int getStep_eisenach(int id, bool agent0Alive, bool agent1Alive, bool agent2Aliv
 	return (int)eisenachAgents[id]->act(&envs[id]->GetState());
 }
 
+void tests()
+{
+    uint8_t * board = new uint8_t[11*11];
+    memset(board, 0, 11*11*sizeof(uint8_t));
+    double * bomb_life = new double[11*11];
+    memset(bomb_life, 0, 11*11*sizeof(double));
+    double * bomb_blast_strength = new double[11*11];
+    memset(bomb_blast_strength, 0, 11*11*sizeof(double));
+    board[4 * 11 + 4] = bboard::PyAGENT1;
+    board[4 * 11 + 3] = bboard::PyBOMB;
+    board[4 * 11 + 5] = bboard::PyBOMB;
+    board[3 * 11 + 4] = bboard::PyBOMB;
+    board[5 * 11 + 4] = bboard::PyBOMB;
+    //board[4 * 11 + 2] = bboard::PyRIGID;
+    board[4 * 11 + 6] = bboard::PyRIGID;
+    board[2 * 11 + 4] = bboard::PyRIGID;
+    board[6 * 11 + 4] = bboard::PyRIGID;
+    bomb_life[4 * 11 + 3] = 2;
+    bomb_life[4 * 11 + 5] = 2;
+    bomb_life[3 * 11 + 4] = 2;
+    bomb_life[5 * 11 + 4] = 2;
+    bomb_blast_strength[4 * 11 + 3] = 2;
+    bomb_blast_strength[4 * 11 + 5] = 2;
+    bomb_blast_strength[3 * 11 + 4] = 2;
+    bomb_blast_strength[5 * 11 + 4] = 2;
+
+    init_agent_dortmund(1);
+    int step = getStep_dortmund(1, true, true, false, false, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
+    std::cout << "action: " << step << std::endl;
+    episode_end_dortmund(1);
+}
+
+
 extern "C"
 {
+EXPORTIT void c_tests()
+{
+    tests();
+}
 
 EXPORTIT void c_init_agent_berlin(int id)
 {
