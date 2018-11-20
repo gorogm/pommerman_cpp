@@ -466,7 +466,7 @@ namespace agents {
 						else
 							futureSteps = runAlreadyPlantedBombs(&newstate);
 
-						Eavg += futureSteps;
+						Eavg += (float)futureSteps;
 						Eavg_count++;
 
 						if ((float)futureSteps > -100 && (float)futureSteps < minPointE2) {
@@ -499,7 +499,11 @@ namespace agents {
 
 
 				Eavg = Eavg_count ? Eavg / (float)Eavg_count : Eavg;
+#ifdef GM_DEBUGMODE_STEPS
+				futureStepsT.point += Eavg * 0.1f;
+#else
 				futureStepsT += Eavg * 0.1f;
+#endif
 				maxTeammate += Eavg * 0.1f;
 
 
