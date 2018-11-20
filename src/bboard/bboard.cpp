@@ -614,33 +614,6 @@ void init_agent_dortmund(int id)
     envs[id] = std::make_shared<bboard::Environment>();
     dortmundAgents[id] = std::make_shared<agents::DortmundAgent>();
     envs[id]->MakeGameFromPython(id);
-
-    ConfigInfo hyperparams = readHyperparams("/tmp/hyperparams.txt");
-
-    if(hyperparams.count("reward_first_step_idle") > 0) {
-        std::cout << "Settings reward_first_step_idle to " << hyperparams["reward_first_step_idle"] << std::endl;
-        dortmundAgents[id]->reward_first_step_idle = hyperparams["reward_first_step_idle"];
-    }
-    if(hyperparams.count("reward_sooner_later_ratio") > 0) {
-        std::cout << "Settings reward_sooner_later_ratio to " << hyperparams["reward_sooner_later_ratio"] << std::endl;
-        dortmundAgents[id]->reward_sooner_later_ratio = hyperparams["reward_sooner_later_ratio"];
-    }
-    if(hyperparams.count("reward_collectedPowerup") > 0) {
-        std::cout << "Settings reward_collectedPowerup to " << hyperparams["reward_collectedPowerup"] << std::endl;
-        dortmundAgents[id]->reward_collectedPowerup = hyperparams["reward_collectedPowerup"];
-    }
-    if(hyperparams.count("reward_move_to_enemy") > 0) {
-        std::cout << "Settings reward_move_to_enemy to " << hyperparams["reward_move_to_enemy"] << std::endl;
-        dortmundAgents[id]->reward_move_to_enemy = hyperparams["reward_move_to_enemy"];
-    }
-    if(hyperparams.count("reward_move_to_pickup") > 0) {
-        std::cout << "Settings reward_move_to_pickup to " << hyperparams["reward_move_to_pickup"] << std::endl;
-        dortmundAgents[id]->reward_move_to_pickup = hyperparams["reward_move_to_pickup"];
-    }
-    if(hyperparams.count("reward_woodDemolished") > 0) {
-        std::cout << "Settings reward_woodDemolished to " << hyperparams["reward_woodDemolished"] << std::endl;
-        dortmundAgents[id]->reward_woodDemolished = hyperparams["reward_woodDemolished"];
-    }
 }
 
 void init_agent_eisenach(int id)
