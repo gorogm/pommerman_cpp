@@ -645,10 +645,14 @@ void init_agent_eisenach(int id)
 		std::cout << "Settings reward_move_to_pickup to " << hyperparams["reward_move_to_pickup"] << std::endl;
 		eisenachAgents[id]->reward_move_to_pickup = hyperparams["reward_move_to_pickup"];
 	}
-	if (hyperparams.count("reward_woodDemolished") > 0) {
-		std::cout << "Settings reward_woodDemolished to " << hyperparams["reward_woodDemolished"] << std::endl;
-		eisenachAgents[id]->reward_woodDemolished = hyperparams["reward_woodDemolished"];
-	}
+    if (hyperparams.count("reward_woodDemolished") > 0) {
+        std::cout << "Settings reward_woodDemolished to " << hyperparams["reward_woodDemolished"] << std::endl;
+        eisenachAgents[id]->reward_woodDemolished = hyperparams["reward_woodDemolished"];
+    }
+    if (hyperparams.count("weight_of_average_Epoint") > 0) {
+        std::cout << "Settings weight_of_average_Epoint to " << hyperparams["weight_of_average_Epoint"] << std::endl;
+        eisenachAgents[id]->weight_of_average_Epoint = hyperparams["weight_of_average_Epoint"];
+    }
 }
 
 

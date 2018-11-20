@@ -500,11 +500,11 @@ namespace agents {
 
 				Eavg = Eavg_count ? Eavg / (float)Eavg_count : Eavg;
 #ifdef GM_DEBUGMODE_STEPS
-				futureStepsT.point += Eavg * 0.1f;
+				futureStepsT.point += Eavg * weight_of_average_Epoint;
 #else
-				futureStepsT += Eavg * 0.1f;
+				futureStepsT += Eavg * weight_of_average_Epoint;
 #endif
-				maxTeammate += Eavg * 0.1f;
+				maxTeammate += Eavg * weight_of_average_Epoint;
 
 
 				moves_in_chain.count--;
