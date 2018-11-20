@@ -385,7 +385,7 @@ struct State
      * @param strength The farthest reachable distance
      * from the origin
      */
-    void SpawnFlame(int x, int y, int strength);
+    void SpawnFlame(int x, int y, int strength, int agentID);
 
     void SpawnFlame_passive(int x, int y, int strength);
 

@@ -32,7 +32,7 @@ namespace bboard
  * @param signature An auxiliary integer less than 255
  * @return Could the flame be spawned?
  */
-inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature = 0)
+inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature, int agentID)
 {
     if(s.board[y][x] >= Item::AGENT0)
     {
@@ -48,7 +48,7 @@ inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature = 0)
                 if(BMB_ID_KNOWN(s.bombs[i]))
                     s.agents[BMB_ID(s.bombs[i])].bombCount--;
                 s.bombs.RemoveAt(i);
-                s.SpawnFlame(x, y, bombStrength);
+                s.SpawnFlame(x, y, bombStrength, agentID);
                 break;
             }
         }
@@ -61,6 +61,7 @@ inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature = 0)
         s.board[y][x] = Item::FLAMES + signature;
         if(wasWood)
         {
+            /*
             //Give reward to closest agent
             int closestAgent = -1;
             int closestDistance = INT32_MAX;
@@ -72,7 +73,9 @@ inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature = 0)
             }
             if(closestAgent >= 0) {
                 s.agents[closestAgent].woodDemolished += 1.0f - s.relTimeStep / 50.0f;
-            }
+            }*/
+            if(agentID >= 0)
+                s.agents[agentID].woodDemolished += 1.0f - s.relTimeStep / 50.0f;
 
             s.board[y][x] += WOOD_POWFLAG(old); // set the powerup flag
         }
@@ -215,11 +218,11 @@ Item State::FlagItem(int pwp)
 void State::ExplodeTopBomb()
 {
     Bomb& c = bombs[0];
-    SpawnFlame(BMB_POS_X(c), BMB_POS_Y(c), BMB_STRENGTH(c));
+    SpawnFlame(BMB_POS_X(c), BMB_POS_Y(c), BMB_STRENGTH(c), BMB_ID(c));
     PopBomb(*this);
 }
 
-void State::SpawnFlame(int x, int y, int strength)
+void State::SpawnFlame(int x, int y, int strength, int agentID)
 {
     Flame& f = flames.NextPos();
     f.position.x = x;
@@ -246,7 +249,7 @@ void State::SpawnFlame(int x, int y, int strength)
     {
         if(x + i >= BOARD_SIZE) break; // bounds
 
-        if(!SpawnFlameItem(*this, x + i, y, signature))
+        if(!SpawnFlameItem(*this, x + i, y, signature, agentID))
         {
             break;
         }
@@ -257,7 +260,7 @@ void State::SpawnFlame(int x, int y, int strength)
     {
         if(x - i < 0) break; // bounds
 
-        if(!SpawnFlameItem(*this, x - i, y, signature))
+        if(!SpawnFlameItem(*this, x - i, y, signature, agentID))
         {
             break;
         }
@@ -268,7 +271,7 @@ void State::SpawnFlame(int x, int y, int strength)
     {
         if(y + i >= BOARD_SIZE) break; // bounds
 
-        if(!SpawnFlameItem(*this, x, y + i, signature))
+        if(!SpawnFlameItem(*this, x, y + i, signature, agentID))
         {
             break;
         }
@@ -279,7 +282,7 @@ void State::SpawnFlame(int x, int y, int strength)
     {
         if(y - i < 0) break; // bounds
 
-        if(!SpawnFlameItem(*this, x, y - i, signature))
+        if(!SpawnFlameItem(*this, x, y - i, signature, agentID))
         {
             break;
         }
