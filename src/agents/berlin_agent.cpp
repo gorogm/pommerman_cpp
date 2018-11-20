@@ -11,9 +11,6 @@ namespace agents
 {
 BerlinAgent::BerlinAgent()
 {
-    std::random_device rd;  // non explicit seed
-    rng = std::mt19937_64(rd());
-    intDist = std::uniform_int_distribution<int>(0, 4); // no bombs
 }
 
 

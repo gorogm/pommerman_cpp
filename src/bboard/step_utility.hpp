@@ -129,6 +129,11 @@ inline bool IsOutOfBounds(const int& x, const int& y)
     return x < 0 || y < 0 || x >= BOARD_SIZE || y >= BOARD_SIZE;
 }
 
+inline bool AreOppositeMoves(int m1, int m2)
+{
+    return m1 > 0 && m2 > 0 && m1 < 5 && m2 < 5 && ((m1 + m2) == 3 || (m1 + m2) == 7);
+}
+
 }
 
 #endif // STEP_UTILITY_H

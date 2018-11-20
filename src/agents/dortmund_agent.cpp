@@ -14,9 +14,6 @@ bboard::FixedQueue<bboard::Position, 40> agents::DortmundAgent::positions_in_cha
 
 namespace agents {
     DortmundAgent::DortmundAgent() {
-        std::random_device rd;  // non explicit seed
-        rng = std::mt19937_64(rd());
-        intDist = std::uniform_int_distribution<int>(1, 4); // no bombs
     }
 
     bool DortmundAgent::_CheckPos2(const State *state, bboard::Position pos) {
