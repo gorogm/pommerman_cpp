@@ -16,17 +16,14 @@ namespace agents {
     DortmundAgent::DortmundAgent() {
     }
 
-    bool DortmundAgent::_CheckPos2(const State *state, bboard::Position pos) {
-        return !util::IsOutOfBounds(pos) && IS_WALKABLE_OR_AGENT(state->board[pos.y][pos.x]);
+    bool DortmundAgent::_CheckPos2(const State *state, bboard::Position pos, int agentId = -1) {
+        return _CheckPos2(state, pos.x, pos.y, agentId);
     }
 
-    bool DortmundAgent::_CheckPos2(const State *state, int x, int y) {
-        return !util::IsOutOfBounds(x, y) && IS_WALKABLE_OR_AGENT(state->board[y][x]);
+    bool DortmundAgent::_CheckPos2(const State *state, int x, int y, int agentId = -1) {
+        return !util::IsOutOfBounds(x, y) && (IS_WALKABLE_OR_AGENT(state->board[y][x]) || (agentId >= 0 && state->agents[agentId].canKick && state->board[y][x] == BOMB));
     }
 
-    bool DortmundAgent::_CheckPos3(const State *state, int x, int y) {
-        return !util::IsOutOfBounds(x, y) && state->board[y][x] != WOOD && state->board[y][x] != RIGID;
-    }
 
     float DortmundAgent::laterBetter(float reward, int timestaps) {
         if (reward == 0.0f)
@@ -277,10 +274,10 @@ namespace agents {
             if (move == (int) bboard::Move::BOMB && state->HasBomb(a.x, a.y))
                 continue;
             // if move is impossible
-            if (move > 0 && move < 5 && !_CheckPos2(state, desiredPos))
+            if (move > 0 && move < 5 && !_CheckPos2(state, desiredPos, ourId))
                 continue;
-            //no two opposite steps please!
-            if (depth > 0 && move > 0 && move < 5 && moves_in_chain[4*(depth - 1)+0] > 0 && moves_in_chain[4*(depth - 1)+0] < 5 && std::abs(moves_in_chain[4*(depth - 1)] - move) == 2)
+            //no two opposite steps please - only after bomb if we can kick
+            if ((depth < 2 || !state->agents[ourId].canKick || moves_in_chain[4*(depth - 2)+0] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)], move))
                 continue;
 
             moves_in_one_step[ourId] = (bboard::Move) move;
@@ -294,10 +291,9 @@ namespace agents {
                         (state->agents[teammateId].dead || state->agents[teammateId].x < 0))
                         continue;
                     // if move is impossible
-                    if (moveT > 0 && moveT < 5 && !_CheckPos2(state,
-                                                              bboard::util::DesiredPosition(state->agents[teammateId].x,
+                    if (moveT > 0 && moveT < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[teammateId].x,
                                                                                             state->agents[teammateId].y,
-                                                                                            (bboard::Move) moveT)))
+                                                                                            (bboard::Move) moveT), teammateId))
                         continue;
                     if (moveT == (int) bboard::Move::BOMB &&
                         state->agents[teammateId].maxBombCount - state->agents[teammateId].bombCount <= 0)
@@ -306,8 +302,8 @@ namespace agents {
                     if (moveT == (int) bboard::Move::BOMB &&
                         state->HasBomb(state->agents[teammateId].x, state->agents[teammateId].y))
                         continue;
-                    //no two opposite steps please!
-                    if (depth > 0 && moveT > 0 && moveT < 5 && moves_in_chain[4*(depth - 1)+1] > 0 && moves_in_chain[4*(depth - 1)+1] < 5 && std::abs(moves_in_chain[4*(depth - 1)+1] - moveT) == 2)
+                    //no two opposite steps please - only after bomb if we can kick
+                    if ((depth < 2 || !state->agents[teammateId].canKick || moves_in_chain[4*(depth - 2)+1] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)+1], moveT))
                         continue;
                 } else {
                     //We'll have same results with IDLE, IDLE
@@ -328,7 +324,7 @@ namespace agents {
                             continue;
                         // if move is impossible
                         if (moveE1 > 0 && moveE1 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(
-                                state->agents[enemy1Id].x, state->agents[enemy1Id].y, (bboard::Move) moveE1)))
+                                state->agents[enemy1Id].x, state->agents[enemy1Id].y, (bboard::Move) moveE1), enemy1Id))
                             continue;
                         if (moveE1 == (int) bboard::Move::BOMB &&
                             state->agents[enemy1Id].maxBombCount - state->agents[enemy1Id].bombCount <= 0)
@@ -337,8 +333,8 @@ namespace agents {
                         if (moveE1 == (int) bboard::Move::BOMB &&
                             state->HasBomb(state->agents[enemy1Id].x, state->agents[enemy1Id].y))
                             continue;
-                        //no two opposite steps please!
-                        if (depth > 0 && moveE1 > 0 && moveE1 < 5 && moves_in_chain[4*(depth - 1)+2] > 0 && moves_in_chain[4*(depth - 1)+2] < 5 && std::abs(moves_in_chain[4*(depth - 1)+2] - moveE1) == 2)
+                        //no two opposite steps please - only after bomb if we can kick
+                        if ((depth < 2 || !state->agents[enemy1Id].canKick || moves_in_chain[4*(depth - 2)+2] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)+2], moveE1))
                             continue;
                         //No long simulations if no step-bomb-step cycle
                         if(depth > 1 && moves_in_chain[4*(depth - 2)+2] != 5 && moves_in_chain[4*(depth - 1)+2] != 5 && moveE1 != 5)
@@ -362,7 +358,7 @@ namespace agents {
                                 continue;
                             // if move is impossible
                             if (moveE2 > 0 && moveE2 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(
-                                    state->agents[enemy2Id].x, state->agents[enemy2Id].y, (bboard::Move) moveE2)))
+                                    state->agents[enemy2Id].x, state->agents[enemy2Id].y, (bboard::Move) moveE2), enemy2Id))
                                 continue;
                             if (moveE2 == (int) bboard::Move::BOMB &&
                                 state->agents[enemy2Id].maxBombCount - state->agents[enemy2Id].bombCount <= 0)
@@ -371,8 +367,8 @@ namespace agents {
                             if (moveE2 == (int) bboard::Move::BOMB &&
                                 state->HasBomb(state->agents[enemy2Id].x, state->agents[enemy2Id].y))
                                 continue;
-                            //no two opposite steps please!
-                            if (depth > 0 && moveE2 > 0 && moveE2 < 5 && moves_in_chain[4*(depth - 1)+3] > 0 && moves_in_chain[4*(depth - 1)+3] < 5 && std::abs(moves_in_chain[4*(depth - 1)+3] - moveE2) == 2)
+                            //no two opposite steps please - only after bomb if we can kick
+                            if ((depth < 2 || !state->agents[enemy2Id].canKick || moves_in_chain[4*(depth - 2)+3] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)+3], moveE2))
                                 continue;
                             //No long simulations if no step-bomb-step cycle
                             if(depth > 1 && moves_in_chain[4*(depth - 2)+3] != 5 && moves_in_chain[4*(depth - 1)+3] != 5 && moveE2 != 5)
