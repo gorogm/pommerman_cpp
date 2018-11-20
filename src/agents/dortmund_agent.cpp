@@ -79,10 +79,10 @@ namespace agents {
         if(state->agents[ourId].woodDemolished > 0)
             stepRes.comment += "woodDemolished ";
 #endif
-        point += 0.3f * state->agents[ourId].woodDemolished;
-        point += 0.3f * state->agents[teammateId].woodDemolished;
-        point -= 0.3f * state->agents[enemy1Id].woodDemolished;
-        point -= 0.3f * state->agents[enemy2Id].woodDemolished;
+        point += reward_woodDemolished * state->agents[ourId].woodDemolished;
+        point += reward_woodDemolished * state->agents[teammateId].woodDemolished;
+        point -= reward_woodDemolished * state->agents[enemy1Id].woodDemolished;
+        point -= reward_woodDemolished * state->agents[enemy2Id].woodDemolished;
 
 #ifdef GM_DEBUGMODE_COMMENTS
         if(state->agents[ourId].collectedPowerupPoints > 0)
@@ -228,19 +228,19 @@ namespace agents {
     }
 
     StepResult DortmundAgent::runAlreadyPlantedBombs(State *state) {
-
+//#define USE_NEW_ONECALL_EXPLOSION //Bit slower! 'TickAndMoveBombs10' can be deleted!!
+#ifdef USE_NEW_ONECALL_EXPLOSION
+        util::TickAndMoveBombs10(*state);
+#else
         for (int i = 0; i < 10; i++) {
             //Exit if match decided, maybe we would die later from an other bomb, so that disturbs pointing and decision making
-            if (state->aliveAgents < 2 || (state->aliveAgents == 2 &&
-                                           ((state->agents[0].dead && state->agents[2].dead) ||
-                                            (state->agents[1].dead && state->agents[3].dead))))
+            if (state->aliveAgents < 2 || (state->aliveAgents == 2 && ((state->agents[0].dead && state->agents[2].dead) || (state->agents[1].dead && state->agents[3].dead))))
                 break;
 
             util::TickAndMoveBombs(*state);
             state->relTimeStep++;
-            //simulatedSteps++;
         }
-//        util::TickAndMoveBombs10(*state);
+#endif
         return scoreState(state);
     }
 
@@ -395,19 +395,19 @@ namespace agents {
                         simulatedSteps++;
 
 #ifdef SCENE_HASH_MEMORY
-                        uint128_t hash = ((((((((((((uint128_t)(newstate->agents[ourId].x * 11 + newstate->agents[ourId].y) * 121 +
-                                         (newstate->agents[enemy1Id].dead || newstate->agents[enemy1Id].x < 0 ? 0 : newstate->agents[enemy1Id].x * 11 + newstate->agents[enemy1Id].y)) * 121 +
-                                        (newstate->agents[enemy2Id].dead || newstate->agents[enemy2Id].x < 0 ? 0 : newstate->agents[enemy2Id].x * 11 + newstate->agents[enemy2Id].y)) * 121 +
-                                       (newstate->agents[teammateId].dead || newstate->agents[teammateId].x < 0 ? 0 : newstate->agents[teammateId].x * 11 + newstate->agents[teammateId].y)) * 121 +
-                            newstate->bombs.count)*6+
+                        uint128_t hash = ((((((((((((uint128_t)(newstate.agents[ourId].x * 11 + newstate.agents[ourId].y) * 121 +
+                                         (newstate.agents[enemy1Id].dead || newstate.agents[enemy1Id].x < 0 ? 0 : newstate.agents[enemy1Id].x * 11 + newstate.agents[enemy1Id].y)) * 121 +
+                                        (newstate.agents[enemy2Id].dead || newstate.agents[enemy2Id].x < 0 ? 0 : newstate.agents[enemy2Id].x * 11 + newstate.agents[enemy2Id].y)) * 121 +
+                                       (newstate.agents[teammateId].dead || newstate.agents[teammateId].x < 0 ? 0 : newstate.agents[teammateId].x * 11 + newstate.agents[teammateId].y)) * 121 +
+                            newstate.bombs.count)*6+
                             depth)*6+
-                            (newstate->bombs.count > 0 ? newstate->bombs[newstate->bombs.count-1] : 0))*10000 +
-                            (newstate->bombs.count > 1 ? newstate->bombs[newstate->bombs.count-2] : 0))*10000 +
-                            (newstate->bombs.count > 2 ? newstate->bombs[newstate->bombs.count-3] : 0))*10000 +
-                            (newstate->bombs.count > 3 ? newstate->bombs[newstate->bombs.count-4] : 0))*10000 +
-                            newstate->agents[ourId].maxBombCount)*10 +
-                            newstate->agents[ourId].bombStrength)*10 +
-                            newstate->agents[0].dead*8 + newstate->agents[1].dead*4 + newstate->agents[2].dead*2 + newstate->agents[3].dead;
+                            (newstate.bombs.count > 0 ? newstate.bombs[newstate.bombs.count-1] : 0))*10000 +
+                            (newstate.bombs.count > 1 ? newstate.bombs[newstate.bombs.count-2] : 0))*10000 +
+                            (newstate.bombs.count > 2 ? newstate.bombs[newstate.bombs.count-3] : 0))*10000 +
+                            (newstate.bombs.count > 3 ? newstate.bombs[newstate.bombs.count-4] : 0))*10000 +
+                            newstate.agents[ourId].maxBombCount)*10 +
+                            newstate.agents[ourId].bombStrength)*10 +
+                            newstate.agents[0].dead*8 + newstate.agents[1].dead*4 + newstate.agents[2].dead*2 + newstate.agents[3].dead;
 
                         if(visitedSteps.count(hash) > 0) {
                             moves_in_chain.count--;
@@ -429,7 +429,9 @@ namespace agents {
                         {
 #ifdef TIME_LIMIT_ON
                             size_t millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
-                            if ((millis < 90) || (depth == 0 && millis < 95))
+                            if(millis > 97)
+                                std::cout << "OVERTIME " << millis << std::endl;
+                            if ((millis < 90) || (depth < 2 && millis < 95))
                                 futureSteps = runOneStep(&newstate, depth + 1);
                             else
                                 futureSteps = runAlreadyPlantedBombs(&newstate);
