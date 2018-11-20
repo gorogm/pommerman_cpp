@@ -49,7 +49,7 @@ bool Step(State* state, Move* moves)
         {
             std::cout << "ERROR in step.cpp Step(), indexing agent with " << i << std::endl;
             agentMoveSuccess = false;
-            continue;
+            break;
         }
         const Move m = moves[i];
 
