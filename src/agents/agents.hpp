@@ -77,9 +77,6 @@ struct SimpleAgent : bboard::Agent
  */
     struct BerlinAgent : bboard::Agent
     {
-        std::mt19937_64 rng;
-        std::uniform_int_distribution<int> intDist;
-
         BerlinAgent();
 
         bboard::Move act(const bboard::State* state) override;
@@ -183,9 +180,6 @@ struct SimpleAgent : bboard::Agent
 
     struct DortmundAgent : bboard::Agent
     {
-        std::mt19937_64 rng;
-        std::uniform_int_distribution<int> intDist;
-
         DortmundAgent();
 
         bboard::Move act(const bboard::State* state) override;
@@ -239,9 +233,6 @@ struct SimpleAgent : bboard::Agent
 	
     struct EisenachAgent : bboard::Agent
     {
-        std::mt19937_64 rng;
-        std::uniform_int_distribution<int> intDist;
-
         EisenachAgent();
 
         bboard::Move act(const bboard::State* state) override;
