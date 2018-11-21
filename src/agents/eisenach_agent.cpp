@@ -735,7 +735,7 @@ namespace agents {
 			lastMoveWasBlocked = false;
 		}
 
-		goingAround = state->timeStep > 70 && (state->timeStep - lastSeenEnemy) > 2;
+		goingAround = state->timeStep > 75 && (state->timeStep - lastSeenEnemy) > 2;
 
 		StepResult stepRes = runOneStep(state, 0);
 
