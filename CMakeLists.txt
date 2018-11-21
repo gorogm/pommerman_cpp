@@ -11,8 +11,8 @@ endif()
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
 
-#add_compile_definitions(VERBOSE_STATE)
-add_compile_definitions(TIME_LIMIT_ON)
+#add_definitions(-DVERBOSE_STATE)
+add_definitions(-DTIME_LIMIT_ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

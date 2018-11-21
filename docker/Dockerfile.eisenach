@@ -14,7 +14,7 @@ RUN apt-get install -y libglu1-mesa-dev freeglut3-dev mesa-common-dev
 #RUN cat examples/docker-agent/run.py | grep agents | grep _agent > agentName
 LABEL "agent"="eisenach"
 LABEL version="1.0"
-LABEL releaseDate="2018.11.11."
+LABEL releaseDate="2018.11.21."
 LABEL maintainer="gorogm@gmail.com"
 
 ADD docker/runners /agent
