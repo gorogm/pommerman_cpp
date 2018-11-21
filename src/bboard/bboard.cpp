@@ -817,10 +817,11 @@ void tests()
         moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
         bboard::Step(&envs[id]->GetState(), moves_in_one_step);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }*/
-    episode_end_eisenach(id);
+    }
+    episode_end_eisenach(id);*/
 /////////////////////// RUSHING
-id = 3;
+/*
+    id = 3;
     memset(board, 0, 11*11*sizeof(uint8_t));
     memset(bomb_life, 0, 11*11*sizeof(double));
     memset(bomb_blast_strength, 0, 11*11*sizeof(double));
@@ -835,6 +836,47 @@ id = 3;
     moves_in_one_step[3] = bboard::Move::IDLE;
     envs[id]->GetState().timeStep = 0;
     for(int i=0; i<20; i++) {
+        moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
+        bboard::Step(&envs[id]->GetState(), moves_in_one_step);
+        //std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+    episode_end_eisenach(id);*/
+//// Attack with kick-bomb
+    id = 1;
+    memset(board, 0, 11*11*sizeof(uint8_t));
+    memset(bomb_life, 0, 11*11*sizeof(double));
+    memset(bomb_blast_strength, 0, 11*11*sizeof(double));
+    board[4 * 11 + 4] = bboard::PyAGENT0 + id;
+    board[4 * 11 + 8] = bboard::PyAGENT0 + id + 1;
+    board[4 * 11 + 2] = bboard::PyRIGID;
+    board[3 * 11 + 3] = bboard::PyRIGID;
+    board[3 * 11 + 5] = bboard::PyRIGID;
+    board[3 * 11 + 6] = bboard::PyRIGID;
+    board[3 * 11 + 7] = bboard::PyRIGID;
+    board[3 * 11 + 4] = bboard::PyRIGID;
+    board[3 * 11 + 8] = bboard::PyRIGID;
+    board[3 * 11 + 9] = bboard::PyRIGID;
+    board[5 * 11 + 3] = bboard::PyRIGID;
+    board[5 * 11 + 5] = bboard::PyRIGID;
+    board[5 * 11 + 6] = bboard::PyRIGID;
+    board[5 * 11 + 7] = bboard::PyRIGID;
+    board[5 * 11 + 4] = bboard::PyRIGID;
+    board[5 * 11 + 8] = bboard::PyRIGID;
+    board[5 * 11 + 9] = bboard::PyRIGID;
+    board[4 * 11 + 10] = bboard::PyRIGID;
+
+    init_agent_eisenach(id);
+    getStep_eisenach(id, true, true, true, true, board, bomb_life, bomb_blast_strength, 4, 4, 3, true, 1, 13);
+    moves_in_one_step[4]; //was: moves
+    moves_in_one_step[0] = bboard::Move::IDLE;
+    moves_in_one_step[1] = bboard::Move::IDLE;
+    moves_in_one_step[2] = bboard::Move::IDLE;
+    moves_in_one_step[3] = bboard::Move::IDLE;
+    envs[id]->GetState().timeStep = 100;
+    for(int i=0; i<13; i++) {
+        envs[id]->GetState().timeStep++;
+        std::cout << "========================" << std::endl;
+        PrintState(&envs[id]->GetState());
         moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
         bboard::Step(&envs[id]->GetState(), moves_in_one_step);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
