@@ -793,10 +793,10 @@ void tests()
     bomb_blast_strength[3 * 11 + 4] = 2;
     bomb_blast_strength[5 * 11 + 4] = 2;
 
-    init_agent_dortmund(1);
-    int step = getStep_dortmund(1, true, true, false, false, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
+    init_agent_eisenach(1);
+    int step = getStep_eisenach(1, true, true, false, false, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
     std::cout << "action: " << step << std::endl;
-    episode_end_dortmund(1);
+    episode_end_eisenach(1);
 }
 
 

@@ -21,7 +21,7 @@ namespace agents {
 	}
 
 	bool EisenachAgent::_CheckPos2(const State *state, int x, int y, int agentId = -1) {
-		return !util::IsOutOfBounds(x, y) && (IS_WALKABLE_OR_AGENT(state->board[y][x]) /* || (agentId >= 0 && state->agents[agentId].canKick && state->board[y][x] == BOMB)*/);
+		return !util::IsOutOfBounds(x, y) && (IS_WALKABLE_OR_AGENT(state->board[y][x]) || (agentId >= 0 && state->agents[agentId].canKick && state->board[y][x] == BOMB));
 	}
 
 
