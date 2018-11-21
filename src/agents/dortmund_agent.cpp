@@ -660,7 +660,7 @@ namespace agents {
         }
         myMaxDepth = 6 - iteratedAgents;
 
-        rushing = state->timeStep < 75 && !state->agents[enemy1Id].dead && !state->agents[enemy2Id].dead && seenAgents < 2;
+        rushing = state->timeStep < 75 && !state->agents[enemy1Id].dead && !state->agents[enemy2Id].dead && seenAgents < 1;
 
         sameAs6_12_turns_ago = true;
         for (int agentId = 0; agentId < 4; agentId++) {
