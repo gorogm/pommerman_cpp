@@ -797,6 +797,49 @@ void tests()
     int step = getStep_eisenach(1, true, true, false, false, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
     std::cout << "action: " << step << std::endl;
     episode_end_eisenach(1);
+/////////////////////// GOING AROUND
+    int id = 1;
+    bboard::Move moves_in_one_step[4]; //was: moves
+
+    /*memset(board, 0, 11*11*sizeof(uint8_t));
+    memset(bomb_life, 0, 11*11*sizeof(double));
+    memset(bomb_blast_strength, 0, 11*11*sizeof(double));
+    board[4 * 11 + 4] = bboard::PyAGENT0 + id;
+
+    init_agent_eisenach(id);
+    getStep_eisenach(id, true, true, true, true, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
+    moves_in_one_step[0] = bboard::Move::IDLE;
+    moves_in_one_step[1] = bboard::Move::IDLE;
+    moves_in_one_step[2] = bboard::Move::IDLE;
+    moves_in_one_step[3] = bboard::Move::IDLE;
+    envs[id]->GetState().timeStep = 100;
+    for(int i=0; i<40; i++) {
+        moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
+        bboard::Step(&envs[id]->GetState(), moves_in_one_step);
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }*/
+    episode_end_eisenach(id);
+/////////////////////// RUSHING
+id = 3;
+    memset(board, 0, 11*11*sizeof(uint8_t));
+    memset(bomb_life, 0, 11*11*sizeof(double));
+    memset(bomb_blast_strength, 0, 11*11*sizeof(double));
+    board[4 * 11 + 4] = bboard::PyAGENT0 + id;
+
+    init_agent_eisenach(id);
+    getStep_eisenach(id, true, true, true, true, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 11);
+    moves_in_one_step[4]; //was: moves
+    moves_in_one_step[0] = bboard::Move::IDLE;
+    moves_in_one_step[1] = bboard::Move::IDLE;
+    moves_in_one_step[2] = bboard::Move::IDLE;
+    moves_in_one_step[3] = bboard::Move::IDLE;
+    envs[id]->GetState().timeStep = 0;
+    for(int i=0; i<20; i++) {
+        moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
+        bboard::Step(&envs[id]->GetState(), moves_in_one_step);
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+    episode_end_eisenach(id);
 }
 
 

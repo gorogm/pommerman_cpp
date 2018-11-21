@@ -94,14 +94,20 @@ namespace agents {
 		point -= reward_collectedPowerup * state->agents[enemy1Id].collectedPowerupPoints;
 
 		//Attack same enemy
-		if (rushing)
+		if(rushing)
 		{
-			point -= std::max(1, state->agents[ourId].x) / 100.0f;
+			point -= std::abs(state->agents[ourId].x - 1) / 100.0f;
+			point -= std::abs(positions_in_chain[0].x - 1) / 100.0f;
 
-			if (state->ourId % 2) //Agent 1,3: meeting left-top
-				point -= std::max(1, state->agents[ourId].y) / 100.0f;
-			else //Agent 0,2: meeting: left-bottom
-				point -= std::max(1, (BOARD_SIZE - state->agents[ourId].y)) / 100.0f;
+			if(state->ourId % 2) //Agent 1,3: meeting left-top
+			{
+				point -= std::abs(positions_in_chain[0].y - 1) / 100.0f;
+				point -= std::abs(state->agents[ourId].y - 1) / 100.0f;
+			}else //Agent 0,2: meeting: left-bottom
+			{
+				point -= std::abs((BOARD_SIZE - 1 - positions_in_chain[0].y) - 1) / 100.0f;
+				point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].y) - 1) / 100.0f;
+			}
 		}
 
 		//This assumes that there is a highway channel around
