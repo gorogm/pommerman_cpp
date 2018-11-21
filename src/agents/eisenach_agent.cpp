@@ -285,12 +285,14 @@ namespace agents {
 #ifdef RANDOM_TIEBREAK
 		FixedQueue<int, 6> bestmoves;
 #endif
+        StepResult stepRess[6];
 #pragma omp set_dynamic(0)
-#pragma omp parallel for private(moves_in_one_step) shared(stepRes) num_threads(depth < 1 ? 6 : 1)
+#pragma omp parallel for private(moves_in_one_step) shared(stepRes,stepRess) num_threads(depth < 1? 6 : 1)
 		//int moves[]{1,2,3,4,0,5};
 		//for(int move : moves)
 		for (int move = 0; move < 6; move++)
 		{
+                        stepRess[move] = -10000.0f;
 			Position desiredPos = bboard::util::DesiredPosition(a.x, a.y, (bboard::Move) move);
 			// if we don't have bomb
 			if (move == (int)bboard::Move::BOMB && a.maxBombCount - a.bombCount <= 0)
@@ -526,30 +528,13 @@ namespace agents {
 				if (maxTeammate == maxPoint && move != 5) { bestmoves[bestmoves.count] = move; bestmoves.count++; }
 				if (maxTeammate > maxPoint) { maxPoint = maxTeammate; bestmoves.count = 1; bestmoves[0] = move; }
 #else
-#pragma omp critical (depth)
+//Save results
 				{
-#ifdef _OPENMP //If OpenMP runs, we have to ensure that the same action will be choosen on equal points - the first one
-					if (maxTeammate == (float)stepRes && move < choosenMove) {
-						choosenMove = move;
+
 #ifdef GM_DEBUGMODE_STEPS
 						futureStepsT.steps.AddElem(move);
-#else
-						if (depth == 0)
-							depth_0_Move = move;
 #endif
-						stepRes = futureStepsT;
-					}
-#endif
-					if (maxTeammate > (float)stepRes) {
-						choosenMove = move;
-#ifdef GM_DEBUGMODE_STEPS
-						futureStepsT.steps.AddElem(move);
-#else
-						if (depth == 0)
-							depth_0_Move = move;
-#endif
-						stepRes = futureStepsT;
-					}
+						stepRess[move] = futureStepsT;
 				}
 #endif
 			}
@@ -557,6 +542,7 @@ namespace agents {
 		}
 
 #ifdef RANDOM_TIEBREAK
+May not work now
 		if (bestmoves.count > 0) {
 			if (maxPoint > best_points_in_chain[depth])
 			{
@@ -573,9 +559,18 @@ namespace agents {
 		}
 		else
 			best_moves_in_chain[depth] = 0;
+#else
+        int bestIndex = 0;
+        for(int i=1; i<6; i++)
+        {
+            if((float)stepRess[i] > stepRess[bestIndex])
+                bestIndex=i;
+        }
+if(depth == 0)
+depth_0_Move = bestIndex;
 #endif
 
-		return stepRes;
+		return stepRess[bestIndex];
 	}
 
 	void EisenachAgent::createDeadEndMap(const State *state) {
