@@ -763,11 +763,16 @@ int getStep_eisenach(int id, bool agent0Alive, bool agent1Alive, bool agent2Aliv
 
 void tests()
 {
+    int id = 1;
+    bboard::Move moves_in_one_step[4];
+
     uint8_t * board = new uint8_t[11*11];
-    memset(board, 0, 11*11*sizeof(uint8_t));
     double * bomb_life = new double[11*11];
-    memset(bomb_life, 0, 11*11*sizeof(double));
     double * bomb_blast_strength = new double[11*11];
+
+std::cout << "TEST: DEFENSE KICK" << std::endl;
+    memset(board, 0, 11*11*sizeof(uint8_t));
+    memset(bomb_life, 0, 11*11*sizeof(double));
     memset(bomb_blast_strength, 0, 11*11*sizeof(double));
     board[4 * 11 + 4] = bboard::PyAGENT1;
     board[4 * 11 + 3] = bboard::PyBOMB;
@@ -789,13 +794,66 @@ void tests()
 
     init_agent_eisenach(1);
     int step = getStep_eisenach(1, true, true, false, false, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
-    std::cout << "action: " << step << std::endl;
+    std::cout << "TEST RESULT: " << 3 << " " << step << std::endl;
     episode_end_eisenach(1);
-/////////////////////// GOING AROUND
-    int id = 1;
-    bboard::Move moves_in_one_step[4]; //was: moves
+std::cout << "TEST: DON'T STEP ON FLAME" << std::endl;
+    memset(board, 0, 11*11*sizeof(uint8_t));
+    memset(bomb_life, 0, 11*11*sizeof(double));
+    memset(bomb_blast_strength, 0, 11*11*sizeof(double));
+    board[4 * 11 + 4] = bboard::PyAGENT0 + id;
+    board[4 * 11 + 4] = bboard::PyAGENT1;
+    board[4 * 11 + 3] = bboard::PyFLAMES;
+    board[4 * 11 + 5] = bboard::PyFLAMES;
+    board[3 * 11 + 4] = bboard::PyFLAMES;
+    board[5 * 11 + 4] = bboard::PyFLAMES;
+    board[4 * 11 + 2] = bboard::PyFLAMES;
+    board[4 * 11 + 6] = bboard::PyFLAMES;
+    board[2 * 11 + 4] = bboard::PyFLAMES;
+    board[6 * 11 + 4] = bboard::PyFLAMES;
 
-    /*memset(board, 0, 11*11*sizeof(uint8_t));
+    init_agent_eisenach(id);
+    getStep_eisenach(id, true, true, true, true, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
+    moves_in_one_step[0] = bboard::Move::IDLE;
+    moves_in_one_step[1] = bboard::Move::IDLE;
+    moves_in_one_step[2] = bboard::Move::IDLE;
+    moves_in_one_step[3] = bboard::Move::IDLE;
+    envs[id]->GetState().timeStep = 100;
+    moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
+    bboard::Step(&envs[id]->GetState(), moves_in_one_step);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    std::cout << "TEST RESULT: " << 0 << " " << (int)moves_in_one_step[id] << std::endl;
+    episode_end_eisenach(id);
+
+std::cout << "TEST: DON'T PUSH BOMB TO FLAME" << std::endl;
+    memset(board, 0, 11*11*sizeof(uint8_t));
+    memset(bomb_life, 0, 11*11*sizeof(double));
+    memset(bomb_blast_strength, 0, 11*11*sizeof(double));
+    board[4 * 11 + 4] = bboard::PyAGENT0 + id;
+    board[4 * 11 + 4] = bboard::PyAGENT1;
+    board[4 * 11 + 3] = bboard::PyBOMB;
+    board[4 * 11 + 5] = bboard::PyBOMB;
+    board[3 * 11 + 4] = bboard::PyBOMB;
+    board[5 * 11 + 4] = bboard::PyBOMB;
+    board[4 * 11 + 2] = bboard::PyFLAMES;
+    //board[4 * 11 + 6] = bboard::PyFLAMES;
+    board[2 * 11 + 4] = bboard::PyFLAMES;
+    board[6 * 11 + 4] = bboard::PyFLAMES;
+
+    init_agent_eisenach(id);
+    getStep_eisenach(id, true, true, true, true, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
+    moves_in_one_step[0] = bboard::Move::IDLE;
+    moves_in_one_step[1] = bboard::Move::IDLE;
+    moves_in_one_step[2] = bboard::Move::IDLE;
+    moves_in_one_step[3] = bboard::Move::IDLE;
+    envs[id]->GetState().timeStep = 100;
+    moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
+    bboard::Step(&envs[id]->GetState(), moves_in_one_step);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    std::cout << "TEST RESULT: " << 4 << " " << (int)moves_in_one_step[id] << std::endl;
+    episode_end_eisenach(id);
+
+std::cout << "TEST: GOING AROUND" << std::endl;
+    memset(board, 0, 11*11*sizeof(uint8_t));
     memset(bomb_life, 0, 11*11*sizeof(double));
     memset(bomb_blast_strength, 0, 11*11*sizeof(double));
     board[4 * 11 + 4] = bboard::PyAGENT0 + id;
@@ -807,14 +865,16 @@ void tests()
     moves_in_one_step[2] = bboard::Move::IDLE;
     moves_in_one_step[3] = bboard::Move::IDLE;
     envs[id]->GetState().timeStep = 100;
-    for(int i=0; i<40; i++) {
+    for(int i=0; i<30; i++) {
         moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
+        if(i == 0)
+            std::cout << "TEST RESULT: " << 1 << " " << (int)moves_in_one_step[id] << std::endl;
         bboard::Step(&envs[id]->GetState(), moves_in_one_step);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
-    episode_end_eisenach(id);*/
-/////////////////////// RUSHING
-/*
+    episode_end_eisenach(id);
+
+std::cout << "TEST: RUSHING" << std::endl;
     id = 3;
     memset(board, 0, 11*11*sizeof(uint8_t));
     memset(bomb_life, 0, 11*11*sizeof(double));
@@ -831,11 +891,14 @@ void tests()
     envs[id]->GetState().timeStep = 0;
     for(int i=0; i<20; i++) {
         moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
+        if(i == 0)
+            std::cout << "TEST RESULT: " << 1 << " " << (int)moves_in_one_step[id] << std::endl;
         bboard::Step(&envs[id]->GetState(), moves_in_one_step);
         //std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
-    episode_end_eisenach(id);*/
-//// Attack with kick-bomb
+    episode_end_eisenach(id);
+
+std::cout<< "TEST: Attack with kick-bomb" << std::endl;
     id = 1;
     memset(board, 0, 11*11*sizeof(uint8_t));
     memset(bomb_life, 0, 11*11*sizeof(double));
@@ -869,9 +932,10 @@ void tests()
     envs[id]->GetState().timeStep = 100;
     for(int i=0; i<13; i++) {
         envs[id]->GetState().timeStep++;
-        std::cout << "========================" << std::endl;
         PrintState(&envs[id]->GetState());
         moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
+        if(i == 0)
+            std::cout << "TEST RESULT: " << 5 << " " << (int)moves_in_one_step[id] << std::endl;
         bboard::Step(&envs[id]->GetState(), moves_in_one_step);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
