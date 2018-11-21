@@ -84,10 +84,6 @@ namespace agents {
         point -= reward_woodDemolished * state->agents[enemy1Id].woodDemolished;
         point -= reward_woodDemolished * state->agents[enemy2Id].woodDemolished;
 
-#ifdef GM_DEBUGMODE_COMMENTS
-        if(state->agents[ourId].collectedPowerupPoints > 0)
-            stepRes.comment += "collectedPowerupPoints ";
-#endif
         point += reward_collectedPowerup * state->agents[ourId].collectedPowerupPoints * teamBalance;
         point += reward_collectedPowerup * state->agents[teammateId].collectedPowerupPoints / teamBalance;
         point -= reward_collectedPowerup * state->agents[enemy1Id].collectedPowerupPoints;
@@ -111,16 +107,6 @@ namespace agents {
             bool weAreUp = previousPositions[ourId][previousPositions[ourId].count-1].y < 3;
             bool weAreRight = previousPositions[ourId][previousPositions[ourId].count-1].x >= BOARD_SIZE - 3;
             bool weAreLeft = previousPositions[ourId][previousPositions[ourId].count-1].x < 3;
-#ifdef GM_DEBUGMODE_COMMENTS
-            if(weAreDown)
-                stepRes.comment += "weAreDown ";
-            if(weAreUp)
-                stepRes.comment += "weAreUp ";
-            if(weAreLeft)
-                stepRes.comment += "weAreLeft ";
-            if(weAreRight)
-                stepRes.comment += "weAreRight ";
-#endif
             if(weAreDown || weAreUp)
             {
                 //Moving horizontally
@@ -176,21 +162,12 @@ namespace agents {
 
         if (state->aliveAgents == 0) {
             //point += soonerBetter(??, state->relTimeStep); //we win
-#ifdef GM_DEBUGMODE_COMMENTS
-            stepRes.comment += "tie ";
-#endif
         } else if (state->aliveAgents < 3) {
             if (state->agents[ourId].dead && state->agents[teammateId].dead) {
                 point += laterBetter(-20.0f, state->relTimeStep); //we lost
-#ifdef GM_DEBUGMODE_COMMENTS
-                stepRes.comment += "we_lost ";
-#endif
             }
             if (state->agents[enemy1Id].dead && state->agents[enemy2Id].dead) {
                 point += soonerBetter(+20.0f, state->relTimeStep); //we win
-#ifdef GM_DEBUGMODE_COMMENTS
-                stepRes.comment += "we_win ";
-#endif
             }
         }
 
@@ -489,11 +466,6 @@ namespace agents {
             }
 
             if (maxTeammate > -100) {
-#ifdef DISPLAY_DEPTH0_POINTS
-                if(depth == 0)
-                    std::cout << "point for move " << move << ": " << maxTeammate << std::endl;
-#endif
-
 #ifdef RANDOM_TIEBREAK
                 if (maxTeammate == maxPoint && move != 5) { bestmoves[bestmoves.count] = move; bestmoves.count++;}
             if (maxTeammate > maxPoint) { maxPoint = maxTeammate; bestmoves.count = 1; bestmoves[0] = move;}
@@ -503,23 +475,15 @@ namespace agents {
 #ifdef _OPENMP //If OpenMP runs, we have to ensure that the same action will be choosen on equal points - the first one
                     if (maxTeammate == (float) stepRes && move < choosenMove) {
                         choosenMove = move;
-  #ifdef GM_DEBUGMODE_STEPS
-                        futureStepsT.steps.AddElem(move);
-  #else
                         if (depth == 0)
                             depth_0_Move = move;
-  #endif
                         stepRes = futureStepsT;
                     }
 #endif
                     if (maxTeammate > (float) stepRes) {
                         choosenMove = move;
-#ifdef GM_DEBUGMODE_STEPS
-                        futureStepsT.steps.AddElem(move);
-#else
                         if (depth == 0)
                             depth_0_Move = move;
-#endif
                         stepRes = futureStepsT;
                     }
                 }
@@ -708,32 +672,7 @@ namespace agents {
 
         StepResult stepRes = runOneStep(state, 0);
 
-        #ifdef DISPLAY_EXPECTATION
-        bboard::Move moves_in_one_step[4];
-        #endif
-#ifdef GM_DEBUGMODE_STEPS
-        int myMove = stepRes.steps[stepRes.steps.count - 1];
-        #ifdef DISPLAY_EXPECTATION
-        moves_in_one_step[ourId] = (bboard::Move)stepRes.steps[stepRes.steps.count - 1];
-        moves_in_one_step[teammateId] = (bboard::Move)stepRes.steps[stepRes.steps.count - 2];
-        moves_in_one_step[enemy1Id] = (bboard::Move)stepRes.steps[stepRes.steps.count - 3];
-        moves_in_one_step[enemy2Id] = (bboard::Move)stepRes.steps[stepRes.steps.count - 4];
-        #endif
-#else
         int myMove = depth_0_Move;
-        #ifdef DISPLAY_EXPECTATION
-        moves_in_one_step[ourId] = (bboard::Move)myMove;
-        moves_in_one_step[teammateId] = (bboard::Move)0;
-        moves_in_one_step[enemy1Id] = (bboard::Move)0;
-        moves_in_one_step[enemy2Id] = (bboard::Move)0;
-        #endif
-#endif
-#ifdef DISPLAY_EXPECTATION
-        State * newState = new State(*state);
-        bboard::Step(newState, moves_in_one_step);
-        std::cout << "Expected state" << std::endl;
-        bboard::PrintState(newState);
-#endif
 
         if (moveHistory.count == 12) {
             moveHistory.RemoveAt(0);
@@ -745,19 +684,8 @@ namespace agents {
         std::cout << myMove << " simulated steps: " << simulatedSteps;
         std::cout << ", depth " << myMaxDepth << " " << teammateIteration << " " << enemyIteration1 << " "
                   << enemyIteration2 << (rushing ? " rushing" : "") << (goingAround ? " goingAround" : "") <<  std::endl;
-#ifdef GM_DEBUGMODE_STEPS
-        for (int i = 0; i < stepRes.steps.count; i++) {
-            std::cout << (int) stepRes.steps[stepRes.steps.count - 1 - i] << " ";
-            if (i % 4 == 3)
-                std::cout << " | ";
-        }
-#endif
 
-#ifdef GM_DEBUGMODE_COMMENTS
-        std::cout << stepRes.comment << std::endl;
-#else
         std::cout << std::endl;
-#endif
 
         totalSimulatedSteps += simulatedSteps;
         turns++;

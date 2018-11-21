@@ -190,9 +190,7 @@ struct SimpleAgent : bboard::Agent
         void PrintDetailedInfo();
         int simulatedSteps = 0;
 
-#ifndef GM_DEBUGMODE_STEPS
         int depth_0_Move = 0;
-#endif
         static bboard::FixedQueue<int, 40> moves_in_chain;
 #pragma omp threadprivate(moves_in_chain)
 
