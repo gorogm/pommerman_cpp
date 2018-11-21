@@ -165,7 +165,6 @@ void TickBombs(State& state)
     {
         ReduceBombTimer(state.bombs[i]);
     }
-
     //explode timed-out bombs
     for(int i = 0; i < state.bombs.count; i++)
     {
@@ -227,17 +226,24 @@ void ConsumePowerup(State& state, int agentID, int powerUp)
     if(powerUp == Item::EXTRABOMB)
     {
         state.agents[agentID].maxBombCount++;
+        state.agents[agentID].extraBombPowerupPoints += 1.0 - state.relTimeStep/100.0;
     }
     else if(powerUp == Item::INCRRANGE)
     {
         state.agents[agentID].bombStrength++;
+        state.agents[agentID].extraRangePowerupPoints += 1.0 - state.relTimeStep/100.0;
     }
     else if(powerUp == Item::KICK)
     {
+        if(state.agents[agentID].canKick)
+        {
+            state.agents[agentID].otherKickPowerupPoints += 1.0 - state.relTimeStep/100.0;
+        }else{
+            state.agents[agentID].firstKickPowerupPoints += 1.0 - state.relTimeStep/100.0;
+        }
         state.agents[agentID].canKick = true;
     }
 
-    state.agents[agentID].collectedPowerupPoints += 1.0 - state.relTimeStep/100.0;
 }
 
 bool HasDPCollision(const State& state, Position dp[AGENT_COUNT], int agentID)

@@ -80,10 +80,11 @@ namespace agents {
         point += 0.3f * state->agents[teammateId].woodDemolished;
         point -= 0.3f * state->agents[enemy1Id].woodDemolished;
         point -= 0.3f * state->agents[enemy2Id].woodDemolished;
-        point += reward_collectedPowerup * state->agents[ourId].collectedPowerupPoints * teamBalance;
-        point += reward_collectedPowerup * state->agents[teammateId].collectedPowerupPoints / teamBalance;
-        point -= reward_collectedPowerup * state->agents[enemy1Id].collectedPowerupPoints;
-        point -= reward_collectedPowerup * state->agents[enemy1Id].collectedPowerupPoints;
+
+        point += reward_collectedPowerup * (state->agents[state->ourId].extraBombPowerupPoints + state->agents[state->ourId].firstKickPowerupPoints + state->agents[state->ourId].otherKickPowerupPoints + state->agents[state->ourId].extraRangePowerupPoints) * teamBalance;
+        point += reward_collectedPowerup * (state->agents[state->teammateId].extraBombPowerupPoints + state->agents[state->teammateId].firstKickPowerupPoints + state->agents[state->teammateId].otherKickPowerupPoints + state->agents[state->teammateId].extraRangePowerupPoints) / teamBalance;
+        point -= reward_collectedPowerup * (state->agents[state->enemy1Id].extraBombPowerupPoints + state->agents[state->enemy1Id].firstKickPowerupPoints + state->agents[state->enemy1Id].otherKickPowerupPoints + state->agents[state->enemy1Id].extraRangePowerupPoints);
+        point -= reward_collectedPowerup * (state->agents[state->enemy2Id].extraBombPowerupPoints + state->agents[state->enemy2Id].firstKickPowerupPoints + state->agents[state->enemy2Id].otherKickPowerupPoints + state->agents[state->enemy2Id].extraRangePowerupPoints);
 
         if (state->aliveAgents == 0) {
             //point += soonerBetter(??, state->relTimeStep); //we win

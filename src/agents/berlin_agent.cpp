@@ -47,7 +47,7 @@ float BerlinAgent::scoreState(State * state) {
     point += 3 * soonerBetter(state->agents[state->enemy1Id].dead, state->agents[state->enemy1Id].diedAt - state->timeStep);
     point += 3 * soonerBetter(state->agents[state->enemy2Id].dead, state->agents[state->enemy2Id].diedAt - state->timeStep);
     point += 0.3f * state->agents[state->ourId].woodDemolished;
-    point += 0.5f * state->agents[state->ourId].collectedPowerupPoints;
+    point += 0.5f * (state->agents[state->ourId].extraBombPowerupPoints + state->agents[state->ourId].firstKickPowerupPoints + state->agents[state->ourId].otherKickPowerupPoints + state->agents[state->ourId].extraRangePowerupPoints);
 
     if(state->agents[state->enemy1Id].x >= 0)
         point -= (std::abs(state->agents[state->enemy1Id].x - state->agents[state->ourId].x) + std::abs(state->agents[state->enemy1Id].y - state->agents[state->ourId].y)) / 100.0f;

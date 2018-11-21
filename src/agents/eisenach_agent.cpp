@@ -88,10 +88,10 @@ namespace agents {
 		if (state->agents[ourId].collectedPowerupPoints > 0)
 			stepRes.comment += "collectedPowerupPoints ";
 #endif
-		point += reward_collectedPowerup * state->agents[ourId].collectedPowerupPoints * teamBalance;
-		point += reward_collectedPowerup * state->agents[teammateId].collectedPowerupPoints / teamBalance;
-		point -= reward_collectedPowerup * state->agents[enemy1Id].collectedPowerupPoints;
-		point -= reward_collectedPowerup * state->agents[enemy1Id].collectedPowerupPoints;
+        point += (reward_extraBombPowerupPoints * state->agents[state->ourId].extraBombPowerupPoints +    reward_firstKickPowerupPoints * state->agents[state->ourId].firstKickPowerupPoints + reward_otherKickPowerupPoints * state->agents[state->ourId].otherKickPowerupPoints + reward_extraRangePowerupPoints * state->agents[state->ourId].extraRangePowerupPoints) * teamBalance;
+        point += (reward_extraBombPowerupPoints * state->agents[state->teammateId].extraBombPowerupPoints + reward_firstKickPowerupPoints * state->agents[state->teammateId].firstKickPowerupPoints + reward_otherKickPowerupPoints * state->agents[state->teammateId].otherKickPowerupPoints + reward_extraRangePowerupPoints * state->agents[state->teammateId].extraRangePowerupPoints) / teamBalance;
+        point -= reward_extraBombPowerupPoints * state->agents[state->enemy1Id].extraBombPowerupPoints + reward_firstKickPowerupPoints * state->agents[state->enemy1Id].firstKickPowerupPoints + reward_otherKickPowerupPoints * state->agents[state->enemy1Id].otherKickPowerupPoints + reward_extraRangePowerupPoints * state->agents[state->enemy1Id].extraRangePowerupPoints;
+        point -= reward_extraBombPowerupPoints * state->agents[state->enemy2Id].extraBombPowerupPoints + reward_firstKickPowerupPoints * state->agents[state->enemy2Id].firstKickPowerupPoints + reward_otherKickPowerupPoints * state->agents[state->enemy2Id].otherKickPowerupPoints + reward_extraRangePowerupPoints * state->agents[state->enemy2Id].extraRangePowerupPoints;
 
 		//Attack same enemy
 		if(rushing)

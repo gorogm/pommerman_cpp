@@ -230,7 +230,10 @@ struct AgentInfo
     bool canKick = false;
     bool dead = false;
     short diedAt = 0;
-    float collectedPowerupPoints = 0.0f;
+    float extraBombPowerupPoints = 0.0f;
+    float extraRangePowerupPoints = 0.0f;
+    float otherKickPowerupPoints = 0.0f;
+    float firstKickPowerupPoints = 0.0f;
     float woodDemolished = 0.0f;
 };
 

@@ -243,7 +243,6 @@ void State::SpawnFlame(int x, int y, int strength, int agentID)
 
     // unique flame id
     uint16_t signature = uint16_t((x + BOARD_SIZE * y) << 3);
-
     flames.count++;
 
     // kill agent possibly in origin
@@ -643,10 +642,24 @@ void init_agent_eisenach(int id)
 		std::cout << "Settings reward_sooner_later_ratio to " << hyperparams["reward_sooner_later_ratio"] << std::endl;
 		eisenachAgents[id]->reward_sooner_later_ratio = hyperparams["reward_sooner_later_ratio"];
 	}
-	if (hyperparams.count("reward_collectedPowerup") > 0) {
-		std::cout << "Settings reward_collectedPowerup to " << hyperparams["reward_collectedPowerup"] << std::endl;
-		eisenachAgents[id]->reward_collectedPowerup = hyperparams["reward_collectedPowerup"];
-	}
+
+    if (hyperparams.count("reward_extraBombPowerupPoints") > 0) {
+        std::cout << "Settings reward_extraBombPowerupPoints to " << hyperparams["reward_extraBombPowerupPoints"] << std::endl;
+        eisenachAgents[id]->reward_extraBombPowerupPoints = hyperparams["reward_extraBombPowerupPoints"];
+    }
+    if (hyperparams.count("reward_extraRangePowerupPoints") > 0) {
+        std::cout << "Settings reward_extraRangePowerupPoints to " << hyperparams["reward_extraRangePowerupPoints"] << std::endl;
+        eisenachAgents[id]->reward_extraRangePowerupPoints = hyperparams["reward_extraRangePowerupPoints"];
+    }
+    if (hyperparams.count("reward_otherKickPowerupPoints") > 0) {
+        std::cout << "Settings reward_otherKickPowerupPoints to " << hyperparams["reward_otherKickPowerupPoints"] << std::endl;
+        eisenachAgents[id]->reward_otherKickPowerupPoints = hyperparams["reward_otherKickPowerupPoints"];
+    }
+    if (hyperparams.count("reward_firstKickPowerupPoints") > 0) {
+        std::cout << "Settings reward_firstKickPowerupPoints to " << hyperparams["reward_firstKickPowerupPoints"] << std::endl;
+        eisenachAgents[id]->reward_firstKickPowerupPoints = hyperparams["reward_firstKickPowerupPoints"];
+    }
+
 	if (hyperparams.count("reward_move_to_enemy") > 0) {
 		std::cout << "Settings reward_move_to_enemy to " << hyperparams["reward_move_to_enemy"] << std::endl;
 		eisenachAgents[id]->reward_move_to_enemy = hyperparams["reward_move_to_enemy"];

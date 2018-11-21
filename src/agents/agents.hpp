@@ -168,6 +168,7 @@ struct SimpleAgent : bboard::Agent
         float reward_first_step_idle = 0.001f;
         float reward_sooner_later_ratio = 0.98f;
         float reward_collectedPowerup = 0.5f;
+
         float reward_move_to_enemy = 100.0f;
         float reward_move_to_pickup = 1000.0f;
 
@@ -270,10 +271,13 @@ struct SimpleAgent : bboard::Agent
 
         float reward_first_step_idle = 0.001f;
         float reward_sooner_later_ratio = 0.98f;
-        float reward_collectedPowerup = 0.474f;
+        float reward_extraBombPowerupPoints = 0.6f;
+        float reward_extraRangePowerupPoints = 0.4f;
+        float reward_otherKickPowerupPoints = 0.2f;
+        float reward_firstKickPowerupPoints = 0.7f;
         float reward_move_to_enemy = 100.0f;
         float reward_move_to_pickup = 1000.0f;
-        float reward_woodDemolished = 0.474f;
+        float reward_woodDemolished = 0.40f;
         float weight_of_average_Epoint = 0.1f;
 
         std::set<uint128_t> visitedSteps;
