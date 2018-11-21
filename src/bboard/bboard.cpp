@@ -75,7 +75,7 @@ inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature, int agent
             if(closestAgent >= 0) {
                 s.agents[closestAgent].woodDemolished += 1.0f - s.relTimeStep / 50.0f;
             }*/
-            if(agentID >= 0)
+            if(BMB_ID_KNOWN(agentID))
                 s.agents[agentID].woodDemolished += 1.0f - s.relTimeStep / 50.0f;
 
             s.board[y][x] += WOOD_POWFLAG(old); // set the powerup flag
@@ -143,7 +143,7 @@ bool _CheckPos_basic(State * state, int x, int y)
 }
 bool _CheckPos_any(State * state, int x, int y)
 {
-    return !IsOutOfBounds(x, y) && (state->board[y][x] == PASSAGE || state->board[y][x] == FLAMES);
+    return !IsOutOfBounds(x, y) && (state->board[y][x] == PASSAGE || IS_FLAME(state->board[y][x]));
 }
 
 ///////////////////
@@ -733,16 +733,10 @@ int getStep_dortmund(int id, bool agent0Alive, bool agent1Alive, bool agent2Aliv
 {
 
     dortmundAgents[id]->start_time = std::chrono::high_resolution_clock::now();
-#ifdef VERBOSE_STATE
-    std::cout << std::endl;
-#endif
 
     envs[id]->MakeGameFromPython_dortmund(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
 
     dortmundAgents[id]->id = envs[id]->GetState().ourId;
-#ifdef VERBOSE_STATE
-    PrintState(&envs[id]->GetState());
-#endif
 
     // Ask the agent where to go
     return (int)dortmundAgents[id]->act(&envs[id]->GetState());

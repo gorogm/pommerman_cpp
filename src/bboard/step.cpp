@@ -150,7 +150,7 @@ bool Step(State* state, Move* moves)
                             }
                             else
                             {
-                                state->board[y][x] = 0;
+                                state->board[y][x] = Item::PASSAGE;
                             }
                         }
                         break;

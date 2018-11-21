@@ -590,8 +590,6 @@ void Environment::MakeGameFromPython(int ourId)
                             state->agents[bombId].bombStrength = (int)bomb_blast_strength[i] - 1;
                         }
                         state->bombs.count++;
-
-                        std::cout << "Bomb under agent " << board[i] - PyAGENT0 << " at " << y << " " << x << " time: " << bomb_life[i] << std::endl;
                     }
                     break;
                 default:
@@ -618,16 +616,9 @@ void Environment::MakeGameFromPython(int ourId)
                     if(bomb_blast_strength[originalPosition.y * BOARD_SIZE + originalPosition.x] - 1 == BMB_STRENGTH(previousBombs[bomb_index]) &&
                         bomb_life[originalPosition.y * BOARD_SIZE + originalPosition.x] == BMB_TIME(previousBombs[bomb_index]) - 1)
                     {
-                        std::cout << "Bomb couldn't enter fog at " << originalPosition.y << " " << originalPosition.y;
-
                         for(int bomb_index2=0; bomb_index2 < state->bombs.count; bomb_index2++) {
                             if(BMB_POS_X(state->bombs[bomb_index2]) == originalPosition.x && BMB_POS_Y(state->bombs[bomb_index2]) == originalPosition.y)
                             {
-                                if(BMB_TIME(state->bombs[bomb_index2]) != BMB_TIME(previousBombs[bomb_index]) - 1)
-                                    std::cout << "Unexpected STOP-FOG bomb time at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
-                                else
-                                    std::cout << "Matched old and new STOP-FOG bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
-
                                 SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
                                 SetBombVelocity(state->bombs[bomb_index2], 0);
                                 break;
@@ -637,12 +628,9 @@ void Environment::MakeGameFromPython(int ourId)
                     }else {
                         state->bombs.AddElem(previousBombs[bomb_index]);
                         SetBombTime(state->bombs[state->bombs.count - 1], BMB_TIME(previousBombs[bomb_index]) - 1);
-                        std::cout << "Bomb known from memory in fog at " << BMB_POS_Y(state->bombs[state->bombs.count - 1]) << " " << BMB_POS_X(state->bombs[state->bombs.count - 1]) << std::endl;
                     }
                 }else if(board[expectedPosition.y * BOARD_SIZE + expectedPosition.x] == PyFLAMES)
                 {
-                    std::cout << "Bomb exploded probably at " << expectedPosition.y << " " << expectedPosition.x << std::endl;
-
                     state->SpawnFlame_passive(BMB_POS_X(previousBombs[bomb_index]), BMB_POS_Y(previousBombs[bomb_index]), BMB_STRENGTH(previousBombs[bomb_index]));
 
                 }else if(bomb_blast_strength[expectedPosition.y * BOARD_SIZE + expectedPosition.x] > 0) //Not good to filter for AGENT or BOMB, because AGENT can be here if it kicked, without BOMB
@@ -652,27 +640,13 @@ void Environment::MakeGameFromPython(int ourId)
                         if(BMB_POS_X(state->bombs[bomb_index2]) == expectedPosition.x && BMB_POS_Y(state->bombs[bomb_index2]) == expectedPosition.y)
                         {
                             found = true;
-                            if(BMB_TIME(state->bombs[bomb_index2]) != BMB_TIME(previousBombs[bomb_index]) - 1)
-                                std::cout << "Unexpected bomb time at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
-#ifdef VERBOSE_STATE
-                            else
-                                std::cout << "Matched old and new bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
-#endif
-
                             SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
                             SetBombVelocity(state->bombs[bomb_index2], BMB_VEL(previousBombs[bomb_index]));
                             break;
                         }
                     }
-
-                    if(!found)
-                    {
-                        std::cout << "Bomb is not found in list around " << expectedPosition.y << " " << expectedPosition.x << std::endl;
-                    }
                 }else{
                     //Ups, it is not at the expected position, maybe somebody kicked it??
-                    if(state->board[BMB_POS_Y(previousBombs[bomb_index])][BMB_POS_X(previousBombs[bomb_index])] >= AGENT0)
-                        std::cout << "An agent is instead of a bomb, maybe he kicked it? at " << BMB_POS_Y(previousBombs[bomb_index]) << " " << BMB_POS_X(previousBombs[bomb_index]) << std::endl;
 
                     int moves[]{1,2,3,4};
                     bool found = false;
@@ -686,25 +660,15 @@ void Environment::MakeGameFromPython(int ourId)
                                     if(BMB_POS_X(state->bombs[bomb_index2]) == kickedToPosition.x && BMB_POS_Y(state->bombs[bomb_index2]) == kickedToPosition.y)
                                     {
                                         found = true;
-                                        if(BMB_TIME(state->bombs[bomb_index2]) != BMB_TIME(previousBombs[bomb_index]) - 1)
-                                            std::cout << "Unexpected KICKED bomb time at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
-                                        else
-                                            std::cout << "Matched old and new KICKED bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << " move direction: " << move << std::endl;
-
                                         SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
                                         SetBombVelocity(state->bombs[bomb_index2], move);
                                         break;
                                     }
                                 }
                                 break;
-                            }else{
-                                std::cout << "Bomb was maybe kicked, suspected bombs's time is not good, now at " << kickedToPosition.y << " " << kickedToPosition.x << std::endl;
                             }
                         }
                     }
-
-                    if(!found)
-                        std::cout << "Bomb is lost around " << expectedPosition.y << " " << expectedPosition.x << std::endl;
                 }
 
             }else{
@@ -721,22 +685,11 @@ void Environment::MakeGameFromPython(int ourId)
                         if(BMB_POS(state->bombs[bomb_index2]) == BMB_POS(previousBombs[bomb_index]))
                         {
                             found = true;
-                            if(BMB_TIME(state->bombs[bomb_index2]) != BMB_TIME(previousBombs[bomb_index]) - 1)
-                                std::cout << "Unexpected STOPPED bomb time at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
-                            else
-                                std::cout << "Matched STOPPED old and new bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
-
                             //SetBombVelocity(state->bombs[bomb_index2], 0); //Stopping
                             SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
                             break;
                         }
                     }
-                    if(!found)
-                    {
-                        std::cout << "STOPPED Bomb is lost around " << expectedPosition.y << " " << expectedPosition.x << std::endl;
-                    }
-                }else{
-                    std::cout << "STOPPED Bomb is lost around " << expectedPosition.y << " " << expectedPosition.x << std::endl;
                 }
             }
         }

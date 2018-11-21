@@ -246,7 +246,7 @@ struct AgentInfo
 #define BMB_TIME(x)     (((x) & 0xF0000) >> 16) // [16,20]
 #define BMB_VEL(x)      (((x) & 0xF00000) >> 20) // [20,24]
 
-#define BMB_ID_KNOWN(x) (BMB_ID(x) < BMB_ID_UNKNOWN)
+#define BMB_ID_KNOWN(x) (BMB_ID(x) >= 0 && BMB_ID(x) < BMB_ID_UNKNOWN)
 
 /**
  * Represents all information about a single
