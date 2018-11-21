@@ -222,6 +222,14 @@ void State::ExplodeTopBomb()
     SpawnFlame(BMB_POS_X(c), BMB_POS_Y(c), BMB_STRENGTH(c), BMB_ID(c));
     PopBomb(*this);
 }
+void State::ExplodeBomb(int bombIndex)
+{
+    Bomb& c = bombs[bombIndex];
+    if(BMB_ID_KNOWN(bombs[bombIndex]))
+        agents[BMB_ID(bombs[bombIndex])].bombCount--;
+    SpawnFlame(BMB_POS_X(c), BMB_POS_Y(c), BMB_STRENGTH(c), BMB_ID(c));
+    bombs.RemoveAt(bombIndex);
+}
 
 void State::SpawnFlame(int x, int y, int strength, int agentID)
 {
@@ -744,7 +752,6 @@ int getStep_dortmund(int id, bool agent0Alive, bool agent1Alive, bool agent2Aliv
 
 int getStep_eisenach(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
-
 	eisenachAgents[id]->start_time = std::chrono::high_resolution_clock::now();
 #ifdef VERBOSE_STATE
 	std::cout << std::endl;

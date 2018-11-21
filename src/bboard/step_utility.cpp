@@ -86,9 +86,14 @@ void MoveBombs(State* state, Position d[AGENT_COUNT])
                     }
                 }
                 if (!agentWantsToMoveThere) {
+                    bool explodes = IS_FLAME(state->board[desiredPos.y][desiredPos.x]);
                     state->board[BMB_POS_Y(state->bombs[bombIndex])][BMB_POS_X(state->bombs[bombIndex])] = PASSAGE;
                     SetBombPosition(state->bombs[bombIndex], desiredPos.x, desiredPos.y);
                     state->board[desiredPos.y][desiredPos.x] = BOMB;
+                    if (explodes) {
+                        state->ExplodeBomb(bombIndex);
+                        bombIndex--;
+                    }
                 }
             } else {
                 SetBombVelocity(state->bombs[bombIndex], 0);
@@ -198,6 +203,7 @@ void TickBombs(State& state)
                         Position desiredPos = bboard::util::DesiredPosition(BMB_POS_X(state.bombs[i]), BMB_POS_Y(state.bombs[i]),
                                                                             (bboard::Move) BMB_VEL(state.bombs[i]));
                         if (_CheckPos_any(&state, desiredPos.x, desiredPos.y)) {
+                            //TODO: Add if(explodes)... from other locations function is used
                             state.board[BMB_POS_Y(state.bombs[i])][BMB_POS_X(state.bombs[i])] = PASSAGE;
                             SetBombPosition(state.bombs[i], desiredPos.x, desiredPos.y);
                             state.board[desiredPos.y][desiredPos.x] = BOMB;

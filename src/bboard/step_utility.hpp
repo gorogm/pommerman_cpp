@@ -71,7 +71,13 @@ inline void TickAndMoveBombs(State& state){
                 if (_CheckPos_any(&state, desiredPos.x, desiredPos.y)) {
                     state.board[BMB_POS_Y(state.bombs[i])][BMB_POS_X(state.bombs[i])] = PASSAGE;
                     SetBombPosition(state.bombs[i], desiredPos.x, desiredPos.y);
+                    bool explodes = IS_FLAME(state.board[desiredPos.y][desiredPos.x]);
                     state.board[desiredPos.y][desiredPos.x] = BOMB;
+
+                    if (explodes) {
+                        state.ExplodeBomb(i);
+                        i--;
+                    }
                 }else{
                     SetBombVelocity(state.bombs[i], 0);
                 }

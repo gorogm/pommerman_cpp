@@ -133,6 +133,7 @@ bool Step(State* state, Move* moves)
                 {
                     if(BMB_POS_X(state->bombs[bombi]) == desired.x && BMB_POS_Y(state->bombs[bombi]) == desired.y)
                     {
+                        bool explodes = IS_FLAME(state->board[bombDestPos.y][bombDestPos.x]);
                         SetBombPosition(state->bombs[bombi], bombDestPos.x, bombDestPos.y);
                         SetBombVelocity(state->bombs[bombi], (int)moves[i]);
                         state->board[bombDestPos.y][bombDestPos.x] = BOMB;
@@ -153,6 +154,13 @@ bool Step(State* state, Move* moves)
                                 state->board[y][x] = Item::PASSAGE;
                             }
                         }
+
+                        if(explodes)
+                        {
+                            state->ExplodeBomb(bombi);
+                            bombi--;
+                        }
+
                         break;
                     }
                 }

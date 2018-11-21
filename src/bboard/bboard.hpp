@@ -370,6 +370,7 @@ struct State
      * edge conditions etc.
      */
     void ExplodeTopBomb();
+    void ExplodeBomb(int bombI);
 
     /**
      * @brief hasBomb Returns true if a bomb is at the specified
