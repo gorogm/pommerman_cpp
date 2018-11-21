@@ -292,7 +292,7 @@ namespace agents {
 		//for(int move : moves)
 		for (int move = 0; move < 6; move++)
 		{
-                        stepRess[move] = -10000.0f;
+            stepRess[move] = -10000.0f;
 			Position desiredPos = bboard::util::DesiredPosition(a.x, a.y, (bboard::Move) move);
 			// if we don't have bomb
 			if (move == (int)bboard::Move::BOMB && a.maxBombCount - a.bombCount <= 0)
@@ -564,10 +564,11 @@ May not work now
         for(int i=1; i<6; i++)
         {
             if((float)stepRess[i] > stepRess[bestIndex])
-                bestIndex=i;
+                bestIndex = i;
         }
-if(depth == 0)
-depth_0_Move = bestIndex;
+
+        if(depth == 0)
+            depth_0_Move = bestIndex;
 #endif
 
 		return stepRess[bestIndex];
