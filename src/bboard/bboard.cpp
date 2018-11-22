@@ -631,7 +631,8 @@ void init_agent_eisenach(int id)
 	envs[id] = std::make_shared<bboard::Environment>();
 	eisenachAgents[id] = std::make_shared<agents::EisenachAgent>();
 	envs[id]->MakeGameFromPython(id);
-
+return;
+/*
 	ConfigInfo hyperparams = readHyperparams("/tmp/hyperparams.txt");
 
 	if (hyperparams.count("reward_first_step_idle") > 0) {
@@ -675,7 +676,7 @@ void init_agent_eisenach(int id)
     if (hyperparams.count("weight_of_average_Epoint") > 0) {
         std::cout << "Settings weight_of_average_Epoint to " << hyperparams["weight_of_average_Epoint"] << std::endl;
         eisenachAgents[id]->weight_of_average_Epoint = hyperparams["weight_of_average_Epoint"];
-    }
+    }*/
 }
 
 

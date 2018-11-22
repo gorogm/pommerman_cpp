@@ -269,16 +269,16 @@ struct SimpleAgent : bboard::Agent
         float laterBetter(float reward, int timestamps);
         float soonerBetter(float reward, int timestmaps);
 
-        float reward_first_step_idle = 0.001f;
-        float reward_sooner_later_ratio = 0.98f;
-        float reward_extraBombPowerupPoints = 0.6f;
-        float reward_extraRangePowerupPoints = 0.4f;
-        float reward_otherKickPowerupPoints = 0.2f;
-        float reward_firstKickPowerupPoints = 0.7f;
-        float reward_move_to_enemy = 100.0f;
-        float reward_move_to_pickup = 1000.0f;
-        float reward_woodDemolished = 0.40f;
-        float weight_of_average_Epoint = 0.1f;
+        const float reward_first_step_idle = 0.001f;
+        const float reward_sooner_later_ratio = 0.98f;
+        const float reward_extraBombPowerupPoints = 0.6f;
+        const float reward_extraRangePowerupPoints = 0.4f;
+        const float reward_otherKickPowerupPoints = 0.2f;
+        const float reward_firstKickPowerupPoints = 0.7f;
+        const float reward_move_to_enemy = 100.0f;
+        const float reward_move_to_pickup = 1000.0f;
+        const float reward_woodDemolished = 0.40f;
+        const float weight_of_average_Epoint = 0.1f;
 
         std::set<uint128_t> visitedSteps;
         int ourId, teammateId, enemy1Id, enemy2Id, lastSeenEnemy = 0;
