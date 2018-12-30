@@ -27,6 +27,7 @@ RUN cd /pommerman && pip3 install .
 ADD src /opt/work/pommerman_cpp/src
 ADD CMakeLists.txt /opt/work/pommerman_cpp/CMakeLists.txt
 RUN cd /opt/work/pommerman_cpp && mkdir cmake-build-debug && cd cmake-build-debug && CC=gcc-8 CXX=g++-8 cmake .. && make
+RUN rm -rf /opt/work/pommerman_cpp/src /opt/work/pommerman_cpp/CMakeLists.txt /opt/work/pommerman_cpp/cmake-build-debug/CMakeFiles
 
 EXPOSE 10080
 
