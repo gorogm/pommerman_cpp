@@ -260,13 +260,13 @@ enum FrankfurtMessageTypes
 // BOMB MACROS
 #define BMB_ID_UNKNOWN  5
 
-#define BMB_POS(x)      (((x) & 0xFF))          // [ 0, 8]
-#define BMB_POS_X(x)    (((x) & 0xF))           // [ 0, 4]
-#define BMB_POS_Y(x)    (((x) & 0xF0) >> 4)     // [ 4, 8]
-#define BMB_ID(x)       (((x) & 0xF00) >> 8)    // [ 8,12]
-#define BMB_STRENGTH(x) (((x) & 0xF000) >> 12)  // [12,16]
-#define BMB_TIME(x)     (((x) & 0xF0000) >> 16) // [16,20]
-#define BMB_VEL(x)      (((x) & 0xF00000) >> 20) // [20,24]
+#define BMB_POS(x)      (((x) & 0xFF))          // [ 0, 8[
+#define BMB_POS_X(x)    (((x) & 0xF))           // [ 0, 4[
+#define BMB_POS_Y(x)    (((x) & 0xF0) >> 4)     // [ 4, 8[
+#define BMB_ID(x)       (((x) & 0xF00) >> 8)    // [ 8,12[
+#define BMB_STRENGTH(x) (((x) & 0xF000) >> 12)  // [12,16[
+#define BMB_TIME(x)     (((x) & 0xF0000) >> 16) // [16,20[
+#define BMB_DIR(x)      (((x) & 0xF00000) >> 20)// [20,24[
 
 #define BMB_ID_KNOWN(x) (BMB_ID(x) >= 0 && BMB_ID(x) < BMB_ID_UNKNOWN)
 
@@ -314,9 +314,9 @@ inline void SetBombTime(Bomb& bomb, int time)
 {
     bomb = (bomb & cmask16_20) + (time << 16);
 }
-inline void SetBombVelocity(Bomb& bomb, int vel)
+inline void SetBombDirection(Bomb& bomb, Direction dir)
 {
-	bomb = (bomb & cmask20_24) + (vel<< 20);
+    bomb = (bomb & cmask20_24) + (int(dir) << 20);
 }
 
 /**

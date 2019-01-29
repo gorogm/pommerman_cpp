@@ -164,7 +164,7 @@ void State::PlantBomb(int x, int y, int id, bool setItem)
     SetBombID(*b, id);
     SetBombPosition(*b, x, y);
     SetBombStrength(*b, agents[id].bombStrength);
-    SetBombVelocity(*b, 0);
+    SetBombDirection(*b, Direction::IDLE);
     SetBombTime(*b, BOMB_LIFETIME);
 
     if(setItem)
@@ -505,15 +505,15 @@ void PrintState(const State* state)
             for(int i = 0; i < state->bombs.count; i++)
             {
                 std::cout << BMB_ID(state->bombs[i]) << "(" << BMB_POS_Y(state->bombs[i]) << ":" << BMB_POS_X(state->bombs[i]) << " d:" << BMB_STRENGTH(state->bombs[i]) << " -" << BMB_TIME(state->bombs[i]);
-                if(BMB_VEL(state->bombs[i]) == 0)
+                if(BMB_DIR(state->bombs[i]) == 0)
                     std::cout << " S";
-                else if(BMB_VEL(state->bombs[i]) == 1)
+                else if(BMB_DIR(state->bombs[i]) == 1)
                     std::cout << " U";
-                else if(BMB_VEL(state->bombs[i]) == 2)
+                else if(BMB_DIR(state->bombs[i]) == 2)
                     std::cout << " D";
-                else if(BMB_VEL(state->bombs[i]) == 3)
+                else if(BMB_DIR(state->bombs[i]) == 3)
                     std::cout << " L";
-                else if(BMB_VEL(state->bombs[i]) == 4)
+                else if(BMB_DIR(state->bombs[i]) == 4)
                     std::cout << " R";
                 else
                     std::cout << " ? ";

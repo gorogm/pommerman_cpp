@@ -570,7 +570,7 @@ void Environment::MakeGameFromPython(int ourId)
                         SetBombID(*b, 5); //Unknown bomb
                         SetBombPosition(*b, x, y);
                         SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
-                        //SetBombVelocity(*b, 0);
+                        //SetBombDirection(*b, 0);
                         SetBombTime(*b, bomb_life[i]);
                         //state->agents[bombId].bombCount++;
                         state->bombs.count++;
@@ -618,7 +618,7 @@ void Environment::MakeGameFromPython(int ourId)
                         SetBombID(*b, bombId);
                         SetBombPosition(*b, x, y);
                         SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
-                        SetBombVelocity(*b, 0);
+                        SetBombDirection(*b, Direction::IDLE);
                         SetBombTime(*b, bomb_life[i]);
                         if (bomb_life[i] > 8) //Let's assume it was placed by the guy on the top
                         {
@@ -644,7 +644,7 @@ void Environment::MakeGameFromPython(int ourId)
                 continue;
             }
             Position originalPosition; originalPosition.x = BMB_POS_X(previousBombs[bomb_index]); originalPosition.y = BMB_POS_Y(previousBombs[bomb_index]);
-            Position expectedPosition = bboard::util::DesiredPosition(BMB_POS_X(previousBombs[bomb_index]), BMB_POS_Y(previousBombs[bomb_index]), (bboard::Move) BMB_VEL(previousBombs[bomb_index]));
+            Position expectedPosition = bboard::util::DesiredPosition(BMB_POS_X(previousBombs[bomb_index]), BMB_POS_Y(previousBombs[bomb_index]), (bboard::Move) BMB_DIR(previousBombs[bomb_index]));
             if(_CheckPos_basic(state.get(), expectedPosition.x, expectedPosition.y))
             {
                 //Could move
@@ -656,7 +656,7 @@ void Environment::MakeGameFromPython(int ourId)
                             if(BMB_POS_X(state->bombs[bomb_index2]) == originalPosition.x && BMB_POS_Y(state->bombs[bomb_index2]) == originalPosition.y)
                             {
                                 SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
-                                SetBombVelocity(state->bombs[bomb_index2], 0);
+                                SetBombDirection(state->bombs[bomb_index2], Direction::IDLE);
                                 break;
                             }
                         }
@@ -677,7 +677,7 @@ void Environment::MakeGameFromPython(int ourId)
                         {
                             found = true;
                             SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
-                            SetBombVelocity(state->bombs[bomb_index2], BMB_VEL(previousBombs[bomb_index]));
+                            SetBombDirection(state->bombs[bomb_index2], (Direction)BMB_DIR(previousBombs[bomb_index]));
                             break;
                         }
                     }
@@ -697,7 +697,7 @@ void Environment::MakeGameFromPython(int ourId)
                                     {
                                         found = true;
                                         SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
-                                        SetBombVelocity(state->bombs[bomb_index2], move);
+                                        SetBombDirection(state->bombs[bomb_index2], (Direction )move);
                                         break;
                                     }
                                 }
@@ -711,7 +711,7 @@ void Environment::MakeGameFromPython(int ourId)
                 //Couldn't move
                 if(state->board[BMB_POS_Y(previousBombs[bomb_index])][BMB_POS_X(previousBombs[bomb_index])] == FOG)
                 {
-                    //SetBombVelocity(previousBombs[bomb_index], 0); //Stopping
+                    //SetBombDirection(previousBombs[bomb_index], 0); //Stopping
                     state->bombs.AddElem(previousBombs[bomb_index]);
                     SetBombTime(state->bombs[state->bombs.count - 1], BMB_TIME(previousBombs[bomb_index])-1);
                 }else if(state->board[BMB_POS_Y(previousBombs[bomb_index])][BMB_POS_X(previousBombs[bomb_index])] == BOMB)
@@ -721,7 +721,7 @@ void Environment::MakeGameFromPython(int ourId)
                         if(BMB_POS(state->bombs[bomb_index2]) == BMB_POS(previousBombs[bomb_index]))
                         {
                             found = true;
-                            //SetBombVelocity(state->bombs[bomb_index2], 0); //Stopping
+                            //SetBombDirection(state->bombs[bomb_index2], 0); //Stopping
                             SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
                             break;
                         }
@@ -885,7 +885,7 @@ void Environment::MakeGameFromPython(int ourId)
                         SetBombID(*b, 5); //Unknown bomb
                         SetBombPosition(*b, x, y);
                         SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
-                        //SetBombVelocity(*b, 0);
+                        //SetBombDirection(*b, 0);
                         SetBombTime(*b, bomb_life[i]);
                         //state->agents[bombId].bombCount++;
                         state->bombs.count++;
@@ -933,7 +933,7 @@ void Environment::MakeGameFromPython(int ourId)
                         SetBombID(*b, bombId);
                         SetBombPosition(*b, x, y);
                         SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
-                        SetBombVelocity(*b, 0);
+                        SetBombDirection(*b, (Direction)0);
                         SetBombTime(*b, bomb_life[i]);
                         if (bomb_life[i] > 8) //Let's assume it was placed by the guy on the top
                         {
@@ -959,7 +959,7 @@ void Environment::MakeGameFromPython(int ourId)
                 continue;
             }
             Position originalPosition; originalPosition.x = BMB_POS_X(previousBombs[bomb_index]); originalPosition.y = BMB_POS_Y(previousBombs[bomb_index]);
-            Position expectedPosition = bboard::util::DesiredPosition(BMB_POS_X(previousBombs[bomb_index]), BMB_POS_Y(previousBombs[bomb_index]), (bboard::Move) BMB_VEL(previousBombs[bomb_index]));
+            Position expectedPosition = bboard::util::DesiredPosition(BMB_POS_X(previousBombs[bomb_index]), BMB_POS_Y(previousBombs[bomb_index]), (bboard::Move) BMB_DIR(previousBombs[bomb_index]));
             if (_CheckPos_basic(state.get(), expectedPosition.x, expectedPosition.y))
             {
                 //Could move
@@ -971,7 +971,7 @@ void Environment::MakeGameFromPython(int ourId)
                             if (BMB_POS_X(state->bombs[bomb_index2]) == originalPosition.x && BMB_POS_Y(state->bombs[bomb_index2]) == originalPosition.y)
                             {
                                 SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
-                                SetBombVelocity(state->bombs[bomb_index2], 0);
+                                SetBombDirection(state->bombs[bomb_index2], (Direction)0);
                                 break;
                             }
                         }
@@ -995,7 +995,7 @@ void Environment::MakeGameFromPython(int ourId)
                         {
                             found = true;
                             SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
-                            SetBombVelocity(state->bombs[bomb_index2], BMB_VEL(previousBombs[bomb_index]));
+                            SetBombDirection(state->bombs[bomb_index2], (Direction)BMB_DIR(previousBombs[bomb_index]));
                             break;
                         }
                     }
@@ -1020,7 +1020,7 @@ void Environment::MakeGameFromPython(int ourId)
                                     {
                                         found = true;
                                         SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
-                                        SetBombVelocity(state->bombs[bomb_index2], move);
+                                        SetBombDirection(state->bombs[bomb_index2], (Direction)move);
                                         break;
                                     }
                                 }
@@ -1035,7 +1035,7 @@ void Environment::MakeGameFromPython(int ourId)
                 //Couldn't move
                 if (state->board[BMB_POS_Y(previousBombs[bomb_index])][BMB_POS_X(previousBombs[bomb_index])] == FOG)
                 {
-                    //SetBombVelocity(previousBombs[bomb_index], 0); //Stopping
+                    //SetBombDirection(previousBombs[bomb_index], 0); //Stopping
                     state->bombs.AddElem(previousBombs[bomb_index]);
                     SetBombTime(state->bombs[state->bombs.count - 1], BMB_TIME(previousBombs[bomb_index]) - 1);
                 }
@@ -1047,7 +1047,7 @@ void Environment::MakeGameFromPython(int ourId)
                         {
                             found = true;
 
-                            //SetBombVelocity(state->bombs[bomb_index2], 0); //Stopping
+                            //SetBombDirection(state->bombs[bomb_index2], 0); //Stopping
                             SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
                             break;
                         }
@@ -1251,7 +1251,7 @@ void Environment::MakeGameFromPython(int ourId)
                         SetBombID(*b, 5); //Unknown bomb
                         SetBombPosition(*b, x, y);
                         SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
-                        //SetBombVelocity(*b, 0);
+                        //SetBombDirection(*b, 0);
                         SetBombTime(*b, bomb_life[i]);
                         //state->agents[bombId].bombCount++;
                         state->bombs.count++;
@@ -1313,7 +1313,7 @@ void Environment::MakeGameFromPython(int ourId)
                         SetBombID(*b, bombId);
                         SetBombPosition(*b, x, y);
                         SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
-                        SetBombVelocity(*b, 0);
+                        SetBombDirection(*b, Direction::IDLE);
                         SetBombTime(*b, bomb_life[i]);
                         if (bomb_life[i] > 8) //Let's assume it was placed by the guy on the top
                         {
@@ -1341,7 +1341,7 @@ void Environment::MakeGameFromPython(int ourId)
                 continue;
             }
             Position originalPosition; originalPosition.x = BMB_POS_X(previousBombs[bomb_index]); originalPosition.y = BMB_POS_Y(previousBombs[bomb_index]);
-            Position expectedPosition = bboard::util::DesiredPosition(BMB_POS_X(previousBombs[bomb_index]), BMB_POS_Y(previousBombs[bomb_index]), (bboard::Move) BMB_VEL(previousBombs[bomb_index]));
+            Position expectedPosition = bboard::util::DesiredPosition(BMB_POS_X(previousBombs[bomb_index]), BMB_POS_Y(previousBombs[bomb_index]), (bboard::Move) BMB_DIR(previousBombs[bomb_index]));
             if (_CheckPos_basic(state.get(), expectedPosition.x, expectedPosition.y))
             {
                 //Could move
@@ -1360,7 +1360,7 @@ void Environment::MakeGameFromPython(int ourId)
                                     std::cout << "Matched old and new STOP-FOG bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
 
                                 SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
-                                SetBombVelocity(state->bombs[bomb_index2], 0);
+                                SetBombDirection(state->bombs[bomb_index2], Direction::IDLE);
                                 break;
                             }
                         }
@@ -1394,7 +1394,7 @@ void Environment::MakeGameFromPython(int ourId)
 #endif
 
                             SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
-                            SetBombVelocity(state->bombs[bomb_index2], BMB_VEL(previousBombs[bomb_index]));
+                            SetBombDirection(state->bombs[bomb_index2], (Direction)BMB_DIR(previousBombs[bomb_index]));
                             break;
                         }
                     }
@@ -1427,7 +1427,7 @@ void Environment::MakeGameFromPython(int ourId)
                                             std::cout << "Matched old and new KICKED bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << " move direction: " << move << std::endl;
 
                                         SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
-                                        SetBombVelocity(state->bombs[bomb_index2], move);
+                                        SetBombDirection(state->bombs[bomb_index2], (Direction)move);
                                         break;
                                     }
                                 }
@@ -1448,7 +1448,7 @@ void Environment::MakeGameFromPython(int ourId)
                 //Couldn't move
                 if (state->board[BMB_POS_Y(previousBombs[bomb_index])][BMB_POS_X(previousBombs[bomb_index])] == FOG)
                 {
-                    //SetBombVelocity(previousBombs[bomb_index], 0); //Stopping
+                    //SetBombDirection(previousBombs[bomb_index], 0); //Stopping
                     state->bombs.AddElem(previousBombs[bomb_index]);
                     SetBombTime(state->bombs[state->bombs.count - 1], BMB_TIME(previousBombs[bomb_index]) - 1);
                 }
@@ -1464,7 +1464,7 @@ void Environment::MakeGameFromPython(int ourId)
                             else
                                 std::cout << "Matched STOPPED old and new bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
 
-                            //SetBombVelocity(state->bombs[bomb_index2], 0); //Stopping
+                            //SetBombDirection(state->bombs[bomb_index2], 0); //Stopping
                             SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
                             break;
                         }

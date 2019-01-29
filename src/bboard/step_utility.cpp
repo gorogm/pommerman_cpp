@@ -71,9 +71,9 @@ bool FixSwitchMove(State* s, Position d[AGENT_COUNT])
 void MoveBombs(State* state, Position d[AGENT_COUNT])
 {
     for(int bombIndex=0; bombIndex <state->bombs.count; bombIndex++) {
-        if (BMB_VEL(state->bombs[bombIndex]) > 0) {
+        if (BMB_DIR(state->bombs[bombIndex]) > 0) {
             Position desiredPos = bboard::util::DesiredPosition(BMB_POS_X(state->bombs[bombIndex]), BMB_POS_Y(state->bombs[bombIndex]),
-                                                                (bboard::Move) BMB_VEL(state->bombs[bombIndex]));
+                                                                (bboard::Move) BMB_DIR(state->bombs[bombIndex]));
             if (bboard::_CheckPos_any(state, desiredPos.x, desiredPos.y)) {
                 bool agentWantsToMoveThere = false;
                 for (int i = 0; i < AGENT_COUNT; i++) {
@@ -81,7 +81,7 @@ void MoveBombs(State* state, Position d[AGENT_COUNT])
                         //Agent stays
                         d[i].x = state->agents[i].x;
                         d[i].y = state->agents[i].y;
-                        SetBombVelocity(state->bombs[bombIndex], 0);
+                        SetBombDirection(state->bombs[bombIndex], Direction::IDLE);
                         break;
                     }
                 }
@@ -96,7 +96,7 @@ void MoveBombs(State* state, Position d[AGENT_COUNT])
                     }
                 }
             } else {
-                SetBombVelocity(state->bombs[bombIndex], 0);
+                SetBombDirection(state->bombs[bombIndex], Direction::IDLE);
             }
         }
     }
@@ -198,9 +198,9 @@ void TickBombs(State& state)
                     i--;
                 } else {
                     minRemaining = std::min(minRemaining, BMB_TIME(state.bombs[i]));
-                    if (BMB_VEL(state.bombs[i]) > 0) {
+                    if (BMB_DIR(state.bombs[i]) > 0) {
                         Position desiredPos = bboard::util::DesiredPosition(BMB_POS_X(state.bombs[i]), BMB_POS_Y(state.bombs[i]),
-                                                                            (bboard::Move) BMB_VEL(state.bombs[i]));
+                                                                            (bboard::Move) BMB_DIR(state.bombs[i]));
                         if (_CheckPos_any(&state, desiredPos.x, desiredPos.y)) {
                             //TODO: Add if(explodes)... from other locations function is used
                             state.board[BMB_POS_Y(state.bombs[i])][BMB_POS_X(state.bombs[i])] = PASSAGE;
@@ -208,7 +208,7 @@ void TickBombs(State& state)
                             state.board[desiredPos.y][desiredPos.x] = BOMB;
                             anyBodyMoves = true;
                         } else {
-                            SetBombVelocity(state.bombs[i], 0);
+                            SetBombDirection(state.bombs[i], Direction::IDLE);
                         }
                     }
                 }

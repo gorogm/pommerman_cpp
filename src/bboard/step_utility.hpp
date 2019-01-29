@@ -66,8 +66,8 @@ inline void TickAndMoveBombs(State& state){
         }
         else
         {
-            if(BMB_VEL(state.bombs[i]) > 0) {
-                Position desiredPos = bboard::util::DesiredPosition(BMB_POS_X(state.bombs[i]), BMB_POS_Y(state.bombs[i]), (bboard::Move) BMB_VEL(state.bombs[i]));
+            if(BMB_DIR(state.bombs[i]) > 0) {
+                Position desiredPos = bboard::util::DesiredPosition(BMB_POS_X(state.bombs[i]), BMB_POS_Y(state.bombs[i]), (bboard::Move) BMB_DIR(state.bombs[i]));
                 if (_CheckPos_any(&state, desiredPos.x, desiredPos.y)) {
                     state.board[BMB_POS_Y(state.bombs[i])][BMB_POS_X(state.bombs[i])] = PASSAGE;
                     SetBombPosition(state.bombs[i], desiredPos.x, desiredPos.y);
@@ -79,13 +79,19 @@ inline void TickAndMoveBombs(State& state){
                         i--;
                     }
                 }else{
-                    SetBombVelocity(state.bombs[i], 0);
+                    SetBombDirection(state.bombs[i], Direction::IDLE);
                 }
             }
         }
     }
 }
 void TickAndMoveBombs10(State& state);
+
+/**
+ * @brief MoveBombsForward moves all bombs forward that have been
+ * kicked before by 1 position.
+ */
+void MoveBombsForward(State& state);
 
 /**
  * @brief ConsumePowerup Lets an agent consume a powerup

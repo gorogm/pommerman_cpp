@@ -15,6 +15,11 @@ bool Step(State* state, Move* moves)
 
     util::TickFlames(*state);
 
+    ////////////////////////////
+    //  Kicked Bomb Movement  //
+    ////////////////////////////
+
+
     ///////////////////////
     //  Player Movement  //
     ///////////////////////
@@ -135,7 +140,7 @@ bool Step(State* state, Move* moves)
                     {
                         bool explodes = IS_FLAME(state->board[bombDestPos.y][bombDestPos.x]);
                         SetBombPosition(state->bombs[bombi], bombDestPos.x, bombDestPos.y);
-                        SetBombVelocity(state->bombs[bombi], (int)moves[i]);
+                        SetBombDirection(state->bombs[bombi], (Direction)moves[i]);
                         state->board[bombDestPos.y][bombDestPos.x] = BOMB;
                         state->board[desired.y][desired.x] = Item::AGENT0 + i;
                         state->agents[i].x = desired.x;
