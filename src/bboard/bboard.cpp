@@ -45,11 +45,7 @@ inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature, int agent
         {
             if(BMB_POS(s.bombs[i]) == (x + (y << 4)))
             {
-                int bombStrength = BMB_STRENGTH(s.bombs[i]);
-                if(BMB_ID_KNOWN(s.bombs[i]))
-                    s.agents[BMB_ID(s.bombs[i])].bombCount--;
-                s.bombs.RemoveAt(i);
-                s.SpawnFlame(x, y, bombStrength, agentID);
+                s.ExplodeBombAt(i);
                 break;
             }
         }
@@ -151,6 +147,15 @@ bool _CheckPos_any(State * state, int x, int y)
 ///////////////////
 // State Methods //
 ///////////////////
+
+void State::ExplodeBombAt(int i)
+{
+    int x = BMB_POS_X(bombs[i]);
+    int y = BMB_POS_Y(bombs[i]);
+    SpawnFlame(x, y, agents[BMB_ID(bombs[i])].bombStrength);
+    agents[BMB_ID(bombs[i])].bombCount--;
+    bombs.RemoveAt(i);
+}
 
 void State::PlantBomb(int x, int y, int id, bool setItem)
 {
