@@ -246,6 +246,11 @@ bool Step(State* state, Move* moves)
 
         if(!util::IsOutOfBounds(target) && !staticMovementBlock)
         {
+            if(util::HasBombCollision(*state, b))
+            {
+                util::ResolveBombCollision(*state, b);
+                continue;
+            }
             if(state->board[by][bx] == Item::BOMB)
             {
                 state->board[by][bx] = Item::PASSAGE;
