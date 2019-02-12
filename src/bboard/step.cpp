@@ -250,7 +250,7 @@ bool Step(State* state, Move* moves)
         {
             if(util::HasBombCollision(*state, b, i))
             {
-                util::ResolveBombCollision(*state, b, i);
+                util::ResolveBombCollision(*state, moves, b, i);
                 continue;
             }
         }
@@ -265,7 +265,7 @@ bool Step(State* state, Move* moves)
         {
             if(util::HasBombCollision(*state, b, i))
             {
-                util::ResolveBombCollision(*state, b, i);
+                util::ResolveBombCollision(*state, moves, b, i);
                 continue;
             }
 
