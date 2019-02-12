@@ -225,6 +225,9 @@ bool Step(State* state, Move* moves)
         }
     }
 
+    // Before moving bombs, reset their "moved" flags
+    util::ResetBombFlags(*state);
+
     // Move bombs
     for(int i = 0; i < state->bombs.count; i++)
     {
@@ -246,17 +249,19 @@ bool Step(State* state, Move* moves)
 
         if(!util::IsOutOfBounds(target) && !staticMovementBlock)
         {
-            if(util::HasBombCollision(*state, b))
+            if(util::HasBombCollision(*state, b, i))
             {
-                util::ResolveBombCollision(*state, b);
+                util::ResolveBombCollision(*state, b, i);
                 continue;
             }
-            if(state->board[by][bx] == Item::BOMB)
+
+            // MOVE BOMB
+            SetBombPosition(b, target.x, target.y);
+
+            if(!state->HasBomb(bx, by) && state->board[by][bx] == Item::BOMB)
             {
                 state->board[by][bx] = Item::PASSAGE;
             }
-
-            SetBombPosition(b, target.x, target.y);
 
             if(IS_WALKABLE(tItem))
             {
