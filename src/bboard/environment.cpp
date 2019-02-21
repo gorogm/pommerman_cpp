@@ -1556,6 +1556,11 @@ void CollectMovesAsync(Move m[AGENT_COUNT], Environment& e)
     }
 }
 
+Move Environment::GetLastMove(int agentID)
+{
+    return lastMoves[agentID];
+}
+
 void Environment::Step(bool competitiveTimeLimit)
 {
     if(!hasStarted || finished)
@@ -1577,10 +1582,10 @@ void Environment::Step(bool competitiveTimeLimit)
             if(!state->agents[i].dead)
             {
                 m[i] = agents[i]->act(state.get());
+                lastMoves[i] = m[i];
             }
         }
     }
-
 
     bboard::Step(state.get(), m);
     state->timeStep++;
