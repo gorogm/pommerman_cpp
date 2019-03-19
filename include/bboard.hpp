@@ -627,7 +627,7 @@ public:
     /**
      * @brief MakeGame Initializes the state
      */
-    void MakeGame(std::array<Agent*, AGENT_COUNT> a);
+    void MakeGame(std::array<Agent*, AGENT_COUNT> a, bool randomizePositions = false);
     void MakeGameFromPython(int ourId);
     void MakeGameFromPython_berlin(bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id);
     void MakeGameFromPython_cologne(bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id);
