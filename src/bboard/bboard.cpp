@@ -152,7 +152,7 @@ void State::ExplodeBombAt(int i)
 {
     int x = BMB_POS_X(bombs[i]);
     int y = BMB_POS_Y(bombs[i]);
-    SpawnFlame(x, y, agents[BMB_ID(bombs[i])].bombStrength);
+    SpawnFlame(x, y, agents[BMB_ID(bombs[i])].bombStrength, BMB_ID(bombs[i]));
     agents[BMB_ID(bombs[i])].bombCount--;
     bombs.RemoveAt(i);
 }
