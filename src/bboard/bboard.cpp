@@ -839,7 +839,7 @@ int getStep_eisenach(int id, bool agent0Alive, bool agent1Alive, bool agent2Aliv
 
 int getStep_frankfurt(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
-    eisenachAgents[id]->start_time = std::chrono::high_resolution_clock::now();
+    frankfurtAgents[id]->start_time = std::chrono::high_resolution_clock::now();
 #ifdef VERBOSE_STATE
     std::cout << std::endl;
 #endif
@@ -857,6 +857,8 @@ int getStep_frankfurt(int id, bool agent0Alive, bool agent1Alive, bool agent2Ali
 
 void tests()
 {
+    int tests_run = 0;
+    int successful_tests = 0;
     int id = 1;
     bboard::Move moves_in_one_step[4];
 
@@ -887,9 +889,17 @@ std::cout << "TEST: DEFENSE KICK" << std::endl;
     bomb_blast_strength[5 * 11 + 4] = 2;
 
     init_agent_eisenach(1);
+    auto start_time = std::chrono::high_resolution_clock::now();
     int step = getStep_eisenach(1, true, true, false, false, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
-    std::cout << "TEST RESULT: " << 3 << " " << step << std::endl;
+    PrintState(&envs[id]->GetState());
+    int expected_result = 3;
+    bool success = expected_result == step;
+    tests_run++;
+    if(success) successful_tests++;
+    size_t millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
+    std::cout << "TEST RESULT: " << expected_result << " =?=  " << step << " success: " << success << " time: " << millis << std::endl;
     episode_end_eisenach(1);
+
 std::cout << "TEST: DON'T STEP ON FLAME" << std::endl;
     memset(board, 0, 11*11*sizeof(uint8_t));
     memset(bomb_life, 0, 11*11*sizeof(double));
@@ -912,10 +922,16 @@ std::cout << "TEST: DON'T STEP ON FLAME" << std::endl;
     moves_in_one_step[2] = bboard::Move::IDLE;
     moves_in_one_step[3] = bboard::Move::IDLE;
     envs[id]->GetState().timeStep = 100;
+    PrintState(&envs[id]->GetState());
     moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
     bboard::Step(&envs[id]->GetState(), moves_in_one_step);
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    std::cout << "TEST RESULT: " << 0 << " " << (int)moves_in_one_step[id] << std::endl;
+    //std::this_thread::sleep_for(std::chrono::milliseconds(50)); // ez mi???
+    expected_result = 0;
+    success = expected_result == (int)moves_in_one_step[id];
+    tests_run++;
+    if(success) successful_tests++;
+    millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
+    std::cout << "TEST RESULT: " << expected_result << " =?=  " << (int)moves_in_one_step[id] << " success: " << success << " time: " << millis << std::endl;
     episode_end_eisenach(id);
 
 std::cout << "TEST: DON'T PUSH BOMB TO FLAME" << std::endl;
@@ -935,6 +951,7 @@ std::cout << "TEST: DON'T PUSH BOMB TO FLAME" << std::endl;
 
     init_agent_eisenach(id);
     getStep_eisenach(id, true, true, true, true, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
+    PrintState(&envs[id]->GetState());
     moves_in_one_step[0] = bboard::Move::IDLE;
     moves_in_one_step[1] = bboard::Move::IDLE;
     moves_in_one_step[2] = bboard::Move::IDLE;
@@ -942,8 +959,14 @@ std::cout << "TEST: DON'T PUSH BOMB TO FLAME" << std::endl;
     envs[id]->GetState().timeStep = 100;
     moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
     bboard::Step(&envs[id]->GetState(), moves_in_one_step);
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    std::cout << "TEST RESULT: " << 4 << " " << (int)moves_in_one_step[id] << std::endl;
+    //std::this_thread::sleep_for(std::chrono::milliseconds(50)); // ez mi??
+    expected_result = 4;
+    success = expected_result == (int)moves_in_one_step[id];
+    tests_run++;
+    if(success) successful_tests++;
+    millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
+    std::cout << "TEST RESULT: " << expected_result << " =?=  " << (int)moves_in_one_step[id] << " success: " << success << " time: " << millis << std::endl;
+
     episode_end_eisenach(id);
 
 std::cout << "TEST: GOING AROUND" << std::endl;
@@ -954,6 +977,7 @@ std::cout << "TEST: GOING AROUND" << std::endl;
 
     init_agent_eisenach(id);
     getStep_eisenach(id, true, true, true, true, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
+    PrintState(&envs[id]->GetState());
     moves_in_one_step[0] = bboard::Move::IDLE;
     moves_in_one_step[1] = bboard::Move::IDLE;
     moves_in_one_step[2] = bboard::Move::IDLE;
@@ -961,8 +985,15 @@ std::cout << "TEST: GOING AROUND" << std::endl;
     envs[id]->GetState().timeStep = 100;
     for(int i=0; i<30; i++) {
         moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
-        if(i == 0)
-            std::cout << "TEST RESULT: " << 1 << " " << (int)moves_in_one_step[id] << std::endl;
+        //PrintState(&envs[id]->GetState());
+        if(i == 0) {
+            expected_result = 1;
+            success = expected_result == (int)moves_in_one_step[id];
+            tests_run++;
+            if(success) successful_tests++;
+            millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
+            std::cout << "TEST RESULT: " << expected_result << " =?=  " << (int)moves_in_one_step[id] << " success: " << success << " time: " << millis << std::endl;
+        }
         bboard::Step(&envs[id]->GetState(), moves_in_one_step);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
@@ -977,6 +1008,7 @@ std::cout << "TEST: RUSHING" << std::endl;
 
     init_agent_eisenach(id);
     getStep_eisenach(id, true, true, true, true, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 11);
+    PrintState(&envs[id]->GetState());
     moves_in_one_step[4]; //was: moves
     moves_in_one_step[0] = bboard::Move::IDLE;
     moves_in_one_step[1] = bboard::Move::IDLE;
@@ -985,8 +1017,14 @@ std::cout << "TEST: RUSHING" << std::endl;
     envs[id]->GetState().timeStep = 0;
     for(int i=0; i<20; i++) {
         moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
-        if(i == 0)
-            std::cout << "TEST RESULT: " << 1 << " " << (int)moves_in_one_step[id] << std::endl;
+        if(i == 0) {
+            expected_result = 1;
+            success = expected_result == (int)moves_in_one_step[id];
+            tests_run++;
+            if(success) successful_tests++;
+            millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
+            std::cout << "TEST RESULT: " << expected_result << " =?=  " << (int)moves_in_one_step[id] << " success: " << success << " time: " << millis << std::endl;
+        }
         bboard::Step(&envs[id]->GetState(), moves_in_one_step);
         //std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
@@ -1018,6 +1056,7 @@ std::cout<< "TEST: Attack with kick-bomb" << std::endl;
 
     init_agent_eisenach(id);
     getStep_eisenach(id, true, true, true, true, board, bomb_life, bomb_blast_strength, 4, 4, 3, true, 1, 13);
+    PrintState(&envs[id]->GetState());
     moves_in_one_step[4]; //was: moves
     moves_in_one_step[0] = bboard::Move::IDLE;
     moves_in_one_step[1] = bboard::Move::IDLE;
@@ -1028,12 +1067,21 @@ std::cout<< "TEST: Attack with kick-bomb" << std::endl;
         envs[id]->GetState().timeStep++;
         PrintState(&envs[id]->GetState());
         moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
-        if(i == 0)
-            std::cout << "TEST RESULT: " << 5 << " " << (int)moves_in_one_step[id] << std::endl;
+        if(i == 0) {
+            expected_result = 5;
+            success = expected_result == (int)moves_in_one_step[id];
+            tests_run++;
+            if(success) successful_tests++;
+            millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
+            std::cout << "TEST RESULT: " << expected_result << " =?=  " << (int)moves_in_one_step[id] << " success: " << success << " time: " << millis << std::endl;
+        }
         bboard::Step(&envs[id]->GetState(), moves_in_one_step);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
     episode_end_eisenach(id);
+
+
+    std::cout << "\n\nFrom " << std::to_string(tests_run) << " tests " << std::to_string(successful_tests) << " were successful, that is " << std::to_string(100.0f * successful_tests / tests_run) << "%" << std::endl;
 }
 
 
