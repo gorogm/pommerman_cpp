@@ -88,6 +88,14 @@ enum PyItem
     PyAGENT3 = 13
 };
 
+enum GameType
+{
+    FFA = 1,
+    Team = 2,
+    TeamRadio = 3,
+    OneVsOne = 4
+};
+
 #define IS_WOOD(x)       (((x) >> 8) == 2)
 #define IS_POWERUP(x)    ((x) > 5 && (x) < 9)
 #define IS_WALKABLE(x)   (IS_POWERUP((x)) || (x) == 0)
@@ -235,6 +243,17 @@ struct AgentInfo
     float otherKickPowerupPoints = 0.0f;
     float firstKickPowerupPoints = 0.0f;
     float woodDemolished = 0.0f;
+};
+
+enum FrankfurtMessageTypes
+{
+    MaxBombCount1 = 1,
+    CanKick2 = 2,
+    PositionX3 = 3,
+    PositionY4 = 4,
+    AttackNorth5 = 5,
+    BombStrength6 = 6,
+    Unused7 = 7
 };
 
 
@@ -516,7 +535,7 @@ public:
     void MakeGameFromPython_cologne(bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id);
     void MakeGameFromPython_dortmund(bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id);
     void MakeGameFromPython_eisenach(bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id);
-    void MakeGameFromPython_frankfurt(bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id);
+    void MakeGameFromPython_frankfurt(bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, double * bomb_moving_direction, double * flame_life, int posx, int posy, int blast_strength, bool can_kick, int ammo, int game_type, int teammate_id, int message1, int message2);
 
     /**
      * @brief StartGame starts a game and prints in the terminal output

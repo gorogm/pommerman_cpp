@@ -690,45 +690,45 @@ void init_agent_frankfurt(int id)
 
 	if (hyperparams.count("reward_first_step_idle") > 0) {
 		std::cout << "Settings reward_first_step_idle to " << hyperparams["reward_first_step_idle"] << std::endl;
-		eisenachAgents[id]->reward_first_step_idle = hyperparams["reward_first_step_idle"];
+		frankfurtAgents[id]->reward_first_step_idle = hyperparams["reward_first_step_idle"];
 	}
 	if (hyperparams.count("reward_sooner_later_ratio") > 0) {
 		std::cout << "Settings reward_sooner_later_ratio to " << hyperparams["reward_sooner_later_ratio"] << std::endl;
-		eisenachAgents[id]->reward_sooner_later_ratio = hyperparams["reward_sooner_later_ratio"];
+		frankfurtAgents[id]->reward_sooner_later_ratio = hyperparams["reward_sooner_later_ratio"];
 	}
 
     if (hyperparams.count("reward_extraBombPowerupPoints") > 0) {
         std::cout << "Settings reward_extraBombPowerupPoints to " << hyperparams["reward_extraBombPowerupPoints"] << std::endl;
-        eisenachAgents[id]->reward_extraBombPowerupPoints = hyperparams["reward_extraBombPowerupPoints"];
+        frankfurtAgents[id]->reward_extraBombPowerupPoints = hyperparams["reward_extraBombPowerupPoints"];
     }
     if (hyperparams.count("reward_extraRangePowerupPoints") > 0) {
         std::cout << "Settings reward_extraRangePowerupPoints to " << hyperparams["reward_extraRangePowerupPoints"] << std::endl;
-        eisenachAgents[id]->reward_extraRangePowerupPoints = hyperparams["reward_extraRangePowerupPoints"];
+        frankfurtAgents[id]->reward_extraRangePowerupPoints = hyperparams["reward_extraRangePowerupPoints"];
     }
     if (hyperparams.count("reward_otherKickPowerupPoints") > 0) {
         std::cout << "Settings reward_otherKickPowerupPoints to " << hyperparams["reward_otherKickPowerupPoints"] << std::endl;
-        eisenachAgents[id]->reward_otherKickPowerupPoints = hyperparams["reward_otherKickPowerupPoints"];
+        frankfurtAgents[id]->reward_otherKickPowerupPoints = hyperparams["reward_otherKickPowerupPoints"];
     }
     if (hyperparams.count("reward_firstKickPowerupPoints") > 0) {
         std::cout << "Settings reward_firstKickPowerupPoints to " << hyperparams["reward_firstKickPowerupPoints"] << std::endl;
-        eisenachAgents[id]->reward_firstKickPowerupPoints = hyperparams["reward_firstKickPowerupPoints"];
+        frankfurtAgents[id]->reward_firstKickPowerupPoints = hyperparams["reward_firstKickPowerupPoints"];
     }
 
 	if (hyperparams.count("reward_move_to_enemy") > 0) {
 		std::cout << "Settings reward_move_to_enemy to " << hyperparams["reward_move_to_enemy"] << std::endl;
-		eisenachAgents[id]->reward_move_to_enemy = hyperparams["reward_move_to_enemy"];
+		frankfurtAgents[id]->reward_move_to_enemy = hyperparams["reward_move_to_enemy"];
 	}
 	if (hyperparams.count("reward_move_to_pickup") > 0) {
 		std::cout << "Settings reward_move_to_pickup to " << hyperparams["reward_move_to_pickup"] << std::endl;
-		eisenachAgents[id]->reward_move_to_pickup = hyperparams["reward_move_to_pickup"];
+		frankfurtAgents[id]->reward_move_to_pickup = hyperparams["reward_move_to_pickup"];
 	}
     if (hyperparams.count("reward_woodDemolished") > 0) {
         std::cout << "Settings reward_woodDemolished to " << hyperparams["reward_woodDemolished"] << std::endl;
-        eisenachAgents[id]->reward_woodDemolished = hyperparams["reward_woodDemolished"];
+        frankfurtAgents[id]->reward_woodDemolished = hyperparams["reward_woodDemolished"];
     }
     if (hyperparams.count("weight_of_average_Epoint") > 0) {
         std::cout << "Settings weight_of_average_Epoint to " << hyperparams["weight_of_average_Epoint"] << std::endl;
-        eisenachAgents[id]->weight_of_average_Epoint = hyperparams["weight_of_average_Epoint"];
+        frankfurtAgents[id]->weight_of_average_Epoint = hyperparams["weight_of_average_Epoint"];
     }*/
 }
 
@@ -848,14 +848,14 @@ int getStep_eisenach(int id, bool agent0Alive, bool agent1Alive, bool agent2Aliv
     return (int)eisenachAgents[id]->act(&envs[id]->GetState());
 }
 
-int getStep_frankfurt(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+int getStep_frankfurt(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, double * bomb_moving_direction, double * flame_life, int posx, int posy, int blast_strength, bool can_kick, int ammo, int game_type, int teammate_id, int message1, int message2)
 {
     frankfurtAgents[id]->start_time = std::chrono::high_resolution_clock::now();
 #ifdef VERBOSE_STATE
     std::cout << std::endl;
 #endif
 
-    envs[id]->MakeGameFromPython_frankfurt(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+    envs[id]->MakeGameFromPython_frankfurt(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, bomb_moving_direction, flame_life, posx, posy, blast_strength, can_kick, ammo, game_type, teammate_id, message1, message2);
 
     frankfurtAgents[id]->id = envs[id]->GetState().ourId;
 #ifdef VERBOSE_STATE
@@ -864,6 +864,11 @@ int getStep_frankfurt(int id, bool agent0Alive, bool agent1Alive, bool agent2Ali
 
     // Ask the agent where to go
     return (int)frankfurtAgents[id]->act(&envs[id]->GetState());
+}
+
+int getMessage_frankfurt(int id, int messagePart)
+{
+    return frankfurtAgents[id]->message[messagePart];
 }
 
 void tests()
@@ -876,11 +881,15 @@ void tests()
     uint8_t * board = new uint8_t[11*11];
     double * bomb_life = new double[11*11];
     double * bomb_blast_strength = new double[11*11];
+    double * bomb_movement = new double[11*11];
+    double * flame_life = new double[11*11];
 
 std::cout << "TEST: DEFENSE KICK" << std::endl;
     memset(board, 0, 11*11*sizeof(uint8_t));
     memset(bomb_life, 0, 11*11*sizeof(double));
     memset(bomb_blast_strength, 0, 11*11*sizeof(double));
+    memset(bomb_movement, 0, 11*11*sizeof(double));
+    memset(flame_life, 0, 11*11*sizeof(double));
     board[4 * 11 + 4] = bboard::PyAGENT1;
     board[4 * 11 + 3] = bboard::PyBOMB;
     board[4 * 11 + 5] = bboard::PyBOMB;
@@ -899,9 +908,9 @@ std::cout << "TEST: DEFENSE KICK" << std::endl;
     bomb_blast_strength[3 * 11 + 4] = 2;
     bomb_blast_strength[5 * 11 + 4] = 2;
 
-    init_agent_eisenach(1);
+    init_agent_frankfurt(1);
     auto start_time = std::chrono::high_resolution_clock::now();
-    int step = getStep_eisenach(1, true, true, false, false, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
+    int step = getStep_frankfurt(1, true, true, false, false, board, bomb_life, bomb_blast_strength, bomb_movement, flame_life, 4, 4, 1, true, 0, bboard::GameType::Team, 13, -1, -1);
     PrintState(&envs[id]->GetState());
     int expected_result = 3;
     bool success = expected_result == step;
@@ -909,12 +918,14 @@ std::cout << "TEST: DEFENSE KICK" << std::endl;
     if(success) successful_tests++;
     size_t millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
     std::cout << "TEST RESULT: " << expected_result << " =?=  " << step << " success: " << success << " time: " << millis << std::endl;
-    episode_end_eisenach(1);
+    episode_end_frankfurt(1);
 
 std::cout << "TEST: DON'T STEP ON FLAME" << std::endl;
     memset(board, 0, 11*11*sizeof(uint8_t));
     memset(bomb_life, 0, 11*11*sizeof(double));
     memset(bomb_blast_strength, 0, 11*11*sizeof(double));
+    memset(bomb_movement, 0, 11*11*sizeof(double));
+    memset(flame_life, 0, 11*11*sizeof(double));
     board[4 * 11 + 4] = bboard::PyAGENT0 + id;
     board[4 * 11 + 4] = bboard::PyAGENT1;
     board[4 * 11 + 3] = bboard::PyFLAMES;
@@ -926,15 +937,15 @@ std::cout << "TEST: DON'T STEP ON FLAME" << std::endl;
     board[2 * 11 + 4] = bboard::PyFLAMES;
     board[6 * 11 + 4] = bboard::PyFLAMES;
 
-    init_agent_eisenach(id);
-    getStep_eisenach(id, true, true, true, true, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
+    init_agent_frankfurt(id);
+    getStep_frankfurt(id, true, true, true, true, board, bomb_life, bomb_blast_strength, bomb_movement, flame_life, 4, 4, 1, true, 0, bboard::GameType::Team, 13, -1, -1);
     moves_in_one_step[0] = bboard::Move::IDLE;
     moves_in_one_step[1] = bboard::Move::IDLE;
     moves_in_one_step[2] = bboard::Move::IDLE;
     moves_in_one_step[3] = bboard::Move::IDLE;
     envs[id]->GetState().timeStep = 100;
     PrintState(&envs[id]->GetState());
-    moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
+    moves_in_one_step[id] = frankfurtAgents[id]->act(&envs[id]->GetState());
     bboard::Step(&envs[id]->GetState(), moves_in_one_step);
     //std::this_thread::sleep_for(std::chrono::milliseconds(50)); // ez mi???
     expected_result = 0;
@@ -943,12 +954,14 @@ std::cout << "TEST: DON'T STEP ON FLAME" << std::endl;
     if(success) successful_tests++;
     millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
     std::cout << "TEST RESULT: " << expected_result << " =?=  " << (int)moves_in_one_step[id] << " success: " << success << " time: " << millis << std::endl;
-    episode_end_eisenach(id);
+    episode_end_frankfurt(id);
 
 std::cout << "TEST: DON'T PUSH BOMB TO FLAME" << std::endl;
     memset(board, 0, 11*11*sizeof(uint8_t));
     memset(bomb_life, 0, 11*11*sizeof(double));
     memset(bomb_blast_strength, 0, 11*11*sizeof(double));
+    memset(bomb_movement, 0, 11*11*sizeof(double));
+    memset(flame_life, 0, 11*11*sizeof(double));
     board[4 * 11 + 4] = bboard::PyAGENT0 + id;
     board[4 * 11 + 4] = bboard::PyAGENT1;
     board[4 * 11 + 3] = bboard::PyBOMB;
@@ -960,15 +973,15 @@ std::cout << "TEST: DON'T PUSH BOMB TO FLAME" << std::endl;
     board[2 * 11 + 4] = bboard::PyFLAMES;
     board[6 * 11 + 4] = bboard::PyFLAMES;
 
-    init_agent_eisenach(id);
-    getStep_eisenach(id, true, true, true, true, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
+    init_agent_frankfurt(id);
+    getStep_frankfurt(id, true, true, true, true, board, bomb_life, bomb_blast_strength, bomb_movement, flame_life, 4, 4, 1, true, 0, bboard::GameType ::Team, 13, -1, -1);
     PrintState(&envs[id]->GetState());
     moves_in_one_step[0] = bboard::Move::IDLE;
     moves_in_one_step[1] = bboard::Move::IDLE;
     moves_in_one_step[2] = bboard::Move::IDLE;
     moves_in_one_step[3] = bboard::Move::IDLE;
     envs[id]->GetState().timeStep = 100;
-    moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
+    moves_in_one_step[id] = frankfurtAgents[id]->act(&envs[id]->GetState());
     bboard::Step(&envs[id]->GetState(), moves_in_one_step);
     //std::this_thread::sleep_for(std::chrono::milliseconds(50)); // ez mi??
     expected_result = 4;
@@ -978,16 +991,18 @@ std::cout << "TEST: DON'T PUSH BOMB TO FLAME" << std::endl;
     millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
     std::cout << "TEST RESULT: " << expected_result << " =?=  " << (int)moves_in_one_step[id] << " success: " << success << " time: " << millis << std::endl;
 
-    episode_end_eisenach(id);
+    episode_end_frankfurt(id);
 
 std::cout << "TEST: GOING AROUND" << std::endl;
     memset(board, 0, 11*11*sizeof(uint8_t));
     memset(bomb_life, 0, 11*11*sizeof(double));
     memset(bomb_blast_strength, 0, 11*11*sizeof(double));
+    memset(bomb_movement, 0, 11*11*sizeof(double));
+    memset(flame_life, 0, 11*11*sizeof(double));
     board[4 * 11 + 4] = bboard::PyAGENT0 + id;
 
-    init_agent_eisenach(id);
-    getStep_eisenach(id, true, true, true, true, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 13);
+    init_agent_frankfurt(id);
+    getStep_frankfurt(id, true, true, true, true, board, bomb_life, bomb_blast_strength, bomb_movement, flame_life, 4, 4, 1, true, 0, bboard::GameType::Team, 13, -1, -1);
     PrintState(&envs[id]->GetState());
     moves_in_one_step[0] = bboard::Move::IDLE;
     moves_in_one_step[1] = bboard::Move::IDLE;
@@ -995,7 +1010,7 @@ std::cout << "TEST: GOING AROUND" << std::endl;
     moves_in_one_step[3] = bboard::Move::IDLE;
     envs[id]->GetState().timeStep = 100;
     for(int i=0; i<30; i++) {
-        moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
+        moves_in_one_step[id] = frankfurtAgents[id]->act(&envs[id]->GetState());
         //PrintState(&envs[id]->GetState());
         if(i == 0) {
             expected_result = 1;
@@ -1008,17 +1023,19 @@ std::cout << "TEST: GOING AROUND" << std::endl;
         bboard::Step(&envs[id]->GetState(), moves_in_one_step);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
-    episode_end_eisenach(id);
+    episode_end_frankfurt(id);
 
 std::cout << "TEST: RUSHING" << std::endl;
     id = 3;
     memset(board, 0, 11*11*sizeof(uint8_t));
     memset(bomb_life, 0, 11*11*sizeof(double));
     memset(bomb_blast_strength, 0, 11*11*sizeof(double));
+    memset(bomb_movement, 0, 11*11*sizeof(double));
+    memset(flame_life, 0, 11*11*sizeof(double));
     board[4 * 11 + 4] = bboard::PyAGENT0 + id;
 
-    init_agent_eisenach(id);
-    getStep_eisenach(id, true, true, true, true, board, bomb_life, bomb_blast_strength, 4, 4, 1, true, 0, 11);
+    init_agent_frankfurt(id);
+    getStep_frankfurt(id, true, true, true, true, board, bomb_life, bomb_blast_strength, bomb_movement, flame_life, 4, 4, 1, true, 0, bboard::GameType::Team, 11, -1, -1);
     PrintState(&envs[id]->GetState());
     moves_in_one_step[4]; //was: moves
     moves_in_one_step[0] = bboard::Move::IDLE;
@@ -1027,7 +1044,7 @@ std::cout << "TEST: RUSHING" << std::endl;
     moves_in_one_step[3] = bboard::Move::IDLE;
     envs[id]->GetState().timeStep = 0;
     for(int i=0; i<20; i++) {
-        moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
+        moves_in_one_step[id] = frankfurtAgents[id]->act(&envs[id]->GetState());
         if(i == 0) {
             expected_result = 1;
             success = expected_result == (int)moves_in_one_step[id];
@@ -1039,13 +1056,15 @@ std::cout << "TEST: RUSHING" << std::endl;
         bboard::Step(&envs[id]->GetState(), moves_in_one_step);
         //std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
-    episode_end_eisenach(id);
+    episode_end_frankfurt(id);
 
 std::cout<< "TEST: Attack with kick-bomb" << std::endl;
     id = 1;
     memset(board, 0, 11*11*sizeof(uint8_t));
     memset(bomb_life, 0, 11*11*sizeof(double));
     memset(bomb_blast_strength, 0, 11*11*sizeof(double));
+    memset(bomb_movement, 0, 11*11*sizeof(double));
+    memset(flame_life, 0, 11*11*sizeof(double));
     board[4 * 11 + 4] = bboard::PyAGENT0 + id;
     board[4 * 11 + 8] = bboard::PyAGENT0 + id + 1;
     board[4 * 11 + 2] = bboard::PyRIGID;
@@ -1065,8 +1084,8 @@ std::cout<< "TEST: Attack with kick-bomb" << std::endl;
     board[5 * 11 + 9] = bboard::PyRIGID;
     board[4 * 11 + 10] = bboard::PyRIGID;
 
-    init_agent_eisenach(id);
-    getStep_eisenach(id, true, true, true, true, board, bomb_life, bomb_blast_strength, 4, 4, 3, true, 1, 13);
+    init_agent_frankfurt(id);
+    getStep_frankfurt(id, true, true, true, true, board, bomb_life, bomb_blast_strength, bomb_movement, flame_life, 4, 4, 3, true, 1, bboard::GameType::Team, 13, -1, -1);
     PrintState(&envs[id]->GetState());
     moves_in_one_step[4]; //was: moves
     moves_in_one_step[0] = bboard::Move::IDLE;
@@ -1077,7 +1096,7 @@ std::cout<< "TEST: Attack with kick-bomb" << std::endl;
     for(int i=0; i<13; i++) {
         envs[id]->GetState().timeStep++;
         PrintState(&envs[id]->GetState());
-        moves_in_one_step[id] = eisenachAgents[id]->act(&envs[id]->GetState());
+        moves_in_one_step[id] = frankfurtAgents[id]->act(&envs[id]->GetState());
         if(i == 0) {
             expected_result = 5;
             success = expected_result == (int)moves_in_one_step[id];
@@ -1089,7 +1108,7 @@ std::cout<< "TEST: Attack with kick-bomb" << std::endl;
         bboard::Step(&envs[id]->GetState(), moves_in_one_step);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
-    episode_end_eisenach(id);
+    episode_end_frankfurt(id);
 
 
     std::cout << "\n\nFrom " << std::to_string(tests_run) << " tests " << std::to_string(successful_tests) << " were successful, that is " << std::to_string(100.0f * successful_tests / tests_run) << "%" << std::endl;
@@ -1173,8 +1192,13 @@ EXPORTIT float c_episode_end_frankfurt(int id)
     return episode_end_frankfurt(id);
 }
 
-EXPORTIT int c_getStep_frankfurt(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+EXPORTIT int c_getStep_frankfurt(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, double * bomb_moving_direction, double * flame_life, int posx, int posy, int blast_strength, bool can_kick, int ammo, int game_type, int teammate_id, int message1, int message2)
 {
-    return getStep_frankfurt(id, agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+    return getStep_frankfurt(id, agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, bomb_moving_direction, flame_life, posx, posy, blast_strength, can_kick, ammo, game_type, teammate_id, message1, message2);
 }
+EXPORTIT int c_getMessage_frankfurt(int id, int messagePart)
+{
+    return getMessage_frankfurt(id, messagePart);
+}
+
 }

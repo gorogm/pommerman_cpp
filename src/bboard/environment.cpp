@@ -941,8 +941,6 @@ void Environment::MakeGameFromPython(int ourId)
                             state->agents[bombId].bombStrength = (int)bomb_blast_strength[i] - 1;
                         }
                         state->bombs.count++;
-
-                        std::cout << "Bomb under agent " << board[i] - PyAGENT0 << " at " << y << " " << x << " time: " << bomb_life[i] << std::endl;
                     }
                     break;
                 default:
@@ -969,16 +967,9 @@ void Environment::MakeGameFromPython(int ourId)
                     if (bomb_blast_strength[originalPosition.y * BOARD_SIZE + originalPosition.x] - 1 == BMB_STRENGTH(previousBombs[bomb_index]) &&
                         bomb_life[originalPosition.y * BOARD_SIZE + originalPosition.x] == BMB_TIME(previousBombs[bomb_index]) - 1)
                     {
-                        std::cout << "Bomb couldn't enter fog at " << originalPosition.y << " " << originalPosition.y;
-
                         for (int bomb_index2 = 0; bomb_index2 < state->bombs.count; bomb_index2++) {
                             if (BMB_POS_X(state->bombs[bomb_index2]) == originalPosition.x && BMB_POS_Y(state->bombs[bomb_index2]) == originalPosition.y)
                             {
-                                if (BMB_TIME(state->bombs[bomb_index2]) != BMB_TIME(previousBombs[bomb_index]) - 1)
-                                    std::cout << "Unexpected STOP-FOG bomb time at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
-                                else
-                                    std::cout << "Matched old and new STOP-FOG bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
-
                                 SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
                                 SetBombVelocity(state->bombs[bomb_index2], 0);
                                 break;
@@ -989,13 +980,10 @@ void Environment::MakeGameFromPython(int ourId)
                     else {
                         state->bombs.AddElem(previousBombs[bomb_index]);
                         SetBombTime(state->bombs[state->bombs.count - 1], BMB_TIME(previousBombs[bomb_index]) - 1);
-                        std::cout << "Bomb known from memory in fog at " << BMB_POS_Y(state->bombs[state->bombs.count - 1]) << " " << BMB_POS_X(state->bombs[state->bombs.count - 1]) << std::endl;
                     }
                 }
                 else if (board[expectedPosition.y * BOARD_SIZE + expectedPosition.x] == PyFLAMES)
                 {
-                    std::cout << "Bomb exploded probably at " << expectedPosition.y << " " << expectedPosition.x << std::endl;
-
                     state->SpawnFlame_passive(BMB_POS_X(previousBombs[bomb_index]), BMB_POS_Y(previousBombs[bomb_index]), BMB_STRENGTH(previousBombs[bomb_index]));
 
                 }
@@ -1006,13 +994,6 @@ void Environment::MakeGameFromPython(int ourId)
                         if (BMB_POS_X(state->bombs[bomb_index2]) == expectedPosition.x && BMB_POS_Y(state->bombs[bomb_index2]) == expectedPosition.y)
                         {
                             found = true;
-                            if (BMB_TIME(state->bombs[bomb_index2]) != BMB_TIME(previousBombs[bomb_index]) - 1)
-                                std::cout << "Unexpected bomb time at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
-#ifdef VERBOSE_STATE
-                            else
-								std::cout << "Matched old and new bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
-#endif
-
                             SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
                             SetBombVelocity(state->bombs[bomb_index2], BMB_VEL(previousBombs[bomb_index]));
                             break;
@@ -1026,9 +1007,6 @@ void Environment::MakeGameFromPython(int ourId)
                 }
                 else {
                     //Ups, it is not at the expected position, maybe somebody kicked it??
-                    if (state->board[BMB_POS_Y(previousBombs[bomb_index])][BMB_POS_X(previousBombs[bomb_index])] >= AGENT0)
-                        std::cout << "An agent is instead of a bomb, maybe he kicked it? at " << BMB_POS_Y(previousBombs[bomb_index]) << " " << BMB_POS_X(previousBombs[bomb_index]) << std::endl;
-
                     int moves[]{ 1,2,3,4 };
                     bool found = false;
                     for (int move : moves)
@@ -1041,11 +1019,6 @@ void Environment::MakeGameFromPython(int ourId)
                                     if (BMB_POS_X(state->bombs[bomb_index2]) == kickedToPosition.x && BMB_POS_Y(state->bombs[bomb_index2]) == kickedToPosition.y)
                                     {
                                         found = true;
-                                        if (BMB_TIME(state->bombs[bomb_index2]) != BMB_TIME(previousBombs[bomb_index]) - 1)
-                                            std::cout << "Unexpected KICKED bomb time at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
-                                        else
-                                            std::cout << "Matched old and new KICKED bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << " move direction: " << move << std::endl;
-
                                         SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
                                         SetBombVelocity(state->bombs[bomb_index2], move);
                                         break;
@@ -1053,14 +1026,8 @@ void Environment::MakeGameFromPython(int ourId)
                                 }
                                 break;
                             }
-                            else {
-                                std::cout << "Bomb was maybe kicked, suspected bombs's time is not good, now at " << kickedToPosition.y << " " << kickedToPosition.x << std::endl;
-                            }
                         }
                     }
-
-                    if (!found)
-                        std::cout << "Bomb is lost around " << expectedPosition.y << " " << expectedPosition.x << std::endl;
                 }
 
             }
@@ -1079,23 +1046,12 @@ void Environment::MakeGameFromPython(int ourId)
                         if (BMB_POS(state->bombs[bomb_index2]) == BMB_POS(previousBombs[bomb_index]))
                         {
                             found = true;
-                            if (BMB_TIME(state->bombs[bomb_index2]) != BMB_TIME(previousBombs[bomb_index]) - 1)
-                                std::cout << "Unexpected STOPPED bomb time at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
-                            else
-                                std::cout << "Matched STOPPED old and new bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
 
                             //SetBombVelocity(state->bombs[bomb_index2], 0); //Stopping
                             SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
                             break;
                         }
                     }
-                    if (!found)
-                    {
-                        std::cout << "STOPPED Bomb is lost around " << expectedPosition.y << " " << expectedPosition.x << std::endl;
-                    }
-                }
-                else {
-                    std::cout << "STOPPED Bomb is lost around " << expectedPosition.y << " " << expectedPosition.x << std::endl;
                 }
             }
         }
@@ -1126,7 +1082,7 @@ void Environment::MakeGameFromPython(int ourId)
     }
 
     void Environment::MakeGameFromPython_frankfurt(bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life,
-                                                  double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+                                                  double * bomb_blast_strength, double * bomb_moving_direction, double * flame_life, int posx, int posy, int blast_strength, bool can_kick, int ammo, int game_type, int teammate_id, int message1, int message2)
     {
         util::TickFlames(*state);
         state->agents[0].bombCount = 0;
@@ -1227,6 +1183,46 @@ void Environment::MakeGameFromPython(int ourId)
 
         //std::cout << state->ourId << " " << state->teammateId << " : " << state->enemy1Id << " " << state->enemy2Id << std::endl;
 
+        // Message is sent before last moves are actually executed by the game server.
+        switch (message1)
+        {
+            case FrankfurtMessageTypes::MaxBombCount1:
+                if(state->agents[state->teammateId].maxBombCount != message2) {
+                    std::cout << "Learned from message: maxBombCount: " << message2 << " (prev. assumed " << state->agents[state->teammateId].maxBombCount << ")" << std::endl;
+                    state->agents[state->teammateId].maxBombCount = message2;
+                }
+                break;
+            case FrankfurtMessageTypes::CanKick2:
+                if(state->agents[state->teammateId].canKick != message2) {
+                    std::cout << "Learned from message: canKick: " << message2 << " (prev. assumed " << state->agents[state->teammateId].canKick << ")" << std::endl;
+                    state->agents[state->teammateId].canKick = message2;
+                }
+                break;
+            case FrankfurtMessageTypes::PositionX3:
+                if(state->agents[state->teammateId].x != message2) {
+                    std::cout << "Learned from message: x: " << message2 << " (prev. assumed " << state->agents[state->teammateId].x << ")" << std::endl;
+                    state->agents[state->teammateId].x = message2;
+                }
+                break;
+            case FrankfurtMessageTypes::PositionY4:
+                if(state->agents[state->teammateId].y != message2) {
+                    std::cout << "Learned from message: y: " << message2 << " (prev. assumed " << state->agents[state->teammateId].y << ")" << std::endl;
+                    state->agents[state->teammateId].y = message2;
+                }
+                break;
+            case FrankfurtMessageTypes::AttackNorth5:
+                //std::cout << "Learned from message: AttackNorth: " << message2 << std::endl;
+                break;
+            case FrankfurtMessageTypes::BombStrength6:
+                if(state->agents[state->teammateId].bombStrength != message2) {
+                    std::cout << "Learned from message: BombStrength: " << message2 << " (prev. assumed " << state->agents[state->teammateId].bombStrength << ")" << std::endl;
+                    state->agents[state->teammateId].bombStrength = message2;
+                }
+                break;
+            case FrankfurtMessageTypes::Unused7:
+                break;
+        }
+
         for (int i = 0; i < 11 * 11; i++)
         {
             int y = i / 11;
@@ -1262,8 +1258,22 @@ void Environment::MakeGameFromPython(int ourId)
                     }
                     break;
                 case PyFLAMES:
-                    if (!IS_FLAME(state->board[y][x]))
-                        state->board[y][x] = FLAMES;
+                    if (!IS_FLAME(state->board[y][x])) {
+                        state->board[y][x] = FLAMES; //TODO: store flame lifetime from flame_life[i] ?
+#ifdef VERBOSE_STATE
+                    }else{
+                        for(int flame_i=0; flame_i<state->flames.count; flame_i++) {
+                            if (uint16_t signature = uint16_t(state->flames[flame_i].position.x + BOARD_SIZE * state->flames[flame_i].position.y) ==
+                                                     FLAME_ID(state->board[y][x]))
+                                if (state->flames[flame_i].timeLeft != flame_life[i]) {
+                                    std::cout << "Unexpected flame life (moving bomb exploded?) " << state->flames[flame_i].position.x << ":"
+                                              << state->flames[flame_i].position.y << " "
+                                              << state->flames[flame_i].timeLeft << " fl: " << flame_life[i]
+                                              << std::endl; //maybe store at flamaes?
+                                }
+                        }
+#endif
+                    }
                     //else: don't delete the set FLAME-ID
                     break;
                 case PyFOG:

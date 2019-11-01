@@ -85,8 +85,12 @@ namespace agents {
 		point -= reward_woodDemolished * state->agents[enemy2Id].woodDemolished;
 
 #ifdef GM_DEBUGMODE_COMMENTS
-		if (state->agents[ourId].collectedPowerupPoints > 0)
-			stepRes.comment += "collectedPowerupPoints ";
+        if (state->agents[ourId].extraBombPowerupPoints > 0)
+            stepRes.comment += "extraBombPowerupPoints ";
+        if (state->agents[ourId].firstKickPowerupPoints > 0)
+            stepRes.comment += "firstKickPowerupPoints ";
+        if (state->agents[ourId].extraRangePowerupPoints > 0)
+            stepRes.comment += "extraRangePowerupPoints ";
 #endif
         point += (reward_extraBombPowerupPoints * state->agents[state->ourId].extraBombPowerupPoints +    reward_firstKickPowerupPoints * state->agents[state->ourId].firstKickPowerupPoints + reward_otherKickPowerupPoints * state->agents[state->ourId].otherKickPowerupPoints + reward_extraRangePowerupPoints * state->agents[state->ourId].extraRangePowerupPoints) * teamBalance;
         point += (reward_extraBombPowerupPoints * state->agents[state->teammateId].extraBombPowerupPoints + reward_firstKickPowerupPoints * state->agents[state->teammateId].firstKickPowerupPoints + reward_otherKickPowerupPoints * state->agents[state->teammateId].otherKickPowerupPoints + reward_extraRangePowerupPoints * state->agents[state->teammateId].extraRangePowerupPoints) / teamBalance;
@@ -292,7 +296,11 @@ namespace agents {
 		//for(int move : moves)
 		for (int move = 0; move < 6; move++)
 		{
+#ifdef GM_DEBUGMODE_ON
+            stepRess[move].point = -10000.0f;
+#else
             stepRess[move] = -10000.0f;
+#endif
 			Position desiredPos = bboard::util::DesiredPosition(a.x, a.y, (bboard::Move) move);
 			// if we don't have bomb
 			if (move == (int)bboard::Move::BOMB && a.maxBombCount - a.bombCount <= 0)
@@ -563,12 +571,18 @@ May not work now
         int bestIndex = 0;
         for(int i=1; i<6; i++)
         {
+  #ifdef GM_DEBUGMODE_ON
+            if((float)stepRess[i] > stepRess[bestIndex].point)
+  #else
             if((float)stepRess[i] > stepRess[bestIndex])
+  #endif
                 bestIndex = i;
         }
 
+  #ifndef GM_DEBUGMODE_STEPS
         if(depth == 0)
             depth_0_Move = bestIndex;
+  #endif
 #endif
 
 		return stepRess[bestIndex];
@@ -740,12 +754,12 @@ May not work now
 #endif
 #ifdef GM_DEBUGMODE_STEPS
 		int myMove = stepRes.steps[stepRes.steps.count - 1];
-#ifdef DISPLAY_EXPECTATION
+  #ifdef DISPLAY_EXPECTATION
 		moves_in_one_step[ourId] = (bboard::Move)stepRes.steps[stepRes.steps.count - 1];
 		moves_in_one_step[teammateId] = (bboard::Move)stepRes.steps[stepRes.steps.count - 2];
 		moves_in_one_step[enemy1Id] = (bboard::Move)stepRes.steps[stepRes.steps.count - 3];
 		moves_in_one_step[enemy2Id] = (bboard::Move)stepRes.steps[stepRes.steps.count - 4];
-#endif
+  #endif
 #else
 		int myMove = depth_0_Move;
 #ifdef DISPLAY_EXPECTATION
@@ -785,6 +799,39 @@ May not work now
 #else
 		std::cout << std::endl;
 #endif
+
+		switch(1 + state->timeStep % 7) {
+		    case 1:
+                message[0] = FrankfurtMessageTypes::MaxBombCount1;
+                message[1] = state->agents[id].maxBombCount;
+                break;
+            case 2:
+                message[0] = FrankfurtMessageTypes::CanKick2;
+                message[1] = state->agents[id].canKick;
+                break;
+            case 3:
+                if(state->agents[teammateId].x)
+                message[0] = FrankfurtMessageTypes::PositionX3 * 0;
+                message[1] = state->agents[id].x;
+                break;
+            case 4:
+                message[0] = FrankfurtMessageTypes::PositionY4 * 0;
+                message[1] = state->agents[id].y;
+                break;
+            case 5:
+                message[0] = FrankfurtMessageTypes::AttackNorth5;
+                message[1] = 0;
+                break;
+            case 6:
+                message[0] = FrankfurtMessageTypes::BombStrength6;
+                message[1] = state->agents[id].bombStrength;
+                break;
+            case 7:
+                message[0] = FrankfurtMessageTypes::Unused7;
+                message[1] = 0;
+                break;
+        }
+        message[1] = std::min(7, message[1]);
 
 		totalSimulatedSteps += simulatedSteps;
 		turns++;
