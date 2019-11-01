@@ -6,7 +6,7 @@
 
 #include "bboard.hpp"
 #include "colors.hpp"
-#include "../agents/agents.hpp"
+#include "agents.hpp"
 #include <map>
 #include <fstream>
 #include <sstream>
