@@ -770,14 +770,25 @@ float episode_end_dortmund(int id)
 
 float episode_end_eisenach(int id)
 {
-	if (eisenachAgents[id]->turns == 0)
-		eisenachAgents[id]->turns++;
-	float avg_simsteps_per_turn = eisenachAgents[id]->totalSimulatedSteps / (float)eisenachAgents[id]->turns;
-	std::cout << "Episode end for agent " << id << ". Turns: " << eisenachAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
-	eisenachAgents[id] = std::make_shared<agents::EisenachAgent>();
-	envs[id] = std::make_shared<bboard::Environment>();
-	envs[id]->MakeGameFromPython(id);
-	return avg_simsteps_per_turn;
+    if (eisenachAgents[id]->turns == 0)
+        eisenachAgents[id]->turns++;
+    float avg_simsteps_per_turn = eisenachAgents[id]->totalSimulatedSteps / (float)eisenachAgents[id]->turns;
+    std::cout << "Episode end for agent " << id << ". Turns: " << eisenachAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
+    eisenachAgents[id] = std::make_shared<agents::EisenachAgent>();
+    envs[id] = std::make_shared<bboard::Environment>();
+    envs[id]->MakeGameFromPython(id);
+    return avg_simsteps_per_turn;
+}
+float episode_end_frankfurt(int id)
+{
+    if (frankfurtAgents[id]->turns == 0)
+        frankfurtAgents[id]->turns++;
+    float avg_simsteps_per_turn = frankfurtAgents[id]->totalSimulatedSteps / (float)frankfurtAgents[id]->turns;
+    std::cout << "Episode end for agent " << id << ". Turns: " << frankfurtAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
+    frankfurtAgents[id] = std::make_shared<agents::FrankfurtAgent>();
+    envs[id] = std::make_shared<bboard::Environment>();
+    envs[id]->MakeGameFromPython(id);
+    return avg_simsteps_per_turn;
 }
 
 int getStep_berlin(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
@@ -1139,16 +1150,31 @@ EXPORTIT int c_getStep_dortmund(int id, bool agent0Alive, bool agent1Alive, bool
 
 EXPORTIT void c_init_agent_eisenach(int id)
 {
-	init_agent_eisenach(id);
+    init_agent_eisenach(id);
 }
 
 EXPORTIT float c_episode_end_eisenach(int id)
 {
-	return episode_end_eisenach(id);
+    return episode_end_eisenach(id);
 }
 
 EXPORTIT int c_getStep_eisenach(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
-	return getStep_eisenach(id, agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+    return getStep_eisenach(id, agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+}
+
+EXPORTIT void c_init_agent_frankfurt(int id)
+{
+    init_agent_frankfurt(id);
+}
+
+EXPORTIT float c_episode_end_frankfurt(int id)
+{
+    return episode_end_frankfurt(id);
+}
+
+EXPORTIT int c_getStep_frankfurt(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+{
+    return getStep_frankfurt(id, agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
 }
 }
