@@ -607,6 +607,7 @@ std::array<std::shared_ptr<agents::BerlinAgent>, 4> berlinAgents;
 std::array<std::shared_ptr<agents::CologneAgent>, 4> cologneAgents;
 std::array<std::shared_ptr<agents::DortmundAgent>, 4> dortmundAgents;
 std::array<std::shared_ptr<agents::EisenachAgent>, 4> eisenachAgents;
+std::array<std::shared_ptr<agents::FrankfurtAgent>, 4> frankfurtAgents;
 void init_agent_berlin(int id)
 {
     envs[id] = std::make_shared<bboard::Environment>();
@@ -628,10 +629,62 @@ void init_agent_dortmund(int id)
 
 void init_agent_eisenach(int id)
 {
-	envs[id] = std::make_shared<bboard::Environment>();
-	eisenachAgents[id] = std::make_shared<agents::EisenachAgent>();
-	envs[id]->MakeGameFromPython(id);
-return;
+    envs[id] = std::make_shared<bboard::Environment>();
+    eisenachAgents[id] = std::make_shared<agents::EisenachAgent>();
+    envs[id]->MakeGameFromPython(id);
+    return;
+/*
+	ConfigInfo hyperparams = readHyperparams("/tmp/hyperparams.txt");
+
+	if (hyperparams.count("reward_first_step_idle") > 0) {
+		std::cout << "Settings reward_first_step_idle to " << hyperparams["reward_first_step_idle"] << std::endl;
+		eisenachAgents[id]->reward_first_step_idle = hyperparams["reward_first_step_idle"];
+	}
+	if (hyperparams.count("reward_sooner_later_ratio") > 0) {
+		std::cout << "Settings reward_sooner_later_ratio to " << hyperparams["reward_sooner_later_ratio"] << std::endl;
+		eisenachAgents[id]->reward_sooner_later_ratio = hyperparams["reward_sooner_later_ratio"];
+	}
+
+    if (hyperparams.count("reward_extraBombPowerupPoints") > 0) {
+        std::cout << "Settings reward_extraBombPowerupPoints to " << hyperparams["reward_extraBombPowerupPoints"] << std::endl;
+        eisenachAgents[id]->reward_extraBombPowerupPoints = hyperparams["reward_extraBombPowerupPoints"];
+    }
+    if (hyperparams.count("reward_extraRangePowerupPoints") > 0) {
+        std::cout << "Settings reward_extraRangePowerupPoints to " << hyperparams["reward_extraRangePowerupPoints"] << std::endl;
+        eisenachAgents[id]->reward_extraRangePowerupPoints = hyperparams["reward_extraRangePowerupPoints"];
+    }
+    if (hyperparams.count("reward_otherKickPowerupPoints") > 0) {
+        std::cout << "Settings reward_otherKickPowerupPoints to " << hyperparams["reward_otherKickPowerupPoints"] << std::endl;
+        eisenachAgents[id]->reward_otherKickPowerupPoints = hyperparams["reward_otherKickPowerupPoints"];
+    }
+    if (hyperparams.count("reward_firstKickPowerupPoints") > 0) {
+        std::cout << "Settings reward_firstKickPowerupPoints to " << hyperparams["reward_firstKickPowerupPoints"] << std::endl;
+        eisenachAgents[id]->reward_firstKickPowerupPoints = hyperparams["reward_firstKickPowerupPoints"];
+    }
+
+	if (hyperparams.count("reward_move_to_enemy") > 0) {
+		std::cout << "Settings reward_move_to_enemy to " << hyperparams["reward_move_to_enemy"] << std::endl;
+		eisenachAgents[id]->reward_move_to_enemy = hyperparams["reward_move_to_enemy"];
+	}
+	if (hyperparams.count("reward_move_to_pickup") > 0) {
+		std::cout << "Settings reward_move_to_pickup to " << hyperparams["reward_move_to_pickup"] << std::endl;
+		eisenachAgents[id]->reward_move_to_pickup = hyperparams["reward_move_to_pickup"];
+	}
+    if (hyperparams.count("reward_woodDemolished") > 0) {
+        std::cout << "Settings reward_woodDemolished to " << hyperparams["reward_woodDemolished"] << std::endl;
+        eisenachAgents[id]->reward_woodDemolished = hyperparams["reward_woodDemolished"];
+    }
+    if (hyperparams.count("weight_of_average_Epoint") > 0) {
+        std::cout << "Settings weight_of_average_Epoint to " << hyperparams["weight_of_average_Epoint"] << std::endl;
+        eisenachAgents[id]->weight_of_average_Epoint = hyperparams["weight_of_average_Epoint"];
+    }*/
+}
+void init_agent_frankfurt(int id)
+{
+    envs[id] = std::make_shared<bboard::Environment>();
+    frankfurtAgents[id] = std::make_shared<agents::FrankfurtAgent>();
+    envs[id]->MakeGameFromPython(id);
+    return;
 /*
 	ConfigInfo hyperparams = readHyperparams("/tmp/hyperparams.txt");
 
@@ -768,20 +821,38 @@ int getStep_dortmund(int id, bool agent0Alive, bool agent1Alive, bool agent2Aliv
 
 int getStep_eisenach(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
 {
-	eisenachAgents[id]->start_time = std::chrono::high_resolution_clock::now();
+    eisenachAgents[id]->start_time = std::chrono::high_resolution_clock::now();
 #ifdef VERBOSE_STATE
-	std::cout << std::endl;
+    std::cout << std::endl;
 #endif
 
-	envs[id]->MakeGameFromPython_eisenach(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+    envs[id]->MakeGameFromPython_eisenach(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
 
-	eisenachAgents[id]->id = envs[id]->GetState().ourId;
+    eisenachAgents[id]->id = envs[id]->GetState().ourId;
 #ifdef VERBOSE_STATE
-	PrintState(&envs[id]->GetState());
+    PrintState(&envs[id]->GetState());
 #endif
 
-	// Ask the agent where to go
-	return (int)eisenachAgents[id]->act(&envs[id]->GetState());
+    // Ask the agent where to go
+    return (int)eisenachAgents[id]->act(&envs[id]->GetState());
+}
+
+int getStep_frankfurt(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+{
+    eisenachAgents[id]->start_time = std::chrono::high_resolution_clock::now();
+#ifdef VERBOSE_STATE
+    std::cout << std::endl;
+#endif
+
+    envs[id]->MakeGameFromPython_frankfurt(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
+
+    frankfurtAgents[id]->id = envs[id]->GetState().ourId;
+#ifdef VERBOSE_STATE
+    PrintState(&envs[id]->GetState());
+#endif
+
+    // Ask the agent where to go
+    return (int)frankfurtAgents[id]->act(&envs[id]->GetState());
 }
 
 void tests()

@@ -229,10 +229,67 @@ struct SimpleAgent : bboard::Agent
         bool sameAs6_12_turns_ago = true;
         std::chrono::high_resolution_clock::time_point start_time;
     };
-	
+
     struct EisenachAgent : bboard::Agent
     {
         EisenachAgent();
+
+        bboard::Move act(const bboard::State* state) override;
+
+        StepResult runAlreadyPlantedBombs(bboard::State * state);
+        StepResult runOneStep(const bboard::State * state, int depth);
+        StepResult scoreState(bboard::State * state);
+        void PrintDetailedInfo();
+        int simulatedSteps = 0;
+
+#ifndef GM_DEBUGMODE_STEPS
+        int depth_0_Move = 0;
+#endif
+        static bboard::FixedQueue<int, 40> moves_in_chain;
+#pragma omp threadprivate(moves_in_chain)
+
+        static bboard::FixedQueue<bboard::Position, 40> positions_in_chain;
+#pragma omp threadprivate(positions_in_chain)
+
+        bboard::Position expectedPosInNewTurn;
+        bool lastMoveWasBlocked = false;
+        int lastBlockedMove = 0;
+        unsigned int turns = 0;
+        unsigned int totalSimulatedSteps = 0;
+        int seenAgents = 0, iteratedAgents = 0;
+        int enemyIteration1 = 0, enemyIteration2 = 0, teammateIteration = 0, myMaxDepth = 0;
+        std::array<bboard::FixedQueue<bboard::Position, 15>, 4 > previousPositions;
+        bboard::FixedQueue<int, 15> moveHistory;
+        bool rushing = false, goingAround = false;
+
+
+        bool _CheckPos2(const bboard::State* state, bboard::Position pos, int agentId);
+        bool _CheckPos2(const bboard::State* state, int x, int y, int agentId);
+        void createDeadEndMap(const bboard::State* state);
+        float laterBetter(float reward, int timestamps);
+        float soonerBetter(float reward, int timestmaps);
+
+        const float reward_first_step_idle = 0.001f;
+        const float reward_sooner_later_ratio = 0.98f;
+        const float reward_extraBombPowerupPoints = 0.6f;
+        const float reward_extraRangePowerupPoints = 0.4f;
+        const float reward_otherKickPowerupPoints = 0.2f;
+        const float reward_firstKickPowerupPoints = 0.7f;
+        const float reward_move_to_enemy = 100.0f;
+        const float reward_move_to_pickup = 1000.0f;
+        const float reward_woodDemolished = 0.40f;
+        const float weight_of_average_Epoint = 0.1f;
+
+        std::set<uint128_t> visitedSteps;
+        int ourId, teammateId, enemy1Id, enemy2Id, lastSeenEnemy = 0;
+        bool leadsToDeadEnd[bboard::BOARD_SIZE*bboard::BOARD_SIZE];
+        bool sameAs6_12_turns_ago = true;
+        std::chrono::high_resolution_clock::time_point start_time;
+    };
+
+    struct FrankfurtAgent : bboard::Agent
+    {
+        FrankfurtAgent();
 
         bboard::Move act(const bboard::State* state) override;
 
