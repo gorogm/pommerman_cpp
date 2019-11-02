@@ -683,52 +683,6 @@ void init_agent_eisenach(int id)
     envs[id] = std::make_shared<bboard::Environment>();
     eisenachAgents[id] = std::make_shared<agents::EisenachAgent>();
     envs[id]->MakeGameFromPython(id);
-    return;
-/*
-	ConfigInfo hyperparams = readHyperparams("/tmp/hyperparams.txt");
-
-	if (hyperparams.count("reward_first_step_idle") > 0) {
-		std::cout << "Settings reward_first_step_idle to " << hyperparams["reward_first_step_idle"] << std::endl;
-		eisenachAgents[id]->reward_first_step_idle = hyperparams["reward_first_step_idle"];
-	}
-	if (hyperparams.count("reward_sooner_later_ratio") > 0) {
-		std::cout << "Settings reward_sooner_later_ratio to " << hyperparams["reward_sooner_later_ratio"] << std::endl;
-		eisenachAgents[id]->reward_sooner_later_ratio = hyperparams["reward_sooner_later_ratio"];
-	}
-
-    if (hyperparams.count("reward_extraBombPowerupPoints") > 0) {
-        std::cout << "Settings reward_extraBombPowerupPoints to " << hyperparams["reward_extraBombPowerupPoints"] << std::endl;
-        eisenachAgents[id]->reward_extraBombPowerupPoints = hyperparams["reward_extraBombPowerupPoints"];
-    }
-    if (hyperparams.count("reward_extraRangePowerupPoints") > 0) {
-        std::cout << "Settings reward_extraRangePowerupPoints to " << hyperparams["reward_extraRangePowerupPoints"] << std::endl;
-        eisenachAgents[id]->reward_extraRangePowerupPoints = hyperparams["reward_extraRangePowerupPoints"];
-    }
-    if (hyperparams.count("reward_otherKickPowerupPoints") > 0) {
-        std::cout << "Settings reward_otherKickPowerupPoints to " << hyperparams["reward_otherKickPowerupPoints"] << std::endl;
-        eisenachAgents[id]->reward_otherKickPowerupPoints = hyperparams["reward_otherKickPowerupPoints"];
-    }
-    if (hyperparams.count("reward_firstKickPowerupPoints") > 0) {
-        std::cout << "Settings reward_firstKickPowerupPoints to " << hyperparams["reward_firstKickPowerupPoints"] << std::endl;
-        eisenachAgents[id]->reward_firstKickPowerupPoints = hyperparams["reward_firstKickPowerupPoints"];
-    }
-
-	if (hyperparams.count("reward_move_to_enemy") > 0) {
-		std::cout << "Settings reward_move_to_enemy to " << hyperparams["reward_move_to_enemy"] << std::endl;
-		eisenachAgents[id]->reward_move_to_enemy = hyperparams["reward_move_to_enemy"];
-	}
-	if (hyperparams.count("reward_move_to_pickup") > 0) {
-		std::cout << "Settings reward_move_to_pickup to " << hyperparams["reward_move_to_pickup"] << std::endl;
-		eisenachAgents[id]->reward_move_to_pickup = hyperparams["reward_move_to_pickup"];
-	}
-    if (hyperparams.count("reward_woodDemolished") > 0) {
-        std::cout << "Settings reward_woodDemolished to " << hyperparams["reward_woodDemolished"] << std::endl;
-        eisenachAgents[id]->reward_woodDemolished = hyperparams["reward_woodDemolished"];
-    }
-    if (hyperparams.count("weight_of_average_Epoint") > 0) {
-        std::cout << "Settings weight_of_average_Epoint to " << hyperparams["weight_of_average_Epoint"] << std::endl;
-        eisenachAgents[id]->weight_of_average_Epoint = hyperparams["weight_of_average_Epoint"];
-    }*/
 }
 void init_agent_frankfurt(int id)
 {
@@ -800,7 +754,7 @@ float episode_end_cologne(int id)
     if(cologneAgents[id]->turns == 0)
         cologneAgents[id]->turns++;
     float avg_simsteps_per_turn = cologneAgents[id]->totalSimulatedSteps / (float)cologneAgents[id]->turns;
-    std::cout << "Episode end for agent " << id << ". Turns: " << cologneAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
+    //std::cout << "Episode end for agent " << id << ". Turns: " << cologneAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
     cologneAgents[id] = std::make_shared<agents::CologneAgent>();
     envs[id] = std::make_shared<bboard::Environment>();
     envs[id]->MakeGameFromPython(id);
@@ -812,7 +766,7 @@ float episode_end_dortmund(int id)
     if(dortmundAgents[id]->turns == 0)
         dortmundAgents[id]->turns++;
     float avg_simsteps_per_turn = dortmundAgents[id]->totalSimulatedSteps / (float)dortmundAgents[id]->turns;
-    std::cout << "Episode end for agent " << id << ". Turns: " << dortmundAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
+    //std::cout << "Episode end for agent " << id << ". Turns: " << dortmundAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
     dortmundAgents[id] = std::make_shared<agents::DortmundAgent>();
     envs[id] = std::make_shared<bboard::Environment>();
     envs[id]->MakeGameFromPython(id);
@@ -824,7 +778,7 @@ float episode_end_eisenach(int id)
     if (eisenachAgents[id]->turns == 0)
         eisenachAgents[id]->turns++;
     float avg_simsteps_per_turn = eisenachAgents[id]->totalSimulatedSteps / (float)eisenachAgents[id]->turns;
-    std::cout << "Episode end for agent " << id << ". Turns: " << eisenachAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
+    //std::cout << "Episode end for agent " << id << ". Turns: " << eisenachAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
     eisenachAgents[id] = std::make_shared<agents::EisenachAgent>();
     envs[id] = std::make_shared<bboard::Environment>();
     envs[id]->MakeGameFromPython(id);
