@@ -1321,14 +1321,17 @@ void Environment::MakeGameFromPython(int ourId)
                         SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
                         SetBombDirection(*b, Direction::IDLE);
                         SetBombTime(*b, bomb_life[i]);
-                        if (bomb_life[i] > 8) //Let's assume it was placed by the guy on the top
+                        if (bomb_life[i] > 7) //Let's assume it was placed by the guy on the top - or an agent can't go over a bomb, so bomb-life check is not necessary?
                         {
                             //extra info: the agent's bomb-strength
                             state->agents[bombId].bombStrength = (int)bomb_blast_strength[i] - 1;
                         }
                         state->bombs.count++;
+                        state->agents[board[i] - PyAGENT0].starts_on_bomb = true;
 
                         std::cout << "Bomb under agent " << board[i] - PyAGENT0 << " at " << y << " " << x << " time: " << bomb_life[i] << std::endl;
+                    }else{
+                        state->agents[board[i] - PyAGENT0].starts_on_bomb = false;
                     }
                     break;
                 default:

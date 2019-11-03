@@ -271,6 +271,7 @@ struct AgentInfo
     float otherKickPowerupPoints = 0.0f;
     float firstKickPowerupPoints = 0.0f;
     float woodDemolished = 0.0f;
+    bool starts_on_bomb = false;
 
     Position GetPos()
     {

@@ -681,22 +681,29 @@ May not work now
 			int dist = std::abs(state->agents[ourId].x - state->agents[teammateId].x) +
 				std::abs(state->agents[ourId].y - state->agents[teammateId].y);
 			if (dist < 3) teammateIteration++;
-			if (dist < 5) { teammateIteration++; iteratedAgents++; }
+			if (dist < 5) { teammateIteration++; }
+			if(state->agents[teammateId].starts_on_bomb)
+                teammateIteration = std::max(2, teammateIteration);
 		}
 		if (!state->agents[enemy1Id].dead && state->agents[enemy1Id].x >= 0) {
 			int dist = std::abs(state->agents[ourId].x - state->agents[enemy1Id].x) +
 				std::abs(state->agents[ourId].y - state->agents[enemy1Id].y);
 			if (dist < 3) enemyIteration1++;
 			if (dist < 3 && seenAgents == 1) enemyIteration1++;
-			if (dist < 5) { enemyIteration1++; iteratedAgents++; }
+			if (dist < 5) { enemyIteration1++; }
+            if(state->agents[enemy1Id].starts_on_bomb)
+                enemyIteration1 = std::max(2, enemyIteration1);
 		}
 		if (!state->agents[enemy2Id].dead && state->agents[enemy2Id].x >= 0) {
 			int dist = std::abs(state->agents[ourId].x - state->agents[enemy2Id].x) +
 				std::abs(state->agents[ourId].y - state->agents[enemy2Id].y);
 			if (dist < 3) enemyIteration2++;
 			if (dist < 3 && seenAgents == 1) enemyIteration2++;
-			if (dist < 5) { enemyIteration2++; iteratedAgents++; }
+			if (dist < 5) { enemyIteration2++; }
+            if(state->agents[enemy2Id].starts_on_bomb)
+                enemyIteration2 = std::max(2, enemyIteration2);
 		}
+		iteratedAgents = (teammateIteration > 0 ? 1 : 0) + (enemyIteration1 > 0 ? 1 : 0) + (enemyIteration2 > 0 ? 1 : 0);
 		myMaxDepth = 6 - iteratedAgents;
 
 		rushing = state->timeStep < 75 && !state->agents[enemy1Id].dead && !state->agents[enemy2Id].dead && seenAgents < 2;
