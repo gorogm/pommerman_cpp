@@ -1,0 +1,39 @@
+#FROM python:3.6
+
+FROM ubuntu:18.04
+#RUN apt update
+#RUN apt-get install -y software-properties-common vim
+#RUN add-apt-repository ppa:jonathonf/python-3.6
+RUN apt-get update && apt-get install -f -y python3.6 python3-pip gcc-9 g++-9 cmake
+# To not have GL import errors:
+RUN apt-get install -y libglu1-mesa-dev freeglut3-dev mesa-common-dev
+
+#FROM alpine
+#RUN apk add --update    python3 python3-dev py3-pip build-base && rm -rf /var/cache/apk/*
+
+#RUN cat examples/docker-agent/run.py | grep agents | grep _agent > agentName
+LABEL "agent"="frankfurt"
+LABEL version="1.0"
+LABEL releaseDate="2019.11.03."
+LABEL maintainer="gorogm@gmail.com"
+
+ADD docker/runners /agent
+
+# @TODO to be replaced with `pip install pommerman`
+ADD playground /pommerman
+RUN cd /pommerman && pip3 install .
+# end @TODO
+
+ADD src /opt/work/pommerman_cpp/src
+ADD CMakeLists.txt /opt/work/pommerman_cpp/CMakeLists.txt
+RUN cd /opt/work/pommerman_cpp && mkdir cmake-build-debug && cd cmake-build-debug && CC=gcc-9 CXX=g++-9 cmake .. && make
+RUN rm -rf /opt/work/pommerman_cpp/src /opt/work/pommerman_cpp/CMakeLists.txt /opt/work/pommerman_cpp/cmake-build-debug/CMakeFiles
+
+EXPOSE 10080
+
+ENV NAME Agent
+
+# Run app.py when the container launches
+WORKDIR /agent
+ENTRYPOINT ["python3"]
+CMD ["run_frankfurt.py"]
