@@ -402,6 +402,7 @@ Bomb* State::GetBomb(int x, int y)
             return &bombs[i];
         }
     }
+    std::cout << "GetBomb: bomb was not found at " << x << ":" << y << std::endl;
     return nullptr;
 }
 

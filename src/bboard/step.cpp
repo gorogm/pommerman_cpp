@@ -217,7 +217,8 @@ bool Step(State* state, Move* moves)
             // start moving the kicked bomb by setting a velocity
             // the first 5 values of Move and Direction are semantically identical
             Bomb& b = *state->GetBomb(desired.x,  desired.y);
-            SetBombDirection(b, Direction(m));
+            if(&b != nullptr)
+                SetBombDirection(b, Direction(m));
         }
         else if(itemOnDestination == Item::BOMB && !state->agents[i].canKick)
         {
