@@ -683,7 +683,7 @@ May not work now
 			int dist = std::abs(state->agents[ourId].x - state->agents[teammateId].x) +
 				std::abs(state->agents[ourId].y - state->agents[teammateId].y);
 			if (dist < 3) teammateIteration++;
-			if (dist < 5) { teammateIteration++; }
+			if (dist < 10) { teammateIteration++; }
 			if(state->agents[teammateId].starts_on_bomb)
                 teammateIteration = std::max(2, teammateIteration);
 		}
@@ -692,7 +692,7 @@ May not work now
 				std::abs(state->agents[ourId].y - state->agents[enemy1Id].y);
 			if (dist < 3) enemyIteration1++;
 			if (dist < 3 && seenAgents == 1) enemyIteration1++;
-			if (dist < 5) { enemyIteration1++; }
+			if (dist < 10) { enemyIteration1++; }
             if(state->agents[enemy1Id].starts_on_bomb)
                 enemyIteration1 = std::max(2, enemyIteration1);
 		}
@@ -701,7 +701,7 @@ May not work now
 				std::abs(state->agents[ourId].y - state->agents[enemy2Id].y);
 			if (dist < 3) enemyIteration2++;
 			if (dist < 3 && seenAgents == 1) enemyIteration2++;
-			if (dist < 5) { enemyIteration2++; }
+			if (dist < 10) { enemyIteration2++; }
             if(state->agents[enemy2Id].starts_on_bomb)
                 enemyIteration2 = std::max(2, enemyIteration2);
 		}
