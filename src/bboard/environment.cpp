@@ -1257,7 +1257,7 @@ void Environment::MakeGameFromPython(int ourId)
                         SetBombID(*b, 5); //Unknown bomb
                         SetBombPosition(*b, x, y);
                         SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
-                        //SetBombDirection(*b, 0);
+                        SetBombDirection(*b, Direction ::IDLE);
                         SetBombTime(*b, bomb_life[i]);
                         //state->agents[bombId].bombCount++;
                         state->bombs.count++;

@@ -246,6 +246,7 @@ void State::ExplodeBomb(int bombIndex)
 
 void State::SpawnFlame(int x, int y, int strength, int agentID)
 {
+    __glibcxx_assert(strength > 0);
     Flame& f = flames.NextPos();
     f.position.x = x;
     f.position.y = y;
