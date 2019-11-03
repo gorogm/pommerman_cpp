@@ -888,6 +888,10 @@ void tests()
     double * bomb_blast_strength = new double[11*11];
     double * bomb_movement = new double[11*11];
     double * flame_life = new double[11*11];
+    std::chrono::high_resolution_clock::time_point start_time;
+    int expected_result;
+    size_t millis;
+    bool success;
 
 std::cout << "TEST: DEFENSE KICK" << std::endl;
     memset(board, 0, 11*11*sizeof(uint8_t));
@@ -914,14 +918,14 @@ std::cout << "TEST: DEFENSE KICK" << std::endl;
     bomb_blast_strength[5 * 11 + 4] = 2;
 
     init_agent_frankfurt(1);
-    auto start_time = std::chrono::high_resolution_clock::now();
+    start_time = std::chrono::high_resolution_clock::now();
     int step = getStep_frankfurt(1, true, true, false, false, board, bomb_life, bomb_blast_strength, bomb_movement, flame_life, 4, 4, 1, true, 0, bboard::GameType::Team, 13, -1, -1);
     PrintState(&envs[id]->GetState());
-    int expected_result = 3;
-    bool success = expected_result == step;
+    expected_result = 3;
+    success = expected_result == step;
     tests_run++;
     if(success) successful_tests++;
-    size_t millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
+    millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
     std::cout << "TEST RESULT: " << expected_result << " =?=  " << step << " success: " << success << " time: " << millis << std::endl;
     episode_end_frankfurt(1);
 
@@ -973,6 +977,14 @@ std::cout << "TEST: DON'T PUSH BOMB TO FLAME" << std::endl;
     board[4 * 11 + 5] = bboard::PyBOMB;
     board[3 * 11 + 4] = bboard::PyBOMB;
     board[5 * 11 + 4] = bboard::PyBOMB;
+    bomb_blast_strength[4 * 11 + 3] = 4;
+    bomb_blast_strength[4 * 11 + 5] = 4;
+    bomb_blast_strength[3 * 11 + 4] = 4;
+    bomb_blast_strength[5 * 11 + 4] = 4;
+    bomb_life[4 * 11 + 3] = 6;
+    bomb_life[4 * 11 + 5] = 6;
+    bomb_life[3 * 11 + 4] = 6;
+    bomb_life[5 * 11 + 4] = 6;
     board[4 * 11 + 2] = bboard::PyFLAMES;
     //board[4 * 11 + 6] = bboard::PyFLAMES;
     board[2 * 11 + 4] = bboard::PyFLAMES;
