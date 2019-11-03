@@ -84,10 +84,16 @@ Position AgentBombChainReversion(State& state, Move moves[AGENT_COUNT],
         agent.x = origin.x;
         agent.y = origin.y;
 
+        bool sameAgent = state[origin] == Item::AGENT0 + agentID;
         state[origin] = Item::AGENT0 + agentID;
 
         if(indexOriginAgent != -1)
         {
+            if(sameAgent && agentID == indexOriginAgent)
+            {
+                std::cout << "AgentBombChainReversion - recursion" << std::endl;
+                return origin;
+            }
             return AgentBombChainReversion(state, moves, destBombs, indexOriginAgent);
         }
         // move bomb back and check for an agent that needs to be reverted
