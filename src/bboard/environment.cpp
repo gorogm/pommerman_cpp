@@ -1134,6 +1134,7 @@ void Environment::MakeGameFromPython(int ourId)
                 board[state->woods[i].x + state->woods[i].y * 11] = PyWOOD; //so it will be added again
         }
 
+        state->comeAround = 0;
         state->woods.count = 0;
         state->powerup_incr.count = 0;
         state->powerup_kick.count = 0;
@@ -1225,7 +1226,9 @@ void Environment::MakeGameFromPython(int ourId)
                     state->agents[state->teammateId].bombStrength = message2;
                 }
                 break;
-            case FrankfurtMessageTypes::Unused7:
+            case FrankfurtMessageTypes::ComeAround7:
+                std::cout << "Learned from message: ComeAround: " << message2 << std::endl;
+                state->comeAround = message2;
                 break;
         }
 

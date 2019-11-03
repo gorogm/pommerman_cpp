@@ -287,7 +287,7 @@ enum FrankfurtMessageTypes
     PositionY4 = 4,
     AttackNorth5 = 5,
     BombStrength6 = 6,
-    Unused7 = 7
+    ComeAround7 = 7
 };
 
 
@@ -420,6 +420,7 @@ struct State
     int relTimeStep = 0;
     int aliveAgents = AGENT_COUNT;
     int ourId, teammateId, enemy1Id, enemy2Id = -1; //0-1-2-3
+    int comeAround = 0; // from radio
 
     /**
      * @brief agents Array of all agents and their properties

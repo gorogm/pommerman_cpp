@@ -135,7 +135,8 @@ namespace agents {
 			{
 				//Moving horizontally
 
-				if ((weAreDown && (state->ourId == 1 || state->ourId == 2)) || (weAreUp && (state->ourId == 0 || state->ourId == 3))) {
+				if ((weAreDown && (state->comeAround==1 || (state->comeAround == 0 && (state->ourId == 1 || state->ourId == 2)))) ||
+				    (weAreUp &&   (state->comeAround==2 || (state->comeAround == 0 && (state->ourId == 0 || state->ourId == 3))))) {
 					//Moving right
 					point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].x) - 1) / 100.0f;
 					point -= std::abs((BOARD_SIZE - 1 - positions_in_chain[0].x) - 1) / 100.0f;
@@ -150,7 +151,8 @@ namespace agents {
 			{
 				//Moving vertically
 
-				if ((weAreLeft && (state->ourId == 1 || state->ourId == 2)) || (weAreRight && (state->ourId == 0 || state->ourId == 3)))
+				if ((weAreLeft && (state->comeAround==1 || (state->comeAround == 0 && (state->ourId == 1 || state->ourId == 2)))) ||
+				   (weAreRight && (state->comeAround==2 || (state->comeAround == 0 && (state->ourId == 0 || state->ourId == 3)))))
 				{
 					//Moving down
 					point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].y) - 1) / 100.0f;
@@ -807,36 +809,53 @@ May not work now
 		std::cout << std::endl;
 #endif
 
-		switch(1 + state->timeStep % 7) {
-		    case 1:
-                message[0] = FrankfurtMessageTypes::MaxBombCount1;
-                message[1] = state->agents[id].maxBombCount;
-                break;
-            case 2:
-                message[0] = FrankfurtMessageTypes::CanKick2;
-                message[1] = state->agents[id].canKick;
-                break;
-            case 3:
-                if(state->agents[teammateId].x)
-                message[0] = FrankfurtMessageTypes::PositionX3 * 0;
-                message[1] = state->agents[id].x;
-                break;
-            case 4:
-                message[0] = FrankfurtMessageTypes::PositionY4 * 0;
-                message[1] = state->agents[id].y;
-                break;
-            case 5:
-                message[0] = FrankfurtMessageTypes::AttackNorth5;
-                message[1] = 0;
-                break;
-            case 6:
-                message[0] = FrankfurtMessageTypes::BombStrength6;
-                message[1] = state->agents[id].bombStrength;
-                break;
-            case 7:
-                message[0] = FrankfurtMessageTypes::Unused7;
-                message[1] = 0;
-                break;
+		if(sameAs6_12_turns_ago && turns > 80 && seenEnemies > 0 && seenAgents == seenEnemies) {
+            message[0] = FrankfurtMessageTypes::ComeAround7;
+            //1: come CCW    2: come CW
+            if(state->agents[id].y == BOARD_SIZE-2) //we are at botttom
+            {
+                int enemyX = enemyIteration1 > enemyIteration2 ? state->agents[enemy1Id].x : state->agents[enemy2Id].x;
+                message[1] = enemyX < state->agents[id].x ? 1 : 2;
+            }else if(state->agents[id].y == 1) // we are at the top
+            {
+                int enemyX = enemyIteration1 > enemyIteration2 ? state->agents[enemy1Id].x : state->agents[enemy2Id].x;
+                message[1] = enemyX < state->agents[id].x ? 2 : 1;
+            }else if(state->agents[id].x == BOARD_SIZE-2) //we are at right
+            {
+                int enemyY = enemyIteration1 > enemyIteration2 ? state->agents[enemy1Id].y : state->agents[enemy2Id].y;
+                message[1] = enemyY < state->agents[id].x ? 2 : 1;
+            }else if(state->agents[id].x == 1) // we are left
+            {
+                int enemyY = enemyIteration1 > enemyIteration2 ? state->agents[enemy1Id].y : state->agents[enemy2Id].y;
+                message[1] = enemyY < state->agents[id].x ? 1 : 2;
+            }
+        }else{
+            switch (1 + state->timeStep % 7) {
+                case 1:
+                    message[0] = FrankfurtMessageTypes::MaxBombCount1;
+                    message[1] = state->agents[id].maxBombCount;
+                    break;
+                case 2:
+                    message[0] = FrankfurtMessageTypes::CanKick2;
+                    message[1] = state->agents[id].canKick;
+                    break;
+                case 3:
+                    if (state->agents[teammateId].x)
+                        message[0] = FrankfurtMessageTypes::PositionX3 * 0;
+                    message[1] = state->agents[id].x;
+                    break;
+                case 4:
+                    message[0] = FrankfurtMessageTypes::PositionY4 * 0;
+                    message[1] = state->agents[id].y;
+                    break;
+                case 5:
+                    message[0] = FrankfurtMessageTypes::AttackNorth5;
+                    message[1] = 0;
+                    break;
+                case 6:
+                    message[0] = FrankfurtMessageTypes::BombStrength6;
+                    message[1] = state->agents[id].bombStrength;
+            }
         }
         message[1] = std::min(7, message[1]);
 
