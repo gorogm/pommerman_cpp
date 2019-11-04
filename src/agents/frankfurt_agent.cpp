@@ -138,13 +138,13 @@ namespace agents {
 				if ((weAreDown && (state->comeAround==1 || (state->comeAround == 0 && (state->ourId == 1 || state->ourId == 2)))) ||
 				    (weAreUp &&   (state->comeAround==2 || (state->comeAround == 0 && (state->ourId == 0 || state->ourId == 3))))) {
 					//Moving right
-					point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].x) - 1) / 100.0f;
-					point -= std::abs((BOARD_SIZE - 1 - positions_in_chain[0].x) - 1) / 100.0f;
+					point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].x) - 1) / 1000.0f;
+					point -= std::abs((BOARD_SIZE - 1 - positions_in_chain[0].x) - 1) / 1000.0f;
 				}
 				else {
 					//Moving left
-					point -= std::abs(state->agents[ourId].x - 1) / 100.0f;
-					point -= std::abs(positions_in_chain[0].x - 1) / 100.0f;
+					point -= std::abs(state->agents[ourId].x - 1) / 1000.0f;
+					point -= std::abs(positions_in_chain[0].x - 1) / 1000.0f;
 				}
 			}
 			if (weAreLeft || weAreRight)
@@ -155,35 +155,35 @@ namespace agents {
 				   (weAreRight && (state->comeAround==2 || (state->comeAround == 0 && (state->ourId == 0 || state->ourId == 3)))))
 				{
 					//Moving down
-					point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].y) - 1) / 100.0f;
-					point -= std::abs((BOARD_SIZE - 1 - positions_in_chain[0].y) - 1) / 100.0f;
+					point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].y) - 1) / 1000.0f;
+					point -= std::abs((BOARD_SIZE - 1 - positions_in_chain[0].y) - 1) / 1000.0f;
 				}
 				else
 				{
 					//Moving up
-					point -= std::abs(state->agents[ourId].y - 1) / 100.0f;
-					point -= std::abs(positions_in_chain[0].y - 1) / 100.0f;
+					point -= std::abs(state->agents[ourId].y - 1) / 1000.0f;
+					point -= std::abs(positions_in_chain[0].y - 1) / 1000.0f;
 				}
 			}
 			if (!weAreDown && !weAreUp && !weAreLeft && !weAreRight)
 			{
 				//we are somewhere middle
 				if (state->agents[ourId].y < BOARD_SIZE / 2) {
-					point -= std::abs(state->agents[ourId].y - 1) / 100.0f;
-					point -= std::abs(positions_in_chain[0].y - 1) / 100.0f;
+					point -= std::abs(state->agents[ourId].y - 1) / 1000.0f;
+					point -= std::abs(positions_in_chain[0].y - 1) / 1000.0f;
 				}
 				else {
-					point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].y) - 1) / 100.0f;
-					point -= std::abs((BOARD_SIZE - 1 - positions_in_chain[0].y) - 1) / 100.0f;
+					point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].y) - 1) / 1000.0f;
+					point -= std::abs((BOARD_SIZE - 1 - positions_in_chain[0].y) - 1) / 1000.0f;
 				}
 
 				if (state->agents[ourId].x < BOARD_SIZE / 2) {
-					point -= std::abs(state->agents[ourId].x - 1) / 100.0f;
-					point -= std::abs(positions_in_chain[0].x - 1) / 100.0f;
+					point -= std::abs(state->agents[ourId].x - 1) / 1000.0f;
+					point -= std::abs(positions_in_chain[0].x - 1) / 1000.0f;
 				}
 				else {
-					point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].x) - 1) / 100.0f;
-					point -= std::abs((BOARD_SIZE - 1 - positions_in_chain[0].x) - 1) / 100.0f;
+					point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].x) - 1) / 1000.0f;
+					point -= std::abs((BOARD_SIZE - 1 - positions_in_chain[0].x) - 1) / 1000.0f;
 				}
 			}
 		}
