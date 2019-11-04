@@ -346,20 +346,20 @@ void ConsumePowerup(State& state, int agentID, int powerUp)
     if(powerUp == Item::EXTRABOMB)
     {
         state.agents[agentID].maxBombCount++;
-        state.agents[agentID].extraBombPowerupPoints += 1.0 - state.relTimeStep/100.0;
+        state.agents[agentID].extraBombPowerupPoints += 1.0 - state.relTimeStep/100.0f;
     }
     else if(powerUp == Item::INCRRANGE)
     {
         state.agents[agentID].bombStrength++;
-        state.agents[agentID].extraRangePowerupPoints += 1.0 - state.relTimeStep/100.0;
+        state.agents[agentID].extraRangePowerupPoints += 1.0 - state.relTimeStep/100.0f;
     }
     else if(powerUp == Item::KICK)
     {
         if(state.agents[agentID].canKick)
         {
-            state.agents[agentID].otherKickPowerupPoints += 1.0 - state.relTimeStep/100.0;
+            state.agents[agentID].otherKickPowerupPoints += 1.0 - state.relTimeStep/100.0f;
         }else{
-            state.agents[agentID].firstKickPowerupPoints += 1.0 - state.relTimeStep/100.0;
+            state.agents[agentID].firstKickPowerupPoints += 1.0 - state.relTimeStep/100.0f;
         }
         state.agents[agentID].canKick = true;
     }
