@@ -285,9 +285,15 @@ namespace agents {
 	//#define RANDOM_TIEBREAK //With nobomb-random-tiebreak: 10% less simsteps, 3% less wins :( , 5-10% less ties against simple. Turned off by default. See log_test_02_tie.txt
 	//#define SCENE_HASH_MEMORY //8-10x less simsteps, but 40% less wins :((
 	StepResult FrankfurtAgent::runOneStep(const bboard::State *state, const int depth) {
-		bboard::Move moves_in_one_step[4];
-		const AgentInfo &a = state->agents[ourId];
-		int choosenMove = 100;
+        StepResult stepRes;
+        bboard::Move moves_in_one_step[4];
+        const AgentInfo &a = state->agents[ourId];
+        int choosenMove = 100;
+#ifdef GM_DEBUGMODE_ON
+  		stepRes.point = -100;
+#else
+		stepRes = -100;
+#endif
 
 #ifdef RANDOM_TIEBREAK
 		FixedQueue<int, 6> bestmoves;
