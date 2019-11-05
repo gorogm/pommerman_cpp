@@ -56,8 +56,7 @@ namespace agents {
 #endif
 		}
 		if (state->agents[teammateId].x >= 0 && state->agents[teammateId].dead) {
-			point += laterBetter(-10 * state->agents[teammateId].dead,
-				state->agents[teammateId].diedAt - state->timeStep);
+			point += laterBetter(-10 * state->agents[teammateId].dead, state->agents[teammateId].diedAt - state->timeStep);
 #ifdef GM_DEBUGMODE_COMMENTS
 			stepRes.comment += "teammate_dies ";
 #endif
@@ -209,22 +208,26 @@ namespace agents {
 			}
 		}
 
+        // Run away -> maximalize distance from enemies, try to have a tie
+        // if 3 agents alive, only teammate is dead, but both enemies are within range
+		bool move_away_from_enemy =  state->aliveAgents == 3 && state->agents[teammateId].dead && state->agents[enemy1Id].x >= 0 && state->agents[enemy1Id].x >= 0;
+#ifdef GM_DEBUGMODE_COMMENTS
+        if(move_away_from_enemy)
+            stepRes.comment += "escape ";
+#endif
+		float current_reward_move_to_enemy = move_away_from_enemy ? reward_move_to_enemy : -reward_move_to_enemy;
+
 		if (state->agents[enemy1Id].x >= 0)
-			point -= (std::abs(state->agents[enemy1Id].x - state->agents[ourId].x) +
-				std::abs(state->agents[enemy1Id].y - state->agents[ourId].y)) / reward_move_to_enemy;
+			point -= (std::abs(state->agents[enemy1Id].x - state->agents[ourId].x) + std::abs(state->agents[enemy1Id].y - state->agents[ourId].y)) / current_reward_move_to_enemy;
 		if (state->agents[enemy2Id].x >= 0)
-			point -= (std::abs(state->agents[enemy2Id].x - state->agents[ourId].x) +
-				std::abs(state->agents[enemy2Id].y - state->agents[ourId].y)) / reward_move_to_enemy;
+			point -= (std::abs(state->agents[enemy2Id].x - state->agents[ourId].x) + std::abs(state->agents[enemy2Id].y - state->agents[ourId].y)) / current_reward_move_to_enemy;
 
 		for (int i = 0; i < state->powerup_kick.count; i++)
-			point -= (std::abs(state->powerup_kick[i].x - state->agents[ourId].x) +
-				std::abs(state->powerup_kick[i].y - state->agents[ourId].y)) / reward_move_to_pickup;
+			point -= (std::abs(state->powerup_kick[i].x - state->agents[ourId].x) + std::abs(state->powerup_kick[i].y - state->agents[ourId].y)) / reward_move_to_pickup;
 		for (int i = 0; i < state->powerup_incr.count; i++)
-			point -= (std::abs(state->powerup_incr[i].x - state->agents[ourId].x) +
-				std::abs(state->powerup_incr[i].y - state->agents[ourId].y)) / reward_move_to_pickup;
+			point -= (std::abs(state->powerup_incr[i].x - state->agents[ourId].x) + std::abs(state->powerup_incr[i].y - state->agents[ourId].y)) / reward_move_to_pickup;
 		for (int i = 0; i < state->powerup_extrabomb.count; i++)
-			point -= (std::abs(state->powerup_extrabomb[i].x - state->agents[ourId].x) +
-				std::abs(state->powerup_extrabomb[i].y - state->agents[ourId].y)) / reward_move_to_pickup;
+			point -= (std::abs(state->powerup_extrabomb[i].x - state->agents[ourId].x) + std::abs(state->powerup_extrabomb[i].y - state->agents[ourId].y)) / reward_move_to_pickup;
 		//Following woods decrease points a little bit, I tried 3 different test setups. It would help, but it doesnt. Turned off.
 		if (seenAgents == 0) {
 			for (int i = 0; i < state->woods.count; i++)
