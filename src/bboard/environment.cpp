@@ -1199,12 +1199,24 @@ void Environment::MakeGameFromPython(int ourId)
                     state->agents[state->teammateId].maxBombCount = message2;
                 }
                 break;
-            case FrankfurtMessageTypes::CanKick2:
-                if(state->agents[state->teammateId].canKick != message2) {
-                    std::cout << "Learned from message: canKick: " << message2 << " (prev. assumed " << state->agents[state->teammateId].canKick << ")" << std::endl;
-                    state->agents[state->teammateId].canKick = message2;
+            case FrankfurtMessageTypes::CanKick2: {
+                bool teammateCanKick = message2 % 2 == 1;
+                bool enemy1CanKick = message2 % 4  > 1;
+                bool enemy2CanKick = message2  > 3;
+                if (state->agents[state->teammateId].canKick != teammateCanKick) {
+                    std::cout << "Learned from message: teammate canKick: " << teammateCanKick << " (prev. assumed " << state->agents[state->teammateId].canKick << ")" << std::endl;
+                    state->agents[state->teammateId].canKick = teammateCanKick;
+                }
+                if (state->agents[state->enemy1Id].canKick == false && enemy1CanKick) { //only accepting positive detection, because can't be sure
+                    std::cout << "Learned from message: enemy1 canKick: " << enemy1CanKick << " (prev. assumed " << state->agents[state->enemy1Id].canKick << ")" << std::endl;
+                    state->agents[state->enemy1Id].canKick = enemy1CanKick;
+                }
+                if (state->agents[state->enemy2Id].canKick == false && enemy2CanKick) { //only accepting positive detection, because can't be sure
+                    std::cout << "Learned from message: enemy2 canKick: " << enemy2CanKick << " (prev. assumed " << state->agents[state->enemy2Id].canKick << ")" << std::endl;
+                    state->agents[state->enemy2Id].canKick = enemy2CanKick;
                 }
                 break;
+            }
             case FrankfurtMessageTypes::PositionX3:
                 if(state->agents[state->teammateId].x != message2) {
                     std::cout << "Learned from message: x: " << message2 << " (prev. assumed " << state->agents[state->teammateId].x << ")" << std::endl;
@@ -1435,9 +1447,18 @@ void Environment::MakeGameFromPython(int ourId)
                                         found = true;
                                         if (BMB_TIME(state->bombs[bomb_index2]) != BMB_TIME(previousBombs[bomb_index]) - 1)
                                             std::cout << "Unexpected KICKED bomb time at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << std::endl;
-                                        else
+                                        else {
                                             std::cout << "Matched old and new KICKED bomb at " << BMB_POS_Y(state->bombs[bomb_index2]) << " " << BMB_POS_X(state->bombs[bomb_index2]) << " move direction: " << move << std::endl;
-
+                                            if (state->board[BMB_POS_Y(previousBombs[bomb_index])][BMB_POS_X(previousBombs[bomb_index])] >= AGENT0)
+                                            {
+                                                int agentId = state->board[BMB_POS_Y(previousBombs[bomb_index])][BMB_POS_X(previousBombs[bomb_index])] - AGENT0;
+                                                if(!state->agents[agentId].canKick)
+                                                {
+                                                    std::cout << "Assuming agent " << agentId << " can kick..." << std::endl;
+                                                    state->agents[agentId].canKick = true;
+                                                }
+                                            }
+                                        }
                                         SetBombID(state->bombs[bomb_index2], BMB_ID(previousBombs[bomb_index]));
                                         SetBombDirection(state->bombs[bomb_index2], (Direction)move);
                                         break;

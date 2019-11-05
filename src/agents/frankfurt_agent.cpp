@@ -397,8 +397,7 @@ namespace agents {
 					StepResult futureStepsE2;
 					for (int moveE2 = 5; moveE2 >= 0; moveE2--) {
 						if (moveE2 > 0) {
-							if (depth >= enemyIteration2 ||
-								(state->agents[enemy2Id].dead || state->agents[enemy2Id].x < 0))
+							if (depth >= enemyIteration2 || (state->agents[enemy2Id].dead || state->agents[enemy2Id].x < 0))
 								continue;
 							// if move is impossible
 							if (moveE2 > 0 && moveE2 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(
@@ -840,7 +839,7 @@ May not work now
                     break;
                 case 2:
                     message[0] = FrankfurtMessageTypes::CanKick2;
-                    message[1] = state->agents[id].canKick;
+                    message[1] = (state->agents[id].canKick ? 1 : 0) + (state->agents[enemy1Id].canKick ? 2 : 0) + (state->agents[enemy2Id].canKick ? 4 : 0); //TODO: would be nice to use newState
                     break;
                 case 3:
                     if (state->agents[teammateId].x)
