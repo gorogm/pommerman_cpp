@@ -117,7 +117,10 @@ namespace agents {
 		//This assumes that there is a highway channel around
 		if (goingAround)
 		{
-			bool weAreDown = previousPositions[ourId][previousPositions[ourId].count - 1].y >= BOARD_SIZE - 3;
+		    bool direction = (state->ourId == 1 || state->ourId == 2); //first: team members should go opposite direction to caress enemies
+            direction = ((turns + (state->ourId % 2) * 30) / 100 + (direction ? 1 : 0)) % 2 == 0; //change direction sometimes to not go around and around if 1-1 lives from the two teams
+
+            bool weAreDown = previousPositions[ourId][previousPositions[ourId].count - 1].y >= BOARD_SIZE - 3;
 			bool weAreUp = previousPositions[ourId][previousPositions[ourId].count - 1].y < 3;
 			bool weAreRight = previousPositions[ourId][previousPositions[ourId].count - 1].x >= BOARD_SIZE - 3;
 			bool weAreLeft = previousPositions[ourId][previousPositions[ourId].count - 1].x < 3;
@@ -135,8 +138,8 @@ namespace agents {
 			{
 				//Moving horizontally
 
-				if ((weAreDown && (state->comeAround==1 || (state->comeAround == 0 && (state->ourId == 1 || state->ourId == 2)))) ||
-				    (weAreUp &&   (state->comeAround==2 || (state->comeAround == 0 && (state->ourId == 0 || state->ourId == 3))))) {
+				if ((weAreDown && (state->comeAround==1 || (state->comeAround == 0 && direction))) ||
+				    (weAreUp &&   (state->comeAround==2 || (state->comeAround == 0 && !direction)))) {
 					//Moving right
 					point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].x) - 1) / 1000.0f;
 					point -= std::abs((BOARD_SIZE - 1 - positions_in_chain[0].x) - 1) / 1000.0f;
@@ -151,8 +154,8 @@ namespace agents {
 			{
 				//Moving vertically
 
-				if ((weAreLeft && (state->comeAround==1 || (state->comeAround == 0 && (state->ourId == 1 || state->ourId == 2)))) ||
-				   (weAreRight && (state->comeAround==2 || (state->comeAround == 0 && (state->ourId == 0 || state->ourId == 3)))))
+				if ((weAreLeft && (state->comeAround==1 || (state->comeAround == 0 && direction))) ||
+				   (weAreRight && (state->comeAround==2 || (state->comeAround == 0 && !direction))))
 				{
 					//Moving down
 					point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].y) - 1) / 1000.0f;
