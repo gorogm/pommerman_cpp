@@ -148,15 +148,15 @@ bool _CheckPos_any(State * state, int x, int y)
 // State Methods //
 ///////////////////
 
+
+
 void State::ExplodeBombAt(int i)
 {
-    int x = BMB_POS_X(bombs[i]);
-    int y = BMB_POS_Y(bombs[i]);
-    SpawnFlame(x, y, BMB_STRENGTH(bombs[i]), BMB_ID(bombs[i]));
-    agents[BMB_ID(bombs[i])].bombCount--;
+    if(BMB_ID_KNOWN(bombs[i]))
+        agents[BMB_ID(bombs[i])].bombCount--;
+    SpawnFlame(BMB_POS_X(bombs[i]), BMB_POS_Y(bombs[i]), BMB_STRENGTH(bombs[i]), BMB_ID(bombs[i]));
     bombs.RemoveAt(i);
 }
-
 void State::PlantBomb(int x, int y, int id, bool setItem)
 {
     PlantBombModifiedLife(x, y,  id, BOMB_LIFETIME, setItem);
@@ -235,15 +235,6 @@ void State::ExplodeTopBomb()
     SpawnFlame(BMB_POS_X(c), BMB_POS_Y(c), BMB_STRENGTH(c), BMB_ID(c));
     PopBomb(*this);
 }
-void State::ExplodeBomb(int bombIndex)
-{
-    Bomb& c = bombs[bombIndex];
-    if(BMB_ID_KNOWN(bombs[bombIndex]))
-        agents[BMB_ID(bombs[bombIndex])].bombCount--;
-    SpawnFlame(BMB_POS_X(c), BMB_POS_Y(c), BMB_STRENGTH(c), BMB_ID(c));
-    bombs.RemoveAt(bombIndex);
-}
-
 void State::SpawnFlame(int x, int y, int strength, int agentID)
 {
     __glibcxx_assert(strength > 0);

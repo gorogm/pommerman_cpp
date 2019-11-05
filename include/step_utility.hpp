@@ -108,7 +108,7 @@ inline void TickAndMoveBombs(State& state){
                     state.board[desiredPos.y][desiredPos.x] = BOMB;
 
                     if (explodes) {
-                        state.ExplodeBomb(i);
+                        state.ExplodeBombAt(i);
                         i--;
                     }
                 }else{

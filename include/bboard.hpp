@@ -465,7 +465,6 @@ struct State
      * edge conditions etc.
      */
     void ExplodeTopBomb();
-    void ExplodeBomb(int bombI);
 
     /**
      * @brief ExplodeTopBomb Explodes the bomb at the the specified index

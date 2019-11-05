@@ -155,7 +155,7 @@ bool Step(State* state, Move* moves)
 
                         if(explodes)
                         {
-                            state->ExplodeBomb(bombi);
+                            state->ExplodeBombAt(bombi);
                             bombi--;
                         }
 

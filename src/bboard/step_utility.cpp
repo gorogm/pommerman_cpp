@@ -211,7 +211,7 @@ void MoveBombs(State* state, Position d[AGENT_COUNT])
                     SetBombPosition(state->bombs[bombIndex], desiredPos.x, desiredPos.y);
                     state->board[desiredPos.y][desiredPos.x] = BOMB;
                     if (explodes) {
-                        state->ExplodeBomb(bombIndex);
+                        state->ExplodeBombAt(bombIndex);
                         bombIndex--;
                     }
                 }
