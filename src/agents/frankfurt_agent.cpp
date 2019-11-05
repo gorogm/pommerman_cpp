@@ -100,17 +100,17 @@ namespace agents {
 		//Attack same enemy
 		if(rushing)
 		{
-			point -= std::abs(state->agents[ourId].x - 1) / 100.0f;
-			point -= std::abs(positions_in_chain[0].x - 1) / 100.0f;
+			point -= std::abs(state->agents[ourId].x - 1) / 300.0f;
+			point -= std::abs(positions_in_chain[0].x - 1) / 300.0f;
 
 			if(state->ourId % 2) //Agent 1,3: meeting left-top
 			{
-				point -= std::abs(positions_in_chain[0].y - 1) / 100.0f;
-				point -= std::abs(state->agents[ourId].y - 1) / 100.0f;
+				point -= std::abs(positions_in_chain[0].y - 1) / 300.0f;
+				point -= std::abs(state->agents[ourId].y - 1) / 300.0f;
 			}else //Agent 0,2: meeting: left-bottom
 			{
-				point -= std::abs((BOARD_SIZE - 1 - positions_in_chain[0].y) - 1) / 100.0f;
-				point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].y) - 1) / 100.0f;
+				point -= std::abs((BOARD_SIZE - 1 - positions_in_chain[0].y) - 1) / 300.0f;
+				point -= std::abs((BOARD_SIZE - 1 - state->agents[ourId].y) - 1) / 300.0f;
 			}
 		}
 
@@ -282,15 +282,9 @@ namespace agents {
 	//#define RANDOM_TIEBREAK //With nobomb-random-tiebreak: 10% less simsteps, 3% less wins :( , 5-10% less ties against simple. Turned off by default. See log_test_02_tie.txt
 	//#define SCENE_HASH_MEMORY //8-10x less simsteps, but 40% less wins :((
 	StepResult FrankfurtAgent::runOneStep(const bboard::State *state, const int depth) {
-		StepResult stepRes;
 		bboard::Move moves_in_one_step[4];
 		const AgentInfo &a = state->agents[ourId];
 		int choosenMove = 100;
-#ifdef GM_DEBUGMODE_ON
-		stepRes.point = -100;
-#else
-		stepRes = -100;
-#endif
 
 #ifdef RANDOM_TIEBREAK
 		FixedQueue<int, 6> bestmoves;
@@ -307,6 +301,7 @@ namespace agents {
 #else
             stepRess[move] = -10000.0f;
 #endif
+
 			Position myDesiredPos = bboard::util::DesiredPosition(a.x, a.y, (bboard::Move) move);
 			// if we don't have bomb
 			if (move == (int)bboard::Move::BOMB && a.maxBombCount - a.bombCount <= 0)
@@ -759,6 +754,8 @@ May not work now
 		bboard::Move moves_in_one_step[4];
 #endif
 #ifdef GM_DEBUGMODE_STEPS
+		if(stepRes.steps.count < 4)
+		    throw std::runtime_error("no steps");
 		int myMove = stepRes.steps[stepRes.steps.count - 1];
   #ifdef DISPLAY_EXPECTATION
 		moves_in_one_step[ourId] = (bboard::Move)stepRes.steps[stepRes.steps.count - 1];
