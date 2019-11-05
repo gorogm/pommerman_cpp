@@ -303,7 +303,7 @@ namespace agents {
 #else
             stepRess[move] = -10000.0f;
 #endif
-			Position desiredPos = bboard::util::DesiredPosition(a.x, a.y, (bboard::Move) move);
+			Position myDesiredPos = bboard::util::DesiredPosition(a.x, a.y, (bboard::Move) move);
 			// if we don't have bomb
 			if (move == (int)bboard::Move::BOMB && a.maxBombCount - a.bombCount <= 0)
 				continue;
@@ -311,7 +311,7 @@ namespace agents {
 			if (move == (int)bboard::Move::BOMB && state->HasBomb(a.x, a.y))
 				continue;
 			// if move is impossible
-			if (move > 0 && move < 5 && !_CheckPos2(state, desiredPos, ourId))
+			if (move > 0 && move < 5 && !_CheckPos2(state, myDesiredPos, ourId))
 				continue;
 			//no two opposite steps please - only after bomb if we can kick or powerup. Slower and worse.
 			//if ((state->agents[ourId].collectedPowerupPoints == 0 || depth < 2 || !state->agents[ourId].canKick || moves_in_chain[4*(depth - 2)+0] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)], move))
@@ -329,15 +329,12 @@ namespace agents {
 						continue;
 					// if move is impossible
 					if (moveT > 0 && moveT < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[teammateId].x,
-						state->agents[teammateId].y,
-						(bboard::Move) moveT), teammateId))
+						state->agents[teammateId].y, (bboard::Move) moveT), teammateId))
 						continue;
-					if (moveT == (int)bboard::Move::BOMB &&
-						state->agents[teammateId].maxBombCount - state->agents[teammateId].bombCount <= 0)
+					if (moveT == (int)bboard::Move::BOMB && state->agents[teammateId].maxBombCount - state->agents[teammateId].bombCount <= 0)
 						continue;
 					// if bomb is already under it
-					if (moveT == (int)bboard::Move::BOMB &&
-						state->HasBomb(state->agents[teammateId].x, state->agents[teammateId].y))
+					if (moveT == (int)bboard::Move::BOMB && state->HasBomb(state->agents[teammateId].x, state->agents[teammateId].y))
 						continue;
 					//no two opposite steps please - only after bomb if we can kick or powerup. Slower and worse.
 					//if ((state->agents[teammateId].collectedPowerupPoints == 0 || depth < 2 || !state->agents[teammateId].canKick || moves_in_chain[4*(depth - 2)+1] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)+1], moveT))
@@ -345,8 +342,8 @@ namespace agents {
 				}
 				else {
 					//We'll have same results with IDLE, IDLE
-					if (maxTeammate > -100 && state->agents[teammateId].x == desiredPos.x &&
-						state->agents[teammateId].y == desiredPos.y)
+					if (maxTeammate > -100 && state->agents[teammateId].x == myDesiredPos.x &&
+                        state->agents[teammateId].y == myDesiredPos.y)
 						continue;
 				}
 
@@ -366,12 +363,10 @@ namespace agents {
 						if (moveE1 > 0 && moveE1 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(
 							state->agents[enemy1Id].x, state->agents[enemy1Id].y, (bboard::Move) moveE1), enemy1Id))
 							continue;
-						if (moveE1 == (int)bboard::Move::BOMB &&
-							state->agents[enemy1Id].maxBombCount - state->agents[enemy1Id].bombCount <= 0)
+						if (moveE1 == (int)bboard::Move::BOMB && state->agents[enemy1Id].maxBombCount - state->agents[enemy1Id].bombCount <= 0)
 							continue;
 						// if bomb is already under it
-						if (moveE1 == (int)bboard::Move::BOMB &&
-							state->HasBomb(state->agents[enemy1Id].x, state->agents[enemy1Id].y))
+						if (moveE1 == (int)bboard::Move::BOMB && state->HasBomb(state->agents[enemy1Id].x, state->agents[enemy1Id].y))
 							continue;
 						//no two opposite steps please - only after bomb if we can kick or powerup. Slower and worse.
 						//if ((state->agents[enemy1Id].collectedPowerupPoints == 0 || depth < 2 || !state->agents[enemy1Id].canKick || moves_in_chain[4*(depth - 2)+2] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)+2], moveE1))
@@ -382,8 +377,8 @@ namespace agents {
 					}
 					else {
 						//We'll have same results with IDLE, IDLE
-						if (minPointE1 < 100 && state->agents[enemy1Id].x == desiredPos.x &&
-							state->agents[enemy1Id].y == desiredPos.y)
+						if (minPointE1 < 100 && state->agents[enemy1Id].x == myDesiredPos.x &&
+                            state->agents[enemy1Id].y == myDesiredPos.y)
 							continue;
 					}
 
@@ -401,12 +396,10 @@ namespace agents {
 							if (moveE2 > 0 && moveE2 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(
 								state->agents[enemy2Id].x, state->agents[enemy2Id].y, (bboard::Move) moveE2), enemy2Id))
 								continue;
-							if (moveE2 == (int)bboard::Move::BOMB &&
-								state->agents[enemy2Id].maxBombCount - state->agents[enemy2Id].bombCount <= 0)
+							if (moveE2 == (int)bboard::Move::BOMB && state->agents[enemy2Id].maxBombCount - state->agents[enemy2Id].bombCount <= 0)
 								continue;
 							// if bomb is already under it
-							if (moveE2 == (int)bboard::Move::BOMB &&
-								state->HasBomb(state->agents[enemy2Id].x, state->agents[enemy2Id].y))
+							if (moveE2 == (int)bboard::Move::BOMB && state->HasBomb(state->agents[enemy2Id].x, state->agents[enemy2Id].y))
 								continue;
 							//no two opposite steps please - only after bomb if we can kick or powerup. Slower and worse.
 							//if ((state->agents[enemy2Id].collectedPowerupPoints == 0 || depth < 2 || !state->agents[enemy2Id].canKick || moves_in_chain[4*(depth - 2)+3] < 5) && depth > 0 &&  util::AreOppositeMoves(moves_in_chain[4*(depth - 1)+3], moveE2))
@@ -417,8 +410,8 @@ namespace agents {
 						}
 						else {
 							//We'll have same results with IDLE, IDLE
-							if (minPointE2 < 100 && state->agents[enemy2Id].x == desiredPos.x &&
-								state->agents[enemy2Id].y == desiredPos.y)
+							if (minPointE2 < 100 && state->agents[enemy2Id].x == myDesiredPos.x &&
+                                state->agents[enemy2Id].y == myDesiredPos.y)
 								continue;
 						}
 
