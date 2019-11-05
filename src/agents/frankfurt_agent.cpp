@@ -233,8 +233,7 @@ namespace agents {
 		//Following woods decrease points a little bit, I tried 3 different test setups. It would help, but it doesnt. Turned off.
 		if (seenAgents == 0) {
 			for (int i = 0; i < state->woods.count; i++)
-				point -= (std::abs(state->woods[i].x - state->agents[ourId].x) +
-					std::abs(state->woods[i].y - state->agents[ourId].y)) / 1000.0f;
+				point -= (std::abs(state->woods[i].x - state->agents[ourId].x) + std::abs(state->woods[i].y - state->agents[ourId].y)) / 1000.0f;
 		}
 
 		if (moves_in_chain[0] == 0) point -= reward_first_step_idle;

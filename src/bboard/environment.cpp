@@ -1260,9 +1260,9 @@ void Environment::MakeGameFromPython(int ourId)
                         SetBombID(*b, 5); //Unknown bomb
                         SetBombPosition(*b, x, y);
                         SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
-                        SetBombDirection(*b, Direction ::IDLE);
+                        SetBombDirection(*b, (Direction)(int)bomb_moving_direction[i]);
                         SetBombTime(*b, bomb_life[i]);
-                        //state->agents[bombId].bombCount++;
+                        //state->agents[bombId].bombCount++; // we dont know the parent
                         state->bombs.count++;
                     }
                     break;
@@ -1324,7 +1324,7 @@ void Environment::MakeGameFromPython(int ourId)
                         SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
                         SetBombDirection(*b, Direction::IDLE);
                         SetBombTime(*b, bomb_life[i]);
-                        if (bomb_life[i] > 7) //Let's assume it was placed by the guy on the top - or an agent can't go over a bomb, so bomb-life check is not necessary?
+                        //if (bomb_life[i] > 7) //an agent can't go over a bomb, so bomb-life check is not necessary?
                         {
                             //extra info: the agent's bomb-strength
                             state->agents[bombId].bombStrength = (int)bomb_blast_strength[i] - 1;
