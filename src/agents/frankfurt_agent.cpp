@@ -14,6 +14,8 @@ bboard::FixedQueue<bboard::Position, 40> agents::FrankfurtAgent::positions_in_ch
 
 namespace agents {
 	FrankfurtAgent::FrankfurtAgent() {
+	    for(int timestap=0; timestap<30; timestap++)
+        reward_sooner_later_ratio_pow_timestamps[timestap] = (float)std::pow(reward_sooner_later_ratio, timestap);
 	}
 
 	bool FrankfurtAgent::_CheckPos2(const State *state, bboard::Position pos, int agentId = -1) {
@@ -24,15 +26,14 @@ namespace agents {
 		return !util::IsOutOfBounds(x, y) && (IS_WALKABLE_OR_AGENT(state->board[y][x]) || (agentId >= 0 && state->agents[agentId].canKick && state->board[y][x] == BOMB));
 	}
 
-
 	float FrankfurtAgent::laterBetter(float reward, int timestaps) {
 		if (reward == 0.0f)
 			return reward;
 
 		if (reward > 0)
-			return reward * (1.0f / (float)std::pow(reward_sooner_later_ratio, timestaps));
+			return reward * (1.0f / reward_sooner_later_ratio_pow_timestamps[timestaps]);
 		else
-			return reward * (float)std::pow(reward_sooner_later_ratio, timestaps);
+			return reward * reward_sooner_later_ratio_pow_timestamps[timestaps];
 	}
 
 	float FrankfurtAgent::soonerBetter(float reward, int timestaps) {
@@ -40,9 +41,9 @@ namespace agents {
 			return reward;
 
 		if (reward < 0)
-			return reward * (1.0f / (float)std::pow(reward_sooner_later_ratio, timestaps));
+			return reward * (1.0f / reward_sooner_later_ratio_pow_timestamps[timestaps]);
 		else
-			return reward * (float)std::pow(reward_sooner_later_ratio, timestaps);
+			return reward * reward_sooner_later_ratio_pow_timestamps[timestaps];
 	}
 
 	StepResult FrankfurtAgent::scoreState(State *state) {

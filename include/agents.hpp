@@ -328,6 +328,7 @@ struct SimpleAgent : bboard::Agent
         void createDeadEndMap(const bboard::State* state);
         float laterBetter(float reward, int timestamps);
         float soonerBetter(float reward, int timestmaps);
+        float reward_sooner_later_ratio_pow_timestamps[30];
 
         const float reward_first_step_idle = 0.001f;
         const float reward_sooner_later_ratio = 0.98f;
