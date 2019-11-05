@@ -211,12 +211,13 @@ namespace agents {
 
         // Run away -> maximalize distance from enemies, try to have a tie
         // if 3 agents alive, only teammate is dead, but both enemies are within range
-		bool move_away_from_enemy =  state->aliveAgents == 3 && state->agents[teammateId].dead && state->agents[enemy1Id].x >= 0 && state->agents[enemy1Id].x >= 0;
+		bool move_away_from_enemy =  state->aliveAgents == 3 && state->agents[teammateId].dead && state->agents[enemy1Id].x >= 0 && state->agents[enemy2Id].x >= 0;
 #ifdef GM_DEBUGMODE_COMMENTS
         if(move_away_from_enemy)
             stepRes.comment += "escape ";
 #endif
-		float current_reward_move_to_enemy = move_away_from_enemy ? reward_move_to_enemy : -reward_move_to_enemy;
+		float current_reward_move_to_enemy = move_away_from_enemy ? -reward_move_to_enemy : reward_move_to_enemy;
+
 
 		if (state->agents[enemy1Id].x >= 0)
 			point -= (std::abs(state->agents[enemy1Id].x - state->agents[ourId].x) + std::abs(state->agents[enemy1Id].y - state->agents[ourId].y)) / current_reward_move_to_enemy;
@@ -267,9 +268,9 @@ namespace agents {
 #ifdef USE_NEW_ONECALL_EXPLOSION
 		util::TickAndMoveBombs10(*state);
 #else
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < BOMB_LIFETIME; i++) {
 			//Exit if match decided, maybe we would die later from an other bomb, so that disturbs pointing and decision making
-			if (state->aliveAgents < 2 || (state->aliveAgents == 2 && ((state->agents[0].dead && state->agents[2].dead) || (state->agents[1].dead && state->agents[3].dead))))
+			if (state->aliveAgents < 2 || (state->aliveAgents == 2 && (state->agents[0].dead = state->agents[2].dead)))
 				break;
 
 			util::TickAndMoveBombs(*state);

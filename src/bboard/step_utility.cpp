@@ -303,7 +303,7 @@ void TickBombs(State& state)
     void TickAndMoveBombs10(State& state){
         //explode timed-out bombs
         int stepSize = 1;
-        for(int remainingTime = 10; remainingTime>0; remainingTime-=stepSize) {
+        for(int remainingTime = BOMB_LIFETIME; remainingTime>0; remainingTime-=stepSize) {
             __glibcxx_assert(stepSize > 0);
             bool anyBodyMoves = false;
             int minRemaining = 100;
@@ -336,7 +336,7 @@ void TickBombs(State& state)
 
             stepSize = (anyBodyMoves ? 1 : minRemaining);
             //Exit if match decided, maybe we would die later from an other bomb, so that disturbs pointing and decision making
-            if (state.aliveAgents < 2 || (state.aliveAgents == 2 && ((state.agents[0].dead && state.agents[2].dead) || (state.agents[1].dead && state.agents[3].dead))))
+            if (state.aliveAgents < 2 || (state.aliveAgents == 2 && (state.agents[0].dead == state.agents[2].dead)))
                 break;
         }
     }
