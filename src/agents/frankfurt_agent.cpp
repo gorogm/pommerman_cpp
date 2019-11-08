@@ -474,9 +474,9 @@ namespace agents {
 						{
 #ifdef TIME_LIMIT_ON
 							size_t millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
-							if (millis > 97)
+							if (millis > 147)
 								std::cout << "OVERTIME " << millis << std::endl;
-							if ((millis < 80) || (depth < 3 && millis < 90) || (depth < 2 && millis < 95))
+							if ((millis < 130) || (depth < 3 && millis < 140) || (depth < 2 && millis < 145))
 								futureSteps = runOneStep(&newstate, depth + 1);
 							else
 								futureSteps = runAlreadyPlantedBombs(&newstate);
