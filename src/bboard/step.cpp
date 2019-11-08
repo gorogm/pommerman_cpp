@@ -264,7 +264,7 @@ bool Step(State* state, Move* moves)
                     && moves[indexAgent] != Move::BOMB
                     // if the agents is where he came from he probably got bounced
                     // back to the bomb he was already standing on.
-                    && !(state->agents[i].GetPos() == oldPos[indexAgent]))
+                    && !(state->agents[indexAgent].GetPos() == oldPos[indexAgent]))
 
             {
 
