@@ -272,7 +272,7 @@ namespace agents {
 #else
 		for (int i = 0; i < BOMB_LIFETIME; i++) {
 			//Exit if match decided, maybe we would die later from an other bomb, so that disturbs pointing and decision making
-			if (state->aliveAgents < 2 || (state->aliveAgents == 2 && (state->agents[0].dead = state->agents[2].dead)))
+			if (state->aliveAgents < 2 || (state->aliveAgents == 2 && (state->agents[0].dead == state->agents[2].dead)))
 				break;
 
 			util::TickAndMoveBombs(*state);
@@ -332,8 +332,7 @@ namespace agents {
 			StepResult futureStepsT;
 			for (int moveT = 5; moveT >= 0; moveT--) {
 				if (moveT > 0) {
-					if (depth >= teammateIteration ||
-						(state->agents[teammateId].dead || state->agents[teammateId].x < 0))
+					if (depth >= teammateIteration || (state->agents[teammateId].dead || state->agents[teammateId].x < 0))
 						continue;
 					// if move is impossible
 					if (moveT > 0 && moveT < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(state->agents[teammateId].x,
@@ -364,8 +363,7 @@ namespace agents {
 				StepResult futureStepsE1;
 				for (int moveE1 = 5; moveE1 >= 0; moveE1--) {
 					if (moveE1 > 0) {
-						if (depth >= enemyIteration1 ||
-							(state->agents[enemy1Id].dead || state->agents[enemy1Id].x < 0))
+						if (depth >= enemyIteration1 || (state->agents[enemy1Id].dead || state->agents[enemy1Id].x < 0))
 							continue;
 						// if move is impossible
 						if (moveE1 > 0 && moveE1 < 5 && !_CheckPos2(state, bboard::util::DesiredPosition(

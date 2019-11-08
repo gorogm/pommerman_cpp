@@ -51,34 +51,18 @@ namespace agents {
         float point = 0.0f;
         if (state->agents[ourId].dead) {
             point += laterBetter(-10 * state->agents[ourId].dead, state->agents[ourId].diedAt - state->timeStep);
-#ifdef GM_DEBUGMODE_COMMENTS
-            stepRes.comment += "I_die ";
-#endif
         }
         if (state->agents[teammateId].x >= 0 && state->agents[teammateId].dead) {
             point += laterBetter(-10 * state->agents[teammateId].dead,
                                  state->agents[teammateId].diedAt - state->timeStep);
-#ifdef GM_DEBUGMODE_COMMENTS
-            stepRes.comment += "teammate_dies ";
-#endif
         }
         if (state->agents[enemy1Id].x >= 0 && state->agents[enemy1Id].dead) {
             point += 3 * soonerBetter(state->agents[enemy1Id].dead, state->agents[enemy1Id].diedAt - state->timeStep);
-#ifdef GM_DEBUGMODE_COMMENTS
-            stepRes.comment += "enemy1_dies ";
-#endif
         }
         if (state->agents[enemy2Id].x >= 0 && state->agents[enemy2Id].dead) {
             point += 3 * soonerBetter(state->agents[enemy2Id].dead, state->agents[enemy2Id].diedAt - state->timeStep);
-#ifdef GM_DEBUGMODE_COMMENTS
-            stepRes.comment += "enemy2_dies ";
-#endif
         }
 
-#ifdef GM_DEBUGMODE_COMMENTS
-        if(state->agents[ourId].woodDemolished > 0)
-            stepRes.comment += "woodDemolished ";
-#endif
         point += reward_woodDemolished * state->agents[ourId].woodDemolished;
         point += reward_woodDemolished * state->agents[teammateId].woodDemolished;
         point -= reward_woodDemolished * state->agents[enemy1Id].woodDemolished;

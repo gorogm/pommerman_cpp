@@ -88,21 +88,12 @@ namespace agents {
 
         if (state->aliveAgents == 0) {
             //point += soonerBetter(??, state->relTimeStep); //we win
-#ifdef GM_DEBUGMODE_COMMENTS
-            stepRes.comment += "tie ";
-#endif
         } else if (state->aliveAgents < 3) {
             if (state->agents[ourId].dead && state->agents[teammateId].dead) {
                 point += laterBetter(-20.0f, state->relTimeStep); //we lost
-#ifdef GM_DEBUGMODE_COMMENTS
-                stepRes.comment += "we_lost ";
-#endif
             }
             if (state->agents[enemy1Id].dead && state->agents[enemy2Id].dead) {
                 point += soonerBetter(+20.0f, state->relTimeStep); //we win
-#ifdef GM_DEBUGMODE_COMMENTS
-                stepRes.comment += "we_win ";
-#endif
             }
         }
 
