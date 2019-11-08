@@ -255,7 +255,8 @@ bool Step(State* state, Move* moves)
 
         if(util::IsOutOfBounds(target) ||
                 IS_STATIC_MOV_BLOCK((*state)[target]) ||
-                IS_AGENT((*state)[target]))
+                IS_AGENT((*state)[target]) ||
+                3 == (*state)[target])
         {
             SetBombDirection(b, Direction::IDLE);
             int indexAgent = state->GetAgent(bx, by);
