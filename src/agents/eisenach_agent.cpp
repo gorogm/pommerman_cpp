@@ -460,10 +460,6 @@ namespace agents {
 			}
 
 			if (maxTeammate > -100) {
-#ifdef DISPLAY_DEPTH0_POINTS
-				if (depth == 0)
-					std::cout << "point for move " << move << ": " << maxTeammate << std::endl;
-#endif
 
 #ifdef RANDOM_TIEBREAK
 				if (maxTeammate == maxPoint && move != 5) { bestmoves[bestmoves.count] = move; bestmoves.count++; }
@@ -680,14 +676,13 @@ May not work now
 		}
 		moveHistory[moveHistory.count] = myMove;
 		moveHistory.count++;
-
+/*
 		std::cout << "turn#" << state->timeStep << " ourId:" << ourId << " point: " << (float)stepRes << " selected: ";
 		std::cout << myMove << " simulated steps: " << simulatedSteps;
 		std::cout << ", depth " << myMaxDepth << " " << teammateIteration << " " << enemyIteration1 << " "
 			<< enemyIteration2 << (rushing ? " rushing" : "") << (goingAround ? " goingAround" : "") << std::endl;
-
 		std::cout << std::endl;
-
+*/
 		totalSimulatedSteps += simulatedSteps;
 		turns++;
 		expectedPosInNewTurn = bboard::util::DesiredPosition(a.x, a.y, (bboard::Move) myMove);

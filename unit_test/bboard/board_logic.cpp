@@ -108,7 +108,7 @@ TEST_CASE("Movement Against Flames", "[step function]")
     bboard::Move m[4] = {id, id, id, id};
 
     s->PutAgentsInCorners(0, 1, 2, 3);
-    s->SpawnFlame(1,1,2);
+    s->SpawnFlame(1,1,2,0);
 
     m[0] = bboard::Move::RIGHT;
 
@@ -391,7 +391,7 @@ TEST_CASE("Flame Mechanics", "[step function]")
 
     SECTION("Correct Lifetime Calculation")
     {
-        s->SpawnFlame(5,5,4);
+        s->SpawnFlame(5,5,4,0);
         bboard::Step(s.get(), m);
 
         SeveralSteps(bboard::FLAME_LIFETIME - 2, s.get(), m);
@@ -401,7 +401,7 @@ TEST_CASE("Flame Mechanics", "[step function]")
     }
     SECTION("Vanish Flame Completely")
     {
-        s->SpawnFlame(5,5,4);
+        s->SpawnFlame(5,5,4,0);
         bboard::Step(s.get(), m);
 
         for(int i = 0; i <= 4; i++)
@@ -414,10 +414,10 @@ TEST_CASE("Flame Mechanics", "[step function]")
     }
     SECTION("Only Vanish Your Own Flame")
     {
-        s->SpawnFlame(5,5,4);
+        s->SpawnFlame(5,5,4,0);
         bboard::Step(s.get(), m);
 
-        s->SpawnFlame(6, 6, 4);
+        s->SpawnFlame(6, 6, 4,0);
         SeveralSteps(bboard::FLAME_LIFETIME - 1, s.get(), m);
 
         REQUIRE(IS_FLAME(s->board[5][6]));

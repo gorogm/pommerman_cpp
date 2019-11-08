@@ -1,6 +1,6 @@
 #FROM python:3.6
 
-FROM ubuntu:18.04
+FROM ubuntu:19.10
 #RUN apt update
 #RUN apt-get install -y software-properties-common vim
 #RUN add-apt-repository ppa:jonathonf/python-3.6
@@ -25,9 +25,10 @@ RUN cd /pommerman && pip3 install .
 # end @TODO
 
 ADD src /opt/work/pommerman_cpp/src
+ADD include /opt/work/pommerman_cpp/include
 ADD CMakeLists.txt /opt/work/pommerman_cpp/CMakeLists.txt
 RUN cd /opt/work/pommerman_cpp && mkdir cmake-build-debug && cd cmake-build-debug && CC=gcc-9 CXX=g++-9 cmake .. && make
-RUN rm -rf /opt/work/pommerman_cpp/src /opt/work/pommerman_cpp/CMakeLists.txt /opt/work/pommerman_cpp/cmake-build-debug/CMakeFiles
+RUN rm -rf /opt/work/pommerman_cpp/src /opt/work/pommerman_cpp/include /opt/work/pommerman_cpp/CMakeLists.txt /opt/work/pommerman_cpp/cmake-build-debug/CMakeFiles
 
 EXPOSE 10080
 
