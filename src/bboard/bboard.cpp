@@ -20,10 +20,6 @@
 
 namespace bboard
 {
-    int State::timeStep = 0;
-    int State::ourId = -1, State::teammateId = -1, State::enemy1Id = -1, State::enemy2Id = -1; //0-1-2-3
-    uint8_t State::comeAround = 0; // message from radio
-
 /////////////////////////
 // Auxiliary Functions //
 /////////////////////////

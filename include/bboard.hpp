@@ -421,10 +421,10 @@ struct State
     uint8_t aliveAgents = AGENT_COUNT;
     uint8_t longestChainedBombDistance = 0;
 
-    //these doesnt change, so they don't need to be copied -> static
-    static int timeStep;
-    static int ourId, teammateId, enemy1Id, enemy2Id; //0-1-2-3
-    static uint8_t comeAround; // message from radio
+    //these doesnt change, so they don't need to be copied every time. TODO: static (agents disturb each other) or separate struct?
+    int timeStep = 0;
+    int ourId, teammateId, enemy1Id, enemy2Id=-1; //0-1-2-3
+    uint8_t comeAround = 0; // message from radio
 
     /**
      * @brief agents Array of all agents and their properties
