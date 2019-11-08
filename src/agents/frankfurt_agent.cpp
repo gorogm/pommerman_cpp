@@ -84,6 +84,11 @@ namespace agents {
 		point -= reward_woodDemolished * state->agents[enemy1Id].woodDemolished;
 		point -= reward_woodDemolished * state->agents[enemy2Id].woodDemolished;
 
+		// Reward long chained explosions, they may be difficult to see for enemies. But if only our teammate is around, dont make it more difficult for him :)
+		// Only if teammate is not seen, or he is seen but two enemies also
+		if(state->longestChainedBombDistance > 1 && (state->agents[teammateId].x < 0 || (state->agents[enemy1Id].x >= 0 && state->agents[enemy2Id].x >= 0)))
+		    point += ((float)state->longestChainedBombDistance) / 200.0f;
+
 #ifdef GM_DEBUGMODE_COMMENTS
         if (state->agents[ourId].extraBombPowerupPoints > 0)
             stepRes.comment += "extraBombPowerupPoints ";
@@ -239,7 +244,7 @@ namespace agents {
 				point -= (std::abs(state->woods[i].x - state->agents[ourId].x) + std::abs(state->woods[i].y - state->agents[ourId].y)) / 1000.0f;
 		}
 
-		if (moves_in_chain[0] == 0) point -= reward_first_step_idle;
+		if (moves_in_chain[0] == 0) point -= reward_first_step_idle; //dont be IDLE if we can do something
 		if (lastMoveWasBlocked && ((state->timeStep / 4 + ourId) % 4) == 0 && moves_in_chain[0] == lastBlockedMove)
 			point -= 0.1f;
 		if (sameAs6_12_turns_ago && ((state->timeStep / 4 + ourId) % 4) == 0 && moves_in_chain[0] == moveHistory[moveHistory.count - 6])

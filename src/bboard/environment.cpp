@@ -1135,6 +1135,7 @@ void Environment::MakeGameFromPython(int ourId)
         }
 
         state->comeAround = 0;
+        state->longestChainedBombDistance = 0;
         state->woods.count = 0;
         state->powerup_incr.count = 0;
         state->powerup_kick.count = 0;
@@ -1335,6 +1336,7 @@ void Environment::MakeGameFromPython(int ourId)
                         SetBombPosition(*b, x, y);
                         SetBombStrength(*b, (int)bomb_blast_strength[i] - 1);
                         SetBombDirection(*b, Direction::IDLE);
+                        __glibcxx_assert(bomb_moving_direction[i] == 0);
                         SetBombTime(*b, bomb_life[i]);
                         //if (bomb_life[i] > 7) //an agent can't go over a bomb, so bomb-life check is not necessary?
                         {
@@ -1535,6 +1537,7 @@ void Environment::MakeGameFromPython(int ourId)
         state->agents[state->ourId].canKick = can_kick;
         state->agents[state->ourId].bombCount = state->agents[state->ourId].maxBombCount - ammo; //should be already OK from bomb enumeration
         state->agents[state->ourId].bombStrength = blast_strength - 1;
+        state->longestChainedBombDistance = 0;
 
     }
 

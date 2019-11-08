@@ -31,9 +31,11 @@ namespace bboard
  * @param x The x position of the fire
  * @param y The y position of the fire
  * @param signature An auxiliary integer less than 255
+ * @param agentID ID of agent who planted the bomb
+ * @param bombDistance cell distance from exploded bomb
  * @return Could the flame be spawned?
  */
-inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature, int agentID)
+inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature, int agentID, uint8_t bombDistance)
 {
     if(s.board[y][x] >= Item::AGENT0)
     {
@@ -45,7 +47,8 @@ inline bool SpawnFlameItem(State& s, int x, int y, uint16_t signature, int agent
         {
             if(BMB_POS(s.bombs[i]) == (x + (y << 4)))
             {
-                s.ExplodeBombAt(i);
+                s.longestChainedBombDistance = std::max(s.longestChainedBombDistance, bombDistance);
+                s.ExplodeBombAt(i); // chained explosion
                 break;
             }
         }
@@ -262,7 +265,7 @@ void State::SpawnFlame(int x, int y, int strength, int agentID)
     {
         if(x + i >= BOARD_SIZE) break; // bounds
 
-        if(!SpawnFlameItem(*this, x + i, y, signature, agentID))
+        if(!SpawnFlameItem(*this, x + i, y, signature, agentID, i))
         {
             break;
         }
@@ -273,7 +276,7 @@ void State::SpawnFlame(int x, int y, int strength, int agentID)
     {
         if(x - i < 0) break; // bounds
 
-        if(!SpawnFlameItem(*this, x - i, y, signature, agentID))
+        if(!SpawnFlameItem(*this, x - i, y, signature, agentID, i))
         {
             break;
         }
@@ -284,7 +287,7 @@ void State::SpawnFlame(int x, int y, int strength, int agentID)
     {
         if(y + i >= BOARD_SIZE) break; // bounds
 
-        if(!SpawnFlameItem(*this, x, y + i, signature, agentID))
+        if(!SpawnFlameItem(*this, x, y + i, signature, agentID, i))
         {
             break;
         }
@@ -295,7 +298,7 @@ void State::SpawnFlame(int x, int y, int strength, int agentID)
     {
         if(y - i < 0) break; // bounds
 
-        if(!SpawnFlameItem(*this, x, y - i, signature, agentID))
+        if(!SpawnFlameItem(*this, x, y - i, signature, agentID, i))
         {
             break;
         }

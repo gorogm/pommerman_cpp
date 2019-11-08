@@ -255,6 +255,7 @@ inline std::ostream & operator<<(std::ostream & str, const Position& v)
  */
 struct AgentInfo
 {
+    // If x and y == -1, the agent is not seen - but still may be living
     int x; // column
     int y; // row
 
@@ -421,6 +422,7 @@ struct State
     int aliveAgents = AGENT_COUNT;
     int ourId, teammateId, enemy1Id, enemy2Id = -1; //0-1-2-3
     int comeAround = 0; // from radio
+    uint8_t longestChainedBombDistance = 0;
 
     /**
      * @brief agents Array of all agents and their properties
