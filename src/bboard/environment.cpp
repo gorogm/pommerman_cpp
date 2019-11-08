@@ -1537,6 +1537,7 @@ void Environment::MakeGameFromPython(int ourId)
         state->agents[state->ourId].canKick = can_kick;
         state->agents[state->ourId].bombCount = state->agents[state->ourId].maxBombCount - ammo; //should be already OK from bomb enumeration
         state->agents[state->ourId].bombStrength = blast_strength - 1;
+        state->relTimeStep = 0;
         state->longestChainedBombDistance = 0;
 
     }
