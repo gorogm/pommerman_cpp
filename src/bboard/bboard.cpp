@@ -649,36 +649,9 @@ ConfigInfo readHyperparams(std::string configFile) {
 }
 
 std::array<std::shared_ptr<bboard::Environment>, 4> envs;
-std::array<std::shared_ptr<agents::BerlinAgent>, 4> berlinAgents;
-std::array<std::shared_ptr<agents::CologneAgent>, 4> cologneAgents;
-std::array<std::shared_ptr<agents::DortmundAgent>, 4> dortmundAgents;
-std::array<std::shared_ptr<agents::EisenachAgent>, 4> eisenachAgents;
 std::array<std::shared_ptr<agents::FrankfurtAgent>, 4> frankfurtAgents;
-void init_agent_berlin(int id)
-{
-    envs[id] = std::make_shared<bboard::Environment>();
-    berlinAgents[id] = std::make_shared<agents::BerlinAgent>();
-    envs[id]->MakeGameFromPython(id);
-}
-void init_agent_cologne(int id)
-{
-    envs[id] = std::make_shared<bboard::Environment>();
-    cologneAgents[id] = std::make_shared<agents::CologneAgent>();
-    envs[id]->MakeGameFromPython(id);
-}
-void init_agent_dortmund(int id)
-{
-    envs[id] = std::make_shared<bboard::Environment>();
-    dortmundAgents[id] = std::make_shared<agents::DortmundAgent>();
-    envs[id]->MakeGameFromPython(id);
-}
+std::array<std::shared_ptr<agents::GottingenAgent>, 4> gottingenAgents;
 
-void init_agent_eisenach(int id)
-{
-    envs[id] = std::make_shared<bboard::Environment>();
-    eisenachAgents[id] = std::make_shared<agents::EisenachAgent>();
-    envs[id]->MakeGameFromPython(id);
-}
 void init_agent_frankfurt(int id)
 {
     envs[id] = std::make_shared<bboard::Environment>();
@@ -731,54 +704,14 @@ void init_agent_frankfurt(int id)
         frankfurtAgents[id]->weight_of_average_Epoint = hyperparams["weight_of_average_Epoint"];
     }*/
 }
-
-
-float episode_end_berlin(int id)
+void init_agent_gottingen(int id)
 {
-    if(berlinAgents[id]->turns == 0)
-        berlinAgents[id]->turns++;
-    float avg_simsteps_per_turn = berlinAgents[id]->totalSimulatedSteps / (float)berlinAgents[id]->turns;
-    //std::cout << "Episode end for agent " << id << ". Turns: " << berlinAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
-    berlinAgents[id] = std::make_shared<agents::BerlinAgent>();
     envs[id] = std::make_shared<bboard::Environment>();
+    gottingenAgents[id] = std::make_shared<agents::GottingenAgent>();
     envs[id]->MakeGameFromPython(id);
-    return avg_simsteps_per_turn;
-}
-float episode_end_cologne(int id)
-{
-    if(cologneAgents[id]->turns == 0)
-        cologneAgents[id]->turns++;
-    float avg_simsteps_per_turn = cologneAgents[id]->totalSimulatedSteps / (float)cologneAgents[id]->turns;
-    //std::cout << "Episode end for agent " << id << ". Turns: " << cologneAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
-    cologneAgents[id] = std::make_shared<agents::CologneAgent>();
-    envs[id] = std::make_shared<bboard::Environment>();
-    envs[id]->MakeGameFromPython(id);
-    return avg_simsteps_per_turn;
 }
 
-float episode_end_dortmund(int id)
-{
-    if(dortmundAgents[id]->turns == 0)
-        dortmundAgents[id]->turns++;
-    float avg_simsteps_per_turn = dortmundAgents[id]->totalSimulatedSteps / (float)dortmundAgents[id]->turns;
-    //std::cout << "Episode end for agent " << id << ". Turns: " << dortmundAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
-    dortmundAgents[id] = std::make_shared<agents::DortmundAgent>();
-    envs[id] = std::make_shared<bboard::Environment>();
-    envs[id]->MakeGameFromPython(id);
-    return avg_simsteps_per_turn;
-}
 
-float episode_end_eisenach(int id)
-{
-    if (eisenachAgents[id]->turns == 0)
-        eisenachAgents[id]->turns++;
-    float avg_simsteps_per_turn = eisenachAgents[id]->totalSimulatedSteps / (float)eisenachAgents[id]->turns;
-    //std::cout << "Episode end for agent " << id << ". Turns: " << eisenachAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
-    eisenachAgents[id] = std::make_shared<agents::EisenachAgent>();
-    envs[id] = std::make_shared<bboard::Environment>();
-    envs[id]->MakeGameFromPython(id);
-    return avg_simsteps_per_turn;
-}
 float episode_end_frankfurt(int id)
 {
     if (frankfurtAgents[id]->turns == 0)
@@ -790,56 +723,16 @@ float episode_end_frankfurt(int id)
     envs[id]->MakeGameFromPython(id);
     return avg_simsteps_per_turn;
 }
-
-int getStep_berlin(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
+float episode_end_gottingen(int id)
 {
-    berlinAgents[id]->start_time = std::chrono::high_resolution_clock::now();
-    //std::cout << std::endl;
-
-    envs[id]->MakeGameFromPython_berlin(agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
-
-    berlinAgents[id]->id = envs[id]->GetState().ourId;
-    //PrintState(&envs[id]->GetState());
-
-    // Ask the agent where to go
-    return (int)berlinAgents[id]->act(&envs[id]->GetState());
-}
-int getStep_cologne(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
-{
-    cologneAgents[id]->start_time = std::chrono::high_resolution_clock::now();
-    //std::cout << std::endl;
-
-    envs[id]->MakeGameFromPython_cologne(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
-
-    cologneAgents[id]->id = envs[id]->GetState().ourId;
-    //PrintState(&envs[id]->GetState());
-
-    // Ask the agent where to go
-    return (int)cologneAgents[id]->act(&envs[id]->GetState());
-}
-int getStep_dortmund(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
-{
-
-    dortmundAgents[id]->start_time = std::chrono::high_resolution_clock::now();
-
-    envs[id]->MakeGameFromPython_dortmund(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
-
-    dortmundAgents[id]->id = envs[id]->GetState().ourId;
-
-    // Ask the agent where to go
-    return (int)dortmundAgents[id]->act(&envs[id]->GetState());
-}
-
-int getStep_eisenach(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
-{
-    eisenachAgents[id]->start_time = std::chrono::high_resolution_clock::now();
-
-    envs[id]->MakeGameFromPython_eisenach(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
-
-    eisenachAgents[id]->id = envs[id]->GetState().ourId;
-
-    // Ask the agent where to go
-    return (int)eisenachAgents[id]->act(&envs[id]->GetState());
+    if (gottingenAgents[id]->turns == 0)
+        gottingenAgents[id]->turns++;
+    float avg_simsteps_per_turn = gottingenAgents[id]->totalSimulatedSteps / (float)gottingenAgents[id]->turns;
+    std::cout << "Episode end for agent " << id << ". Turns: " << gottingenAgents[id]->turns << " avg.sim.steps: " << avg_simsteps_per_turn << std::endl;
+    gottingenAgents[id] = std::make_shared<agents::GottingenAgent>();
+    envs[id] = std::make_shared<bboard::Environment>();
+    envs[id]->MakeGameFromPython(id);
+    return avg_simsteps_per_turn;
 }
 
 int getStep_frankfurt(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, double * bomb_moving_direction, double * flame_life, int posx, int posy, int blast_strength, bool can_kick, int ammo, int game_type, int teammate_id, int message1, int message2)
@@ -859,10 +752,32 @@ int getStep_frankfurt(int id, bool agent0Alive, bool agent1Alive, bool agent2Ali
     // Ask the agent where to go
     return (int)frankfurtAgents[id]->act(&envs[id]->GetState());
 }
+int getStep_gottingen(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, double * bomb_moving_direction, double * flame_life, int posx, int posy, int blast_strength, bool can_kick, int ammo, int game_type, int teammate_id, int message1, int message2)
+{
+    gottingenAgents[id]->start_time = std::chrono::high_resolution_clock::now();
+#ifdef VERBOSE_STATE
+    std::cout << std::endl;
+#endif
+
+    envs[id]->MakeGameFromPython_gottingen(agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, bomb_moving_direction, flame_life, posx, posy, blast_strength, can_kick, ammo, game_type, teammate_id, message1, message2);
+
+    gottingenAgents[id]->id = envs[id]->GetState().ourId;
+#ifdef VERBOSE_STATE
+    PrintState(&envs[id]->GetState());
+#endif
+
+    // Ask the agent where to go
+    return (int)gottingenAgents[id]->act(&envs[id]->GetState());
+}
 
 int getMessage_frankfurt(int id, int messagePart)
 {
     return frankfurtAgents[id]->message[messagePart];
+}
+
+int getMessage_gottingen(int id, int messagePart)
+{
+    return gottingenAgents[id]->message[messagePart];
 }
 
 void tests()
@@ -1128,65 +1043,6 @@ EXPORTIT void c_tests()
     tests();
 }
 
-EXPORTIT void c_init_agent_berlin(int id)
-{
-    init_agent_berlin(id);
-}
-
-EXPORTIT float c_episode_end_berlin(int id)
-{
-    return episode_end_berlin(id);
-}
-
-EXPORTIT int c_getStep_berlin(int id, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
-{
-    return getStep_berlin(id, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
-}
-
-EXPORTIT void c_init_agent_cologne(int id)
-{
-    init_agent_cologne(id);
-}
-
-EXPORTIT float c_episode_end_cologne(int id)
-{
-    return episode_end_cologne(id);
-}
-
-EXPORTIT int c_getStep_cologne(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
-{
-    return getStep_cologne(id, agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
-}
-
-EXPORTIT void c_init_agent_dortmund(int id)
-{
-    init_agent_dortmund(id);
-}
-
-EXPORTIT float c_episode_end_dortmund(int id)
-{
-    return episode_end_dortmund(id);
-}
-
-EXPORTIT int c_getStep_dortmund(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
-{
-    return getStep_dortmund(id, agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
-}
-
-EXPORTIT void c_init_agent_eisenach(int id)
-{
-    init_agent_eisenach(id);
-}
-
-EXPORTIT float c_episode_end_eisenach(int id)
-{
-    return episode_end_eisenach(id);
-}
-
-EXPORTIT int c_getStep_eisenach(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, int posx, int posy, int blast_strength, bool can_kick, int ammo, int teammate_id)
-{
-    return getStep_eisenach(id, agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, posx, posy, blast_strength, can_kick, ammo, teammate_id);
-}
 
 EXPORTIT void c_init_agent_frankfurt(int id)
 {
@@ -1205,6 +1061,26 @@ EXPORTIT int c_getStep_frankfurt(int id, bool agent0Alive, bool agent1Alive, boo
 EXPORTIT int c_getMessage_frankfurt(int id, int messagePart)
 {
     return getMessage_frankfurt(id, messagePart);
+}
+
+
+EXPORTIT void c_init_agent_gottingen(int id)
+{
+    init_agent_gottingen(id);
+}
+
+EXPORTIT float c_episode_end_gottingen(int id)
+{
+    return episode_end_gottingen(id);
+}
+
+EXPORTIT int c_getStep_gottingen(int id, bool agent0Alive, bool agent1Alive, bool agent2Alive, bool agent3Alive, uint8_t * board, double * bomb_life, double * bomb_blast_strength, double * bomb_moving_direction, double * flame_life, int posx, int posy, int blast_strength, bool can_kick, int ammo, int game_type, int teammate_id, int message1, int message2)
+{
+    return getStep_gottingen(id, agent0Alive, agent1Alive, agent2Alive, agent3Alive, board, bomb_life, bomb_blast_strength, bomb_moving_direction, flame_life, posx, posy, blast_strength, can_kick, ammo, game_type, teammate_id, message1, message2);
+}
+EXPORTIT int c_getMessage_gottingen(int id, int messagePart)
+{
+    return getMessage_gottingen(id, messagePart);
 }
 
 }
